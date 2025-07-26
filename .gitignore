@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+build/
+dist/
+*.egg-info/
+
+# VSCode
+.vscode/
+
+# Arduino/ESP32
+*.bin
+*.elf
+*.hex
+*.ino.*.d
+*.ino.*.o
+*.ino.*.a
+*.cpp.d
+*.cpp.o
+*.cpp.a
+*.sdf
+*.suo
+*.dep
+*.obj
+*.exe
+*.log
+*.tmp
+.DS_Store
+
+# PlatformIO
+.pio/
+
+# Mac/Linux
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini 
