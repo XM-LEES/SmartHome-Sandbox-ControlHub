@@ -1,8 +1,8 @@
 ### **GitHub 项目名称 & 描述**
 
 **项目名称**  
-**中文**：智能家居沙盘控制系统 (SmartHome-Sandbox-Control)  
-**英文**：SmartHome-Sandbox-Control  
+**中文**：智能家居沙盘控制系统 (SmartHome-Sandbox-Control-Hub)  
+**英文**：SmartHome-Sandbox-ControlHub 
 
 ---
 
