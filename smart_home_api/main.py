@@ -42,17 +42,24 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
     """
     处理设备控制API请求，并等待设备执行确认
     """
-    # 1. 生成一个唯一的correlation_id，用于匹配请求和响应
+    # 1. 使用设备注册表验证请求的合法性
+    if not is_valid_request(room_id, device_id, req.action):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid request: room, device, or action not recognized."
+        )
+
+    # 2. 生成一个唯一的correlation_id，用于匹配请求和响应
     correlation_id = str(uuid.uuid4())
     
-    # 2. 从RequestManager获取一个Event对象，用于等待设备执行确认
+    # 3. 从RequestManager获取一个Event对象，用于等待设备执行确认
     event = request_manager.start_request(correlation_id)
     
-    # 3. 根据API路径参数构造MQTT的Topic，用于发送命令和接收回执
+    # 4. 根据API路径参数构造MQTT的Topic，用于发送命令和接收回执
     command_topic = f"smarthome/{room_id}/{device_id}/command"
     state_topic = f"smarthome/{room_id}/{device_id}/state"
     
-    # 4. 构造要发送给设备的JSON命令，包括action、value和correlation_id
+    # 5. 构造要发送给设备的JSON命令，包括action、value和correlation_id
     payload = {
         "action": req.action,
         "value": req.value,
@@ -61,20 +68,31 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
 
     # 使用 try...finally 结构确保清理工作总能被执行
     try:
-        # 5. 临时订阅状态Topic，准备接收回执。必须在发布命令前订阅，以防错过快速的回执。
+        # 6. 临时订阅状态Topic，准备接收回执。必须在发布命令前订阅，以防错过快速的回执。
         mqtt_client.subscribe(state_topic)
         
-        # 6. 发布命令
+        # 7. 发布命令
         mqtt_client.publish(command_topic, json.dumps(payload))
 
-        # 7. 等待设备执行确认，如果设备在规定时间内没有响应，则抛出超时异常
+        # 8. 等待设备执行确认，如果设备在规定时间内没有响应，则抛出超时异常
         # 程序会在这里阻塞，直到event.set()被调用，或者超时
         await asyncio.wait_for(event.wait(), timeout=API_REQUEST_TIMEOUT)
 
-        # 8. 从RequestManager获取设备返回的结果
+        # 9. 从RequestManager获取设备返回的结果
         result = request_manager.get_result(correlation_id)
         
-        # 9. 返回一个成功的HTTP响应给客户端
+        # 10. 返回HTTP响应给客户端
+
+        # 当前超时可能由callback执行失败，直接返回引起，可考虑增加error字段信息区分
+        # TODO 502表示上游服务器（这里是设备）返回了无效响应
+        # if result and result.get("error"):
+        #     # 如果回执中包含错误信息
+        #     raise HTTPException(
+        #         status_code=status.HTTP_502_BAD_GATEWAY,
+        #         detail=f"Device reported an error: {result['error']}"
+        #     )
+
+        # 如果没有错误，正常返回成功响应
         return {"status": "success", "confirmed_result": result}
         
     except asyncio.TimeoutError:
@@ -85,5 +103,5 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
             detail="Device did not respond in time."
         )
     finally:
-        # 10. 取消订阅状态Topic，释放资源。这可以防止API服务不必要地接收该设备未来的所有状态更新
+        # 11. 取消订阅状态Topic，释放资源。这可以防止API服务不必要地接收该设备未来的所有状态更新
         mqtt_client.unsubscribe(state_topic)

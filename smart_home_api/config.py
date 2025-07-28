@@ -10,4 +10,4 @@ MQTT_BROKER_PORT = 1883
 # API 请求的超时时间（单位：秒）。
 # 如果 FastAPI 发出命令后，在这个时间内没有收到ESP32的执行回执，
 # 就会认为请求失败，并向客户端返回一个超时错误。
-API_REQUEST_TIMEOUT = 5
+API_REQUEST_TIMEOUT = 3

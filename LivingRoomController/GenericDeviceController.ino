@@ -1,4 +1,4 @@
-// LivingRoomController.ino
+// GenericDeviceController.ino
 // ESP32主程序，处理设备控制与通信逻辑。
 
 // 必要库引用
@@ -6,16 +6,14 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include "DeviceControl.h"
+#include "Node1Config.h"
 
 // WiFi配置，替换为实际的WiFi SSID和密码
 const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 // MQTT Broker配置，替换为实际的MQTT Broker地址（树莓派IP地址）
 const char* mqtt_server = "192.168.1.100";
-// 设备标识符，用于构建MQTT Topic，必须与上位机代码中的约定保持一致
-const char* room_id = "living_room";
-const char* light_device_id = "light";
-const char* ac_device_id = "ac";
+
 
 // --- 初始化客户端实例 ---
 WiFiClient espClient;
@@ -47,21 +45,19 @@ void reconnect() {
     // 循环尝试，直到重连成功
     while (!client.connected()) {
         Serial.print("Attempting MQTT connection...");
-        // 尝试连接到Broker，"LivingRoomController"是这个客户端的唯一ID
-        if (client.connect("LivingRoomController")) {
+        Serial.print(NODE_ID); Serial.print("'...");
+
+        // 尝试连接到Broker，NODE_ID是这个客户端的唯一ID
+        if (client.connect(NODE_ID)) {
             Serial.println("connected!");
-            // 连接成功后，必须重新订阅所有需要监听的命令Topic。
-            char command_topic[128];
-            
-            // 订阅客厅灯命令Topic
-            snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", room_id, light_device_id);
-            client.subscribe(command_topic);
-            Serial.print("Subscribed to: "); Serial.println(command_topic);
-            
-            // 订阅空调命令Topic
-            snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", room_id, ac_device_id);
-            client.subscribe(command_topic);
-            Serial.print("Subscribed to: "); Serial.println(command_topic);
+
+            // 动态订阅所有设备的command topic
+            for (int i = 0; i < DEVICE_COUNT; i++) {
+                char command_topic[128];
+                snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", devices[i].room_id, devices[i].device_id);
+                client.subscribe(command_topic);
+                Serial.print("Subscribed to: "); Serial.println(command_topic);
+            }
         } else {
             Serial.print("failed, rc=");
             Serial.print(client.state()); // 打印失败原因代码
@@ -77,7 +73,7 @@ void reconnect() {
  * @param state 状态字符串，"ON"或"OFF"等
  * @param correlation_id 关联ID，从命令中收到的原始ID用于匹配请求和响应
  */
-void publish_state(const char* device_id, const char* state, const char* correlation_id) {
+void publish_state(const char* room_id, const char* device_id, const char* state, const char* correlation_id) {
     // 构造状态Topic的字符串
     char state_topic[128];
     snprintf(state_topic, sizeof(state_topic), "smarthome/%s/%s/state", room_id, device_id);
@@ -95,7 +91,8 @@ void publish_state(const char* device_id, const char* state, const char* correla
 
     // 发布回执消息
     client.publish(state_topic, buffer, n);
-    Serial.print("Published state to "); Serial.print(state_topic);
+    Serial.print("Published state to "); 
+    Serial.print(state_topic);
     Serial.print(": "); Serial.println(buffer);
 }
 
@@ -114,7 +111,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // 使用ArduinoJson解析收到的JSON payload
     StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, payload, length);
-
     // 如果JSON解析失败，则直接返回，不处理
     if (error) {
         Serial.print("deserializeJson() failed: ");
@@ -126,38 +122,45 @@ void callback(char* topic, byte* payload, unsigned int length) {
     const char* action = doc["action"];
     int value = doc["value"] | 0; // 如果"value"不存在，则默认为0
     const char* correlation_id = doc["correlation_id"];
+    
+    if (!action || !correlation_id) {
+        Serial.println("Error: 'action' or 'correlation_id' missing.");
+        return;
+    }
 
     // --- 核心决策逻辑 ---
-    // 通过比较topic字符串，判断要控制哪个设备
-    char light_command_topic[128];
-    snprintf(light_command_topic, sizeof(light_command_topic), "smarthome/%s/%s/command", room_id, light_device_id);
-    char ac_command_topic[128];
-    snprintf(ac_command_topic, sizeof(ac_command_topic), "smarthome/%s/%s/command", room_id, ac_device_id);
-    if (strcmp(topic, light_command_topic) == 0) {
-        // 控制灯的命令
-        if (strcmp(action, "ON") == 0) {
-            control_light(true); // 调用HAL函数开灯
-            publish_state(light_device_id, "ON", correlation_id); // 发送“已打开”的回执
-        } else if (strcmp(action, "OFF") == 0) {
-            control_light(false); // 调用HAL函数关灯
-            publish_state(light_device_id, "OFF", correlation_id); // 发送“已关闭”的回执
-        }
-    } 
-    else if (strcmp(topic, ac_command_topic) == 0) {
-        // 控制空调的命令
-        if (strcmp(action, "ON") == 0) {
-            control_ac(true, value); // 调用HAL函数开空调，并传入温度值
-            publish_state(ac_device_id, "ON", correlation_id);
-        } else if (strcmp(action, "OFF") == 0) {
-            control_ac(false, value); // 调用HAL函数关空调
-            publish_state(ac_device_id, "OFF", correlation_id);
-        }
+    // 语法: sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device);
+    // %[^/] 会匹配所有不是'/'的字符，直到遇到'/'或字符串末尾。
+    char room[32], device[32];
+    if (sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device) != 2) {
+        Serial.println("Error: Topic format does not match 'smarthome/{room}/{device}/command'");
+        return;
     }
-    // 扩展其他设备命令的逻辑
-    // 例如：
-    // if (strcmp(topic, other_command_topic) == 0) {
-    //     // 其他设备命令的逻辑
+
+    bool is_on = (strcmp(action, "ON") == 0);
+
+    // --- 将解析出的设备类型分发给对应的HAL函数 ---
+    if (strcmp(device, "light") == 0) {
+        control_light(room, is_on);
+    } else if (strcmp(device, "ac") == 0) {
+        control_ac(room, is_on, value);
+    } else if (strcmp(device, "hood") == 0) {
+        control_hood(room, is_on);
+    }
+    
+    // 添加其他设备类型的判断...
+    // else if (strcmp(device, "oven") == 0) {
+    //     control_oven(room, is_on);
     // }
+
+    else {
+        Serial.print("Warning: No control logic in .ino for device type '");
+        Serial.print(device); Serial.println("'");
+        return; // 未知设备类型，直接返回，不发送回执
+    }
+
+    // 如果上面的if/else块执行了，说明是已知设备，发送回执
+    publish_state(room, device, action, correlation_id);
 }
 
 /**
@@ -165,10 +168,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
  */
 void setup() {
     Serial.begin(115200);   // 启动串口，用于调试输出
-    setup_devices();      // 初始化硬件设备
-    setup_wifi();         // 连接WiFi
-    client.setServer(mqtt_server, 1883); // 设置MQTT Broker的地址
-    client.setCallback(callback);      // **注册核心的回调函数**
+    setup_devices();        // 初始化硬件设备
+    setup_wifi();           // 连接WiFi
+    client.setServer(mqtt_server, 1883);    // 设置MQTT Broker的地址
+    client.setCallback(callback);           // **注册核心的回调函数**
 }
 
 /**
