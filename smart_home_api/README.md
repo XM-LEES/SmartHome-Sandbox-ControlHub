@@ -119,9 +119,9 @@
     - smart_home_api 代码无需更改，直接连接 `localhost:1883` 即可。
 
 3.  启动服务:
+    在 SmartHome-Sandbox-ControlHub 根目录下运行 uvicorn，指定模块路径为 smart_home_api.main:app
     ```bash
-    # 在 SmartHome-Sandbox-ControlHub 根目录下运行 uvicorn，指定模块路径为 smart_home_api.main:app
-    uvicorn smart_home_api.main:app --reload
+    uvicorn smart_home_api.main:app --reload --host 0.0.0.0
     ```
 
 ## API 格式约定
