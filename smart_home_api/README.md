@@ -21,13 +21,61 @@
 - `device_registry.py`: 系统的“数字孪生”，定义所有合法设备及其操作。
 
 ## 启动方法
+
 1.  安装依赖:
     ```bash
     pip install -r requirements.txt
     ```
-2.  启动服务:
+
+2.  使用 Docker 运行 Mosquitto（MQTT Broker）:
+
+    本项目推荐使用 Docker 快速部署 Mosquitto 作为 MQTT Broker，无需在本机环境安装额外软件。
+
+    **前置条件**：
+    - 已安装 Docker（Windows 推荐 Docker Desktop）。
+
+    **拉取官方 Mosquitto 镜像**：
     ```bash
-    uvicorn main:app --reload
+    docker pull eclipse-mosquitto
+    ```
+
+    **启动 Mosquitto 容器**  
+    最简单方式（前台运行，便于查看日志）：
+    ```bash
+    docker run -it --name mosquitto -p 1883:1883 eclipse-mosquitto
+    ```
+    推荐方式（后台运行）：
+    ```bash
+    docker run -d --name mosquitto -p 1883:1883 eclipse-mosquitto
+    ```
+
+    **验证服务是否启动**：
+    ```bash
+    docker logs mosquitto
+    ```
+    出现 `Opening ipv4 listen socket on port 1883` 表示启动成功。
+
+    **常用管理命令**：
+    - 停止容器：
+      ```bash
+      docker stop mosquitto
+      ```
+    - 启动容器：
+      ```bash
+      docker start mosquitto
+      ```
+    - 删除容器：
+      ```bash
+      docker rm mosquitto
+      ```
+
+    **与本地代码配合**：
+    - smart_home_api 代码无需更改，直接连接 `localhost:1883` 即可。
+
+3.  启动服务:
+    ```bash
+    # 在 SmartHome-Sandbox-ControlHub 根目录下运行 uvicorn，指定模块路径为 smart_home_api.main:app
+    uvicorn smart_home_api.main:app --reload
     ```
 
 ## API 格式约定
