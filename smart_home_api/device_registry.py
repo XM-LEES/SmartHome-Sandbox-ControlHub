@@ -2,7 +2,7 @@
 # 系统的“数字孪生”，定义了所有物理设备的信息和能力
 
 DEVICE_REGISTRY = {
-    "living_room": {
+    "livingroom": {
         "light": {
             "type": "switch",
             "valid_actions": ["ON", "OFF"]

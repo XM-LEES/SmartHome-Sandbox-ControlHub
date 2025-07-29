@@ -8,20 +8,32 @@
 
 ### 发送设备控制请求
 
+linux:
 ```bash
 curl -X POST \
   http://127.0.0.1:8000/api/v1/devices/livingroom/light/action \
   -H "Content-Type: application/json" \
-  -d '{"action": "turn_on"}'
+  -d '{"action": "ON"}'
+```
+
+win cmd:
+```cmd
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/light/action -H "Content-Type: application/json" -d "{\"action\": \"ON\"}"
 ```
 
 ### 带参数请求示例
 
+linux：
 ```bash
 curl -X POST \
-  http://127.0.0.1:8000/api/v1/devices/livingroom/fan/action \
+  http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
   -H "Content-Type: application/json" \
-  -d '{"action": "set_speed", "value": 2}'
+  -d '{"action": "SET_TEMP", "value": "27"}'
+```
+
+win cmd:
+```cmd
+curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action -H "Content-Type: application/json" -d "{\"action\": \"SET_TEMP\", \"value\": \"27\"}"
 ```
 
 ---
