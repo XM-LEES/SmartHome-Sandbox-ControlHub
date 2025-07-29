@@ -11,6 +11,7 @@ from typing import Optional
 from .config import API_REQUEST_TIMEOUT
 from .mqtt_client import mqtt_client
 from .request_manager import request_manager
+from .device_registry import is_valid_request
 
 # 初始化FastAPI应用
 app = FastAPI(title="Smart Home API")
