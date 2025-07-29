@@ -27,47 +27,93 @@
     pip install -r requirements.txt
     ```
 
-2.  使用 Docker 运行 Mosquitto（MQTT Broker）:
+2. 配置并启动 Mosquitto MQTT Broker (使用 Docker)
 
-    本项目推荐使用 Docker 快速部署 Mosquitto 作为 MQTT Broker，无需在本机环境安装额外软件。
+    为了保证稳定运行和数据持久化，我们使用 Docker 配合自定义配置文件来启动 Mosquitto。
 
-    **前置条件**：
-    - 已安装 Docker（Windows 推荐 Docker Desktop）。
+    步骤1: 创建配置文件和目录
 
-    **拉取官方 Mosquitto 镜像**：
+    在项目目录或Home目录下，创建 Mosquitto 所需的文件夹结构。
+
     ```bash
-    docker pull eclipse-mosquitto
+    # 创建主目录
+    mkdir mosquitto
+    cd mosquitto
+
+    # 创建子目录
+    mkdir config data log
+
+    # 创建配置文件
+    nano config/mosquitto.conf
     ```
 
-    **启动 Mosquitto 容器**  
-    最简单方式（前台运行，便于查看日志）：
-    ```bash
-    docker run -it --name mosquitto -p 1883:1883 eclipse-mosquitto
-    ```
-    推荐方式（后台运行）：
-    ```bash
-    docker run -d --name mosquitto -p 1883:1883 eclipse-mosquitto
+    将以下内容粘贴到 `mosquitto.conf` 文件中并保存：
+
+    ```conf
+    # 持久化配置，将数据保存在 /mosquitto/data/ 目录
+    persistence true
+    persistence_location /mosquitto/data/
+
+    # 日志配置，将日志输出到 /mosquitto/log/ 目录下的文件
+    log_dest file /mosquitto/log/mosquitto.log
+    log_type all
+
+    # === 网络核心配置 ===
+    # 监听所有网络接口的1883端口，允许局域网设备（如ESP32）连接
+    listener 1883
+
+    # 允许匿名连接，方便设备在开发阶段接入
+    allow_anonymous true
     ```
 
-    **验证服务是否启动**：
-    ```bash
-    docker logs mosquitto
-    ```
-    出现 `Opening ipv4 listen socket on port 1883` 表示启动成功。
+    步骤2: 修复目录权限
 
-    **常用管理命令**：
-    - 停止容器：
-      ```bash
-      docker stop mosquitto
-      ```
-    - 启动容器：
-      ```bash
-      docker start mosquitto
-      ```
-    - 删除容器：
-      ```bash
-      docker rm mosquitto
-      ```
+    为了避免 Docker 容器内的用户无法写入主机目录，需要修复文件夹权限。
+
+    首先，找到你当前用户的 ID：
+    ```bash
+    id
+    ```
+    记下你的 `uid` 和 `gid` (通常都是 `1000`)。
+
+    然后，使用 `chown` 命令更改目录所有者（**可选，但推荐**），或者在`docker run`命令中使用`--user`参数。这里我们推荐后者。
+
+    步骤3: 启动 Mosquitto 容器
+
+    返回到 `mosquitto` 目录的上级目录，执行以下命令。**请将 `1000:1000`替换成你自己的 `uid:gid`**。
+
+    ```bash
+    # 使用 -v 挂载配置、数据和日志目录，并使用 --user 指定运行用户
+    docker run -d \
+      -p 1883:1883 \
+      -p 9001:9001 \
+      --name mosquitto \
+      --restart always \
+      --user 1000:1000 \
+      -v ./mosquitto/config:/mosquitto/config \
+      -v ./mosquitto/data:/mosquitto/data \
+      -v ./mosquitto/log:/mosquitto/log \
+      eclipse-mosquitto
+    ```
+    *   `--restart always`: 确保 Docker 服务重启或树莓派重启后，Mosquitto 容器能自动启动。
+    *   `-v ./mosquitto/...`: 从当前目录挂载，更具可移植性。
+
+    步骤4: 验证服务
+
+    ```bash
+    # 查看容器是否正在运行
+    docker ps
+
+    # 实时查看日志（如果需要排错）
+    tail -f ./mosquitto/log/mosquitto.log
+    ```
+    如果看到 `Opening ipv4 listen socket on port 1883`，则表示启动成功。
+
+    常用 Docker 管理命令
+    - 停止容器: `docker stop mosquitto`
+    - 启动已停止的容器: `docker start mosquitto`
+    - 查看日志: `docker logs mosquitto` 或 `tail -f ./mosquitto/log/mosquitto.log`
+    - 删除容器 (会保留数据卷): `docker rm mosquitto`
 
     **与本地代码配合**：
     - smart_home_api 代码无需更改，直接连接 `localhost:1883` 即可。

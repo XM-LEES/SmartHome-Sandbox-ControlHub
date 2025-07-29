@@ -9,11 +9,17 @@
 #include "DeviceControl.h"
 
 // WiFi配置，替换为实际的WiFi SSID和密码
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+const char* ssid = "PDCN";
+const char* password = "1234567890";
 // MQTT Broker配置，替换为实际的MQTT Broker地址（树莓派IP地址）
-const char* mqtt_server = "192.168.1.100";
+const char* mqtt_server = "192.168.123.210";
 
+
+// // WiFi配置，替换为实际的WiFi SSID和密码
+// const char* ssid = "YOUR_WIFI_SSID";
+// const char* password = "YOUR_WIFI_PASSWORD";
+// // MQTT Broker配置，替换为实际的MQTT Broker地址（树莓派IP地址）
+// const char* mqtt_server = "192.168.1.100";
 
 // --- 初始化客户端实例 ---
 WiFiClient espClient;
