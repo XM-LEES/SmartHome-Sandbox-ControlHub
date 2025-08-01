@@ -27,13 +27,19 @@
     pip install -r requirements.txt
     ```
 
-2. 配置并启动 Mosquitto MQTT Broker (使用 Docker)
+2. 配置并启动 Mosquitto MQTT Broker（使用 Docker）
 
     为了保证稳定运行和数据持久化，我们使用 Docker 配合自定义配置文件来启动 Mosquitto。
 
-    步骤1: 创建配置文件和目录
+    步骤1：拉取 Mosquitto 官方镜像
 
-    在项目目录或Home目录下，创建 Mosquitto 所需的文件夹结构。
+    ```bash
+    docker pull eclipse-mosquitto
+    ```
+
+    步骤2：创建配置文件和目录
+
+    在项目目录或 Home 目录下，创建 Mosquitto 所需的文件夹结构。
 
     ```bash
     # 创建主目录
@@ -66,7 +72,7 @@
     allow_anonymous true
     ```
 
-    步骤2: 修复目录权限
+    步骤3：修复目录权限
 
     为了避免 Docker 容器内的用户无法写入主机目录，需要修复文件夹权限。
 
@@ -74,13 +80,13 @@
     ```bash
     id
     ```
-    记下你的 `uid` 和 `gid` (通常都是 `1000`)。
+    记下你的 `uid` 和 `gid`（通常都是 `1000`）。
 
-    然后，使用 `chown` 命令更改目录所有者（**可选，但推荐**），或者在`docker run`命令中使用`--user`参数。这里我们推荐后者。
+    然后，使用 `chown` 命令更改目录所有者（**可选，但推荐**），或者在 `docker run` 命令中使用 `--user` 参数。这里我们推荐后者。
 
-    步骤3: 启动 Mosquitto 容器
+    步骤4：启动 Mosquitto 容器
 
-    返回到 `mosquitto` 目录的上级目录，执行以下命令。**请将 `1000:1000`替换成你自己的 `uid:gid`**。
+    返回到 `mosquitto` 目录的上级目录，执行以下命令。**请将 `1000:1000` 替换成你自己的 `uid:gid`**。
 
     ```bash
     # 使用 -v 挂载配置、数据和日志目录，并使用 --user 指定运行用户
@@ -95,10 +101,10 @@
       -v ./mosquitto/log:/mosquitto/log \
       eclipse-mosquitto
     ```
-    *   `--restart always`: 确保 Docker 服务重启或树莓派重启后，Mosquitto 容器能自动启动。
-    *   `-v ./mosquitto/...`: 从当前目录挂载，更具可移植性。
+    *   `--restart always`：确保 Docker 服务重启或树莓派重启后，Mosquitto 容器能自动启动。
+    *   `-v ./mosquitto/...`：从当前目录挂载，更具可移植性。
 
-    步骤4: 验证服务
+    步骤5：验证服务
 
     ```bash
     # 查看容器是否正在运行
@@ -113,7 +119,7 @@
     - 停止容器: `docker stop mosquitto`
     - 启动已停止的容器: `docker start mosquitto`
     - 查看日志: `docker logs mosquitto` 或 `tail -f ./mosquitto/log/mosquitto.log`
-    - 删除容器 (会保留数据卷): `docker rm mosquitto`
+    - 删除容器（会保留数据卷）: `docker rm mosquitto`
 
     **与本地代码配合**：
     - smart_home_api 代码无需更改，直接连接 `localhost:1883` 即可。
