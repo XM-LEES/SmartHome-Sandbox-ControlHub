@@ -8,7 +8,7 @@
 const char* NODE_ID = "ESP32_Node_1_Kitchen_Bathroom";
 
 // 1. 定义这个节点控制的设备总数
-#define DEVICE_COUNT 9
+#define DEVICE_COUNT 8
 
 // 2. 定义设备结构体，包含room_id，用于支持多个房间
 struct Device {
@@ -25,17 +25,17 @@ Device devices[DEVICE_COUNT] = {
     { "livingroom", "ac",    22 }, // 客厅空调
 
     // --- 卧室设备 ---
-    { "bedroom", "main_light", 20 }, // 卧室主灯
-    { "bedroom", "bedside_light", 21 }, // 卧室主灯
+    { "bedroom", "light", 20 }, // 卧室灯
+    { "bedroom", "bedside_light", 21 }, // 卧室床头灯
     { "bedroom", "ac",    19 }, // 卧室空调
 
     // --- 厨房设备 ---
     { "kitchen", "light", 18 }, // 厨房灯
     { "kitchen", "hood",  5 },  // 厨房油烟机
-    { "kitchen", "oven",  17 }, // 厨房烤箱
     
     // --- 卫生间设备 ---
-    { "bathroom", "light", 16 }  // 卫生间灯
+    { "bathroom", "light", 16 }, // 卫生间灯
+    { "bathroom", "fan",   17 }  // 卫生间排气扇
 };
 // ===============================================
 

@@ -94,6 +94,24 @@ void control_hood(const char* room_id, bool is_on) {
     }
 }
 
-// ... 可以根据需要，在这里添加更多 `control_` 系列函数，例如 control_oven, control_fan 等。
+/**
+ * @brief 控制指定房间的排气扇开关。
+ * @param room_id 排气扇所在的房间ID。
+ * @param is_on true为开，false为关。
+ */
+void control_fan(const char* room_id, bool is_on) {
+    int pin = find_pin(room_id, "fan"); // 硬编码device_id为"fan"
+    if (pin != -1) {
+        digitalWrite(pin, is_on ? HIGH : LOW);
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/fan' (Pin "); Serial.print(pin);
+        Serial.print(") turned "); Serial.println(is_on ? "ON" : "OFF");
+    } else {
+        Serial.print("[HAL-ERROR] Device 'fan' not found in room '");
+        Serial.print(room_id); Serial.println("' for this node's config!");
+    }
+}
+
+// ... 可以根据需要，在这里添加更多 `control_` 系列函数。
 
 #endif // DEVICE_CONTROL_H

@@ -13,13 +13,13 @@ DEVICE_REGISTRY = {
         }
     },
     "bedroom": {
-        "main_light": {
+        "light": {
             "type": "switch",
             "valid_actions": ["ON", "OFF"]
         },
         "bedside_light": {
-            "type": "dimmable_light",
-            "valid_actions": ["ON", "OFF", "SET_BRIGHTNESS"]
+            "type": "switch",
+            "valid_actions": ["ON", "OFF"]
         },
         "ac": {
             "type": "air_conditioner",
@@ -33,16 +33,16 @@ DEVICE_REGISTRY = {
         },
         "hood": {
             "type": "fan",
-            "valid_actions": ["ON", "OFF", "SET_SPEED"]
-        },
-        "oven": {
-            "type": "oven",
-            "valid_actions": ["START", "STOP", "SET_MODE"]
+            "valid_actions": ["ON", "OFF"]
         }
     },
     "bathroom": {
         "light": {
             "type": "switch",
+            "valid_actions": ["ON", "OFF"]
+        },
+        "fan": {
+            "type": "fan",
             "valid_actions": ["ON", "OFF"]
         }
     }

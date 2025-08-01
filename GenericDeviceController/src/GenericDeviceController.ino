@@ -152,13 +152,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
         control_ac(room, is_on, value);
     } else if (strcmp(device, "hood") == 0) {
         control_hood(room, is_on);
+    } else if (strcmp(device, "fan") == 0) {
+        control_fan(room, is_on);
+    } else if (strcmp(device, "bedside_light") == 0) {
+        control_light(room, is_on);
     }
-    
     // 添加其他设备类型的判断...
     // else if (strcmp(device, "oven") == 0) {
     //     control_oven(room, is_on);
-    // }
-
+    // } 
     else {
         Serial.print("Warning: No control logic in .ino for device type '");
         Serial.print(device); Serial.println("'");

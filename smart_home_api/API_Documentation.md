@@ -24,8 +24,8 @@
 
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
-| `main_light` | 主灯 | `ON`, `OFF` | 无需参数 |
-| `bedside_light` | 床头灯 | `ON`, `OFF`, `SET_BRIGHTNESS` | `SET_BRIGHTNESS`需要`value`参数(亮度0-100) |
+| `light` | 灯 | `ON`, `OFF` | 无需参数 |
+| `bedside_light` | 床头灯 | `ON`, `OFF` | 无需参数 |
 | `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `SET_TEMP`需要`value`参数(温度值) |
 
 ### 厨房设备 (kitchen)
@@ -33,14 +33,14 @@
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
 | `light` | 厨房灯 | `ON`, `OFF` | 无需参数 |
-| `hood` | 抽油烟机 | `ON`, `OFF`, `SET_SPEED` | `SET_SPEED`需要`value`参数(速度等级) |
-| `oven` | 烤箱 | `START`, `STOP`, `SET_MODE` | `SET_MODE`需要`value`参数(模式编号) |
+| `hood` | 油烟机 | `ON`, `OFF` | 无需参数 |
 
 ### 浴室设备 (bathroom)
 
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
 | `light` | 浴室灯 | `ON`, `OFF` | 无需参数 |
+| `fan` | 排气扇 | `ON`, `OFF` | 无需参数 |
 
 ---
 
@@ -78,8 +78,8 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/light/action \
   -H "Content-Type: application/json" \
   -d '{"action": "ON"}'
 
-# 关闭卧室主灯
-curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/main_light/action \
+# 关闭卧室灯
+curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/light/action \
   -H "Content-Type: application/json" \
   -d '{"action": "OFF"}'
 ```
@@ -92,15 +92,20 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
   -H "Content-Type: application/json" \
   -d '{"action": "SET_TEMP", "value": 25}'
 
-# 设置床头灯亮度为80%
+# 打开卧室床头灯
 curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/bedside_light/action \
   -H "Content-Type: application/json" \
-  -d '{"action": "SET_BRIGHTNESS", "value": 80}'
+  -d '{"action": "ON"}'
 
-# 设置抽油烟机速度为3级
+# 打开厨房油烟机
 curl -X POST http://127.0.0.1:8000/api/v1/devices/kitchen/hood/action \
   -H "Content-Type: application/json" \
-  -d '{"action": "SET_SPEED", "value": 3}'
+  -d '{"action": "ON"}'
+
+# 打开浴室排气扇
+curl -X POST http://127.0.0.1:8000/api/v1/devices/bathroom/fan/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "ON"}'
 ```
 
 ---
