@@ -53,14 +53,16 @@ SmartHome-Sandbox-ControlHub/
 │   ├── device_registry.py            # 设备注册表
 │   ├── config.py                     # 配置文件
 │   ├── requirements.txt              # Python依赖
-│   ├── fastapi_test.md               # API测试指南
+│   ├── API_Documentation.md          # API文档和测试指南
 │   └── README.md                     # API服务文档
 ├── GenericDeviceController/          # ESP32通用设备控制器
 │   ├── platformio.ini               # PlatformIO配置
 │   └── src/
 │       ├── GenericDeviceController.ino  # 主程序
+│       ├── Config.h                     # WiFi和MQTT配置
 │       ├── DeviceControl.h              # 设备控制抽象层
 │       ├── Node1Config.h                # 节点配置示例
+│       ├── Device_Mapping.md            # 设备引脚映射文档
 │       └── README.md                    # 固件文档
 └── README.md                         # 项目说明文档
 ```
@@ -104,7 +106,8 @@ uvicorn smart_home_api.main:app --reload --host 0.0.0.0 --port 8000
 ```bash
 # 使用PlatformIO或Arduino IDE
 cd GenericDeviceController
-# 修改src/Node1Config.h中的WiFi和MQTT配置
+# 修改src/Config.h中的WiFi和MQTT配置
+# 修改src/Node1Config.h中的设备引脚配置
 # 编译并上传到ESP32
 ```
 
@@ -121,13 +124,10 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
   -H "Content-Type: application/json" \
   -d '{"action": "SET_TEMP", "value": 25}'
 
-# 设置床头灯亮度
-curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/bedside_light/action \
-  -H "Content-Type: application/json" \
-  -d '{"action": "SET_BRIGHTNESS", "value": 80}'
+
 ```
 
-更多API测试示例请参考 [fastapi_test.md](smart_home_api/fastapi_test.md)
+更多API测试示例请参考 [API_Documentation.md](smart_home_api/API_Documentation.md)
 
 ---
 
@@ -135,7 +135,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/bedside_light/action \
 
 ### API接口文档
 - **在线文档**: 启动服务后访问 http://127.0.0.1:8000/docs
-- **测试指南**: [smart_home_api/fastapi_test.md](smart_home_api/fastapi_test.md)
+- **测试指南**: [smart_home_api/API_Documentation.md](smart_home_api/API_Documentation.md)
 - **API服务文档**: [smart_home_api/README.md](smart_home_api/README.md)
 
 ### 设备通信协议
@@ -145,7 +145,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/bedside_light/action \
 
 ### 支持的设备类型
 - **客厅**: 灯光(ON/OFF), 空调(ON/OFF/SET_TEMP)
-- **卧室**: 主灯(ON/OFF), 床头灯(ON/OFF/SET_BRIGHTNESS), 空调(ON/OFF/SET_TEMP)
+- **卧室**: 主灯(ON/OFF), 床头灯(ON/OFF), 空调(ON/OFF/SET_TEMP)
 - **厨房**: 灯光(ON/OFF), 抽油烟机(ON/OFF/SET_SPEED), 烤箱(START/STOP/SET_MODE)
 - **浴室**: 灯光(ON/OFF)
 

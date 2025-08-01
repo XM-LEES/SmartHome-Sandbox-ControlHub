@@ -5,21 +5,9 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include "Config.h"
 #include "Node1Config.h"
 #include "DeviceControl.h"
-
-// WiFi配置，替换为实际的WiFi SSID和密码
-const char* ssid = "PDCN";
-const char* password = "1234567890";
-// MQTT Broker配置，替换为实际的MQTT Broker地址（树莓派IP地址）
-const char* mqtt_server = "192.168.123.210";
-
-
-// // WiFi配置，替换为实际的WiFi SSID和密码
-// const char* ssid = "YOUR_WIFI_SSID";
-// const char* password = "YOUR_WIFI_PASSWORD";
-// // MQTT Broker配置，替换为实际的MQTT Broker地址（树莓派IP地址）
-// const char* mqtt_server = "192.168.1.100";
 
 // --- 初始化客户端实例 ---
 WiFiClient espClient;
@@ -32,8 +20,8 @@ void setup_wifi() {
     delay(10);
     Serial.println();
     Serial.print("Connecting to WiFi: ");
-    Serial.println(ssid);
-    WiFi.begin(ssid, password);
+    Serial.println(WIFI_SSID);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     // 循环等待，直到WiFi连接成功
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -229,6 +217,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
         float temp_value = read_temp_sensor(room);
         Serial.print("[HAL] '"); Serial.print(room);
         Serial.print("/temp_sensor' read: "); Serial.print(temp_value); Serial.println("°C");
+        
+        // 检查传感器读取是否成功
+        if (temp_value == -999.0) {
+            // 传感器读取失败，发送错误回执
+            publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Temperature sensor read failed");
+            return;
+        }
+        
         // 发送包含传感器数据的回执
         publish_sensor_state(room, device, "READ", correlation_id, temp_value, "°C");
         return; // 已经发送回执，直接返回
@@ -237,6 +233,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
         float humidity_value = read_humidity_sensor(room);
         Serial.print("[HAL] '"); Serial.print(room);
         Serial.print("/humidity_sensor' read: "); Serial.print(humidity_value); Serial.println("%");
+        
+        // 检查传感器读取是否成功
+        if (humidity_value == -999.0) {
+            // 传感器读取失败，发送错误回执
+            publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Humidity sensor read failed");
+            return;
+        }
+        
         // 发送包含传感器数据的回执
         publish_sensor_state(room, device, "READ", correlation_id, humidity_value, "%");
         return; // 已经发送回执，直接返回
@@ -269,7 +273,7 @@ void setup() {
     Serial.begin(115200);   // 启动串口，用于调试输出
     setup_devices();        // 初始化硬件设备
     setup_wifi();           // 连接WiFi
-    client.setServer(mqtt_server, 1883);    // 设置MQTT Broker的地址
+    client.setServer(MQTT_SERVER, MQTT_PORT);    // 设置MQTT Broker的地址
     client.setCallback(callback);           // **注册核心的回调函数**
 }
 

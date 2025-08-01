@@ -94,28 +94,21 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
 
         # 根据设备类型返回不同的响应格式
         if device_id in ["temp_sensor", "humidity_sensor"] and req.action == "READ":
-            # 传感器读取响应 - 检查数据完备性
+            # 传感器读取响应 - 数据应该总是完备的，因为下位机会处理错误情况
             if result and "value" in result and "unit" in result:
-                # 数据完备，返回精简的传感器数据
                 sensor_data = {
                     "value": result["value"],
                     "unit": result["unit"]
                 }
+                return {"status": "success", "sensor_data": sensor_data}
             else:
-                # 数据不完备，返回默认值
-                if device_id == "temp_sensor":
-                    sensor_data = {
-                        "value": 24.5,
-                        "unit": "°C"
-                    }
-                elif device_id == "humidity_sensor":
-                    sensor_data = {
-                        "value": 45.2,
-                        "unit": "%"
-                    }
-            return {"status": "success", "sensor_data": sensor_data}
+                # 如果数据不完备，说明有意外情况，返回错误
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail="Sensor data incomplete or malformed"
+                )
         else:
-            # 普通设备响应 - 不需要检查数据完备性
+            # 普通设备响应
             return {"status": "success", "confirmed_result": result}
         
     except asyncio.TimeoutError:

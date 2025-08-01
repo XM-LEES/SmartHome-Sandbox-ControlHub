@@ -1,5 +1,17 @@
 # 智能家居控制系统 API 文档
 
+## 目录
+
+- [概述](#概述)
+- [设备配置](#设备配置)
+- [API 接口](#api-接口)
+- [请求示例](#请求示例)
+- [响应格式](#响应格式)
+- [错误处理](#错误处理)
+- [使用指南](#使用指南)
+
+---
+
 ## 概述
 
 本文档描述了智能家居沙盘演示系统的API接口规范。系统采用RESTful API设计，通过MQTT协议与下位机设备进行异步通信，支持可靠的闭环控制。
@@ -11,9 +23,22 @@
 
 ---
 
-## 设备列表
 
-### 客厅设备 (livingroom)
+## 设备配置
+
+### 设备类型概览
+
+| 房间 | 设备数量 | 设备类型 |
+|------|----------|----------|
+| 客厅 (livingroom) | 4个 | 灯、空调、温度传感器、湿度传感器 |
+| 卧室 (bedroom) | 5个 | 灯、床头灯、空调、温度传感器、湿度传感器 |
+| 厨房 (kitchen) | 4个 | 灯、油烟机、温度传感器、湿度传感器 |
+| 浴室 (bathroom) | 4个 | 灯、排气扇、温度传感器、湿度传感器 |
+| 室外 (outdoor) | 2个 | 温度传感器、湿度传感器 |
+
+### 详细设备列表
+
+#### 客厅设备 (livingroom)
 
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
@@ -22,7 +47,7 @@
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
-### 卧室设备 (bedroom)
+#### 卧室设备 (bedroom)
 
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
@@ -32,7 +57,7 @@
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
-### 厨房设备 (kitchen)
+#### 厨房设备 (kitchen)
 
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
@@ -41,7 +66,7 @@
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
-### 浴室设备 (bathroom)
+#### 浴室设备 (bathroom)
 
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
@@ -50,7 +75,7 @@
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
-### 室外设备 (outdoor)
+#### 室外设备 (outdoor)
 
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
@@ -66,7 +91,7 @@
 **接口地址**: `POST /api/v1/devices/{room_id}/{device_id}/action`
 
 **路径参数**:
-- `room_id`: 房间ID (livingroom, bedroom, kitchen, bathroom)
+- `room_id`: 房间ID (livingroom, bedroom, kitchen, bathroom, outdoor)
 - `device_id`: 设备ID (参考设备列表)
 
 **请求体**:
@@ -97,15 +122,6 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/light/action \
 curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/light/action \
   -H "Content-Type: application/json" \
   -d '{"action": "OFF"}'
-```
-
-### 带参数操作
-
-```bash
-# 设置客厅空调温度为25度
-curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
-  -H "Content-Type: application/json" \
-  -d '{"action": "SET_TEMP", "value": 25}'
 
 # 打开卧室床头灯
 curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/bedside_light/action \
@@ -121,6 +137,30 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/kitchen/hood/action \
 curl -X POST http://127.0.0.1:8000/api/v1/devices/bathroom/fan/action \
   -H "Content-Type: application/json" \
   -d '{"action": "ON"}'
+
+# 打开客厅空调
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "ON"}'
+
+# 关闭卧室空调
+curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "OFF"}'
+```
+
+### 带参数操作
+
+```bash
+# 设置客厅空调温度为25度
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "SET_TEMP", "value": 25}'
+
+# 设置卧室空调温度为23度
+curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "SET_TEMP", "value": 23}'
 ```
 
 ### 传感器读取操作
@@ -136,17 +176,46 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/humidity_sensor/action
   -H "Content-Type: application/json" \
   -d '{"action": "READ"}'
 
-# 读取室外温度传感器
-curl -X POST http://127.0.0.1:8000/api/v1/devices/outdoor/temp_sensor/action \
+# 读取厨房温度传感器
+curl -X POST http://127.0.0.1:8000/api/v1/devices/kitchen/temp_sensor/action \
   -H "Content-Type: application/json" \
   -d '{"action": "READ"}'
+
+# 读取室外湿度传感器
+curl -X POST http://127.0.0.1:8000/api/v1/devices/outdoor/humidity_sensor/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "READ"}'
+```
+
+### 错误请求示例
+
+```bash
+# 无效房间ID
+curl -X POST http://127.0.0.1:8000/api/v1/devices/invalid_room/light/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "ON"}'
+
+# 无效设备ID
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/invalid_device/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "ON"}'
+
+# 无效操作
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/light/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "INVALID_ACTION"}'
+
+# 缺少必需参数
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "SET_TEMP"}'
 ```
 
 ---
 
 ## 响应格式
 
-### 设备操作成功响应 (HTTP 200)
+### 设备操作响应 (HTTP 200)
 
 ```json
 {
@@ -180,7 +249,20 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/outdoor/temp_sensor/action \
 - `sensor_data.value`: 传感器数值
 - `sensor_data.unit`: 数值单位
 
-### 错误响应
+---
+
+## 错误处理
+
+### 错误码对照表
+
+| HTTP状态码 | 错误类型 | 说明 | 解决方案 |
+|------------|----------|------|----------|
+| 200 | 成功 | 设备操作成功执行 | - |
+| 400 | 请求错误 | 房间、设备或操作参数无效 | 检查请求参数是否正确 |
+| 502 | 设备错误 | 设备返回错误状态 | 检查设备配置和状态 |
+| 504 | 网关超时 | 设备未在3秒内响应 | 检查设备是否在线，网络是否正常 |
+
+### 错误响应示例
 
 #### 400 Bad Request - 无效请求
 ```json
@@ -211,6 +293,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/outdoor/temp_sensor/action \
 - `MISSING_REQUIRED_FIELDS`: 缺少必需字段
 - `UNKNOWN_DEVICE_TYPE`: 未知设备类型
 - `DEVICE_NOT_FOUND`: 设备在当前节点配置中不存在
+- `SENSOR_READ_ERROR`: 传感器读取失败
 
 #### 504 Gateway Timeout - 设备超时
 ```json
@@ -226,36 +309,17 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/outdoor/temp_sensor/action \
 
 ---
 
-## 错误码对照表
+## 使用指南
 
-| HTTP状态码 | 错误类型 | 说明 | 解决方案 |
-|------------|----------|------|----------|
-| 200 | 成功 | 设备操作成功执行 | - |
-| 400 | 请求错误 | 房间、设备或操作参数无效 | 检查请求参数是否正确 |
-| 502 | 设备错误 | 设备返回错误状态 | 检查设备配置和状态 |
-| 504 | 网关超时 | 设备未在3秒内响应 | 检查设备是否在线，网络是否正常 |
-
----
-
-## 使用注意事项
-
-1. **超时机制**: 系统采用3秒超时机制，确保快速响应
-2. **闭环控制**: 所有操作都会等待设备确认，确保操作可靠性
-3. **参数验证**: 系统会自动验证房间、设备和操作的合法性
-4. **异步通信**: 基于MQTT的异步通信，支持高并发处理
-
----
-
-## 在线测试
+### 在线测试
 
 访问 `http://127.0.0.1:8000/docs` 可查看自动生成的Swagger API文档并进行在线测试。
 
----
+### 故障排除
 
-## 技术支持
+如遇问题，请按以下顺序检查：
 
-如有问题，请检查：
-1. FastAPI服务是否正常运行
-2. MQTT Broker是否已启动
-3. 设备是否在线并正常连接
-4. 网络连接是否正常 
+1. **网络连接**: 确认网络连接是否正常
+2. **FastAPI服务**: 确认服务是否正常运行
+3. **MQTT Broker**: 确认MQTT服务器是否已启动
+4. **设备连接**: 确认下位机设备是否正常连接
