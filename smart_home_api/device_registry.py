@@ -11,6 +11,18 @@ DEVICE_REGISTRY = {
             "type": "air_conditioner",
             "valid_actions": ["ON", "OFF", "SET_TEMP"]
         },
+        "window": {
+            "type": "servo",
+            "valid_actions": ["ON", "OFF"]
+        },
+        "door": {
+            "type": "servo",
+            "valid_actions": ["ON", "OFF"]
+        },
+        "curtain": {
+            "type": "motor",
+            "valid_actions": ["ON", "OFF"]
+        },
         "temp_sensor": {
             "type": "sensor",
             "valid_actions": ["READ"]
@@ -32,6 +44,18 @@ DEVICE_REGISTRY = {
         "ac": {
             "type": "air_conditioner",
             "valid_actions": ["ON", "OFF", "SET_TEMP"]
+        },
+        "window": {
+            "type": "servo",
+            "valid_actions": ["ON", "OFF"]
+        },
+        "door": {
+            "type": "servo",
+            "valid_actions": ["ON", "OFF"]
+        },
+        "curtain": {
+            "type": "motor",
+            "valid_actions": ["ON", "OFF"]
         },
         "temp_sensor": {
             "type": "sensor",
@@ -67,6 +91,10 @@ DEVICE_REGISTRY = {
         },
         "fan": {
             "type": "fan",
+            "valid_actions": ["ON", "OFF"]
+        },
+        "door": {
+            "type": "servo",
             "valid_actions": ["ON", "OFF"]
         },
         "temp_sensor": {

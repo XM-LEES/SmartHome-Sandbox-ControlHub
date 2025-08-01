@@ -10,29 +10,43 @@
 |------|--------|----------|----------|----------|------|
 | livingroom | light | 客厅灯 | control_light() | 23 | 开关控制 |
 | livingroom | ac | 客厅空调 | control_ac() | 22 | 支持温度设置 |
+| livingroom | window | 客厅窗户 | control_window() | 15 | 开关控制 |
+| livingroom | door | 客厅门 | control_door() | 14 | 开关控制 |
+| livingroom | curtain | 客厅窗帘 | control_curtain() | 10 | 开关控制 |
 | bedroom | light | 卧室灯 | control_light() | 20 | 开关控制 |
 | bedroom | bedside_light | 床头灯 | control_light() | 21 | 复用灯控制逻辑 |
 | bedroom | ac | 卧室空调 | control_ac() | 19 | 支持温度设置 |
+| bedroom | window | 卧室窗户 | control_window() | 13 | 开关控制 |
+| bedroom | door | 卧室门 | control_door() | 12 | 开关控制 |
+| bedroom | curtain | 卧室窗帘 | control_curtain() | 9 | 开关控制 |
 | kitchen | light | 厨房灯 | control_light() | 18 | 开关控制 |
 | kitchen | hood | 油烟机 | control_hood() | 5 | 开关控制 |
 | bathroom | light | 浴室灯 | control_light() | 16 | 开关控制 |
 | bathroom | fan | 排气扇 | control_fan() | 17 | 开关控制 |
+| bathroom | door | 浴室门 | control_door() | 11 | 开关控制 |
 
 ## 设备总数
 
-**总设备数量**: 8个
+**总设备数量**: 16个
 
 ## 房间分布
 
-- **客厅 (livingroom)**: 2个设备
-- **卧室 (bedroom)**: 3个设备  
+- **客厅 (livingroom)**: 5个设备
+- **卧室 (bedroom)**: 6个设备  
 - **厨房 (kitchen)**: 2个设备
-- **浴室 (bathroom)**: 2个设备
+- **浴室 (bathroom)**: 3个设备
 
 ## GPIO引脚分配
 
 ### 已使用的引脚
 - GPIO 5: 厨房油烟机
+- GPIO 9: 卧室窗帘
+- GPIO 10: 客厅窗帘
+- GPIO 11: 浴室门
+- GPIO 12: 卧室门
+- GPIO 13: 卧室窗户
+- GPIO 14: 客厅门
+- GPIO 15: 客厅窗户
 - GPIO 16: 浴室灯
 - GPIO 17: 浴室排气扇
 - GPIO 18: 厨房灯
@@ -77,6 +91,27 @@
   - room_id: 房间ID
   - is_on: true=开, false=关
 - **适用设备**: 排气扇（fan）
+
+### control_window(room_id, is_on)
+- **功能**: 控制窗户
+- **参数**:
+  - room_id: 房间ID
+  - is_on: true=开, false=关
+- **适用设备**: 窗户（window）
+
+### control_door(room_id, is_on)
+- **功能**: 控制门
+- **参数**:
+  - room_id: 房间ID
+  - is_on: true=开, false=关
+- **适用设备**: 门（door）
+
+### control_curtain(room_id, is_on)
+- **功能**: 控制窗帘
+- **参数**:
+  - room_id: 房间ID
+  - is_on: true=开, false=关
+- **适用设备**: 窗帘（curtain）
 
 ## MQTT Topic格式
 

@@ -207,6 +207,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
         control_success = control_fan(room, is_on);
     } else if (strcmp(device, "bedside_light") == 0) {
         control_success = control_light(room, is_on);
+    } else if (strcmp(device, "window") == 0) {
+        control_success = control_window(room, is_on);
+    } else if (strcmp(device, "door") == 0) {
+        control_success = control_door(room, is_on);
+    } else if (strcmp(device, "curtain") == 0) {
+        control_success = control_curtain(room, is_on);
     } 
     // 添加其他设备类型的判断...
     // else if (strcmp(device, "oven") == 0) {

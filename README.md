@@ -144,10 +144,10 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
 - **通信协议**: 基于JSON的请求-响应模式，支持correlation_id追踪
 
 ### 支持的设备类型
-- **客厅**: 灯光(ON/OFF), 空调(ON/OFF/SET_TEMP)
-- **卧室**: 主灯(ON/OFF), 床头灯(ON/OFF), 空调(ON/OFF/SET_TEMP)
-- **厨房**: 灯光(ON/OFF), 抽油烟机(ON/OFF/SET_SPEED), 烤箱(START/STOP/SET_MODE)
-- **浴室**: 灯光(ON/OFF)
+- **客厅**: 灯光(ON/OFF), 空调(ON/OFF/SET_TEMP), 窗户(ON/OFF), 门(ON/OFF), 窗帘(ON/OFF)
+- **卧室**: 主灯(ON/OFF), 床头灯(ON/OFF), 空调(ON/OFF/SET_TEMP), 窗户(ON/OFF), 门(ON/OFF), 窗帘(ON/OFF)
+- **厨房**: 灯光(ON/OFF), 抽油烟机(ON/OFF)
+- **浴室**: 灯光(ON/OFF), 排气扇(ON/OFF), 门(ON/OFF)
 
 ---
 

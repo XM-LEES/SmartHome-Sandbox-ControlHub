@@ -184,6 +184,69 @@ float read_humidity_sensor(const char* room_id) {
     }
 }
 
+/**
+ * @brief 控制指定房间的窗户开关。
+ * @param room_id 窗户所在的房间ID。
+ * @param is_on true为开，false为关。
+ * @return true表示成功，false表示失败
+ */
+bool control_window(const char* room_id, bool is_on) {
+    int pin = find_pin(room_id, "window"); // 硬编码device_id为"window"
+    if (pin != -1) {
+        digitalWrite(pin, is_on ? HIGH : LOW);
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/window' (Pin "); Serial.print(pin);
+        Serial.print(") turned "); Serial.println(is_on ? "ON" : "OFF");
+        return true; // 成功
+    } else {
+        Serial.print("[HAL-ERROR] Device 'window' not found in room '");
+        Serial.print(room_id); Serial.println("' for this node's config!");
+        return false; // 失败
+    }
+}
+
+/**
+ * @brief 控制指定房间的门开关。
+ * @param room_id 门所在的房间ID。
+ * @param is_on true为开，false为关。
+ * @return true表示成功，false表示失败
+ */
+bool control_door(const char* room_id, bool is_on) {
+    int pin = find_pin(room_id, "door"); // 硬编码device_id为"door"
+    if (pin != -1) {
+        digitalWrite(pin, is_on ? HIGH : LOW);
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/door' (Pin "); Serial.print(pin);
+        Serial.print(") turned "); Serial.println(is_on ? "ON" : "OFF");
+        return true; // 成功
+    } else {
+        Serial.print("[HAL-ERROR] Device 'door' not found in room '");
+        Serial.print(room_id); Serial.println("' for this node's config!");
+        return false; // 失败
+    }
+}
+
+/**
+ * @brief 控制指定房间的窗帘开关。
+ * @param room_id 窗帘所在的房间ID。
+ * @param is_on true为开，false为关。
+ * @return true表示成功，false表示失败
+ */
+bool control_curtain(const char* room_id, bool is_on) {
+    int pin = find_pin(room_id, "curtain"); // 硬编码device_id为"curtain"
+    if (pin != -1) {
+        digitalWrite(pin, is_on ? HIGH : LOW);
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/curtain' (Pin "); Serial.print(pin);
+        Serial.print(") turned "); Serial.println(is_on ? "ON" : "OFF");
+        return true; // 成功
+    } else {
+        Serial.print("[HAL-ERROR] Device 'curtain' not found in room '");
+        Serial.print(room_id); Serial.println("' for this node's config!");
+        return false; // 失败
+    }
+}
+
 // ... 可以根据需要，在这里添加更多 `control_` 系列函数。
 
 #endif // DEVICE_CONTROL_H
