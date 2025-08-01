@@ -103,6 +103,66 @@ void publish_state(const char* room_id, const char* device_id, const char* state
 }
 
 /**
+ * @brief 发布传感器状态，包含传感器数据
+ * @param room_id 房间ID
+ * @param device_id 传感器设备ID
+ * @param state 状态字符串，"READ"等
+ * @param correlation_id 关联ID
+ * @param value 传感器数值
+ * @param unit 单位
+ */
+void publish_sensor_state(const char* room_id, const char* device_id, const char* state, const char* correlation_id, float value, const char* unit) {
+    // 构造状态Topic的字符串
+    char state_topic[128];
+    snprintf(state_topic, sizeof(state_topic), "smarthome/%s/%s/state", room_id, device_id);
+
+    // 使用ArduinoJson创建一个JSON对象
+    StaticJsonDocument<256> doc;
+    doc["state"] = state;
+    doc["correlation_id"] = correlation_id;
+    doc["value"] = value;
+    doc["unit"] = unit;
+
+    // 将JSON对象序列化为字符串
+    char buffer[256];
+    size_t n = serializeJson(doc, buffer);
+
+    // 发布回执消息
+    client.publish(state_topic, buffer, n);
+    Serial.print("Published sensor state to "); 
+    Serial.print(state_topic);
+    Serial.print(": "); Serial.println(buffer);
+}
+
+/**
+ * @brief 发送错误回执给上位机
+ * @param room_id 房间ID
+ * @param device_id 设备ID
+ * @param correlation_id 请求关联ID
+ * @param error_code 错误代码
+ * @param error_message 错误描述
+ */
+void publish_error_state(const char* room_id, const char* device_id, const char* correlation_id, const char* error_code, const char* error_message) {
+    StaticJsonDocument<256> doc;
+    doc["state"] = "ERROR";
+    doc["correlation_id"] = correlation_id;
+    doc["error_code"] = error_code;
+    doc["error_message"] = error_message;
+    
+    char buffer[256];
+    serializeJson(doc, buffer);
+    
+    char state_topic[128];
+    snprintf(state_topic, sizeof(state_topic), "smarthome/%s/%s/state", room_id, device_id);
+    
+    Serial.print("Published error state to ");
+    Serial.print(state_topic);
+    Serial.print(": "); Serial.println(buffer);
+    
+    client.publish(state_topic, buffer);
+}
+
+/**
  * @brief MQTT消息回调函数。当任何已订阅的Topic收到消息时，此函数会被自动调用。
  *        这是整个下位机的“大脑”。
  * @param topic 收到消息的Topic名称
@@ -114,13 +174,23 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print("Message arrived on topic: ");
     Serial.println(topic);
 
+    // 解析Topic获取房间和设备信息
+    // 语法: sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device);
+    // %[^/] 会匹配所有不是'/'的字符，直到遇到'/'或字符串末尾。
+    char room[32], device[32];
+    if (sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device) != 2) {
+        Serial.println("Error: Topic format does not match 'smarthome/{room}/{device}/command'");
+        // 无法解析Topic，无法发送错误回执
+        return;
+    }
+
     // 使用ArduinoJson解析收到的JSON payload
     StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, payload, length);
-    // 如果JSON解析失败，则直接返回，不处理
     if (error) {
         Serial.print("deserializeJson() failed: ");
         Serial.println(error.c_str());
+        publish_error_state(room, device, "unknown", "JSON_PARSE_ERROR", "Invalid JSON format");
         return;
     }
 
@@ -131,32 +201,46 @@ void callback(char* topic, byte* payload, unsigned int length) {
     
     if (!action || !correlation_id) {
         Serial.println("Error: 'action' or 'correlation_id' missing.");
-        return;
-    }
-
-    // --- 核心决策逻辑 ---
-    // 语法: sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device);
-    // %[^/] 会匹配所有不是'/'的字符，直到遇到'/'或字符串末尾。
-    char room[32], device[32];
-    if (sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device) != 2) {
-        Serial.println("Error: Topic format does not match 'smarthome/{room}/{device}/command'");
+        publish_error_state(room, device, correlation_id ? correlation_id : "unknown", "MISSING_REQUIRED_FIELDS", "Missing required fields: action or correlation_id");
         return;
     }
 
     bool is_on = (strcmp(action, "ON") == 0);
 
     // --- 将解析出的设备类型分发给对应的HAL函数 ---
+    bool control_success = false;
     if (strcmp(device, "light") == 0) {
-        control_light(room, is_on);
+        control_success = control_light(room, is_on);
     } else if (strcmp(device, "ac") == 0) {
-        control_ac(room, is_on, value);
+        control_success = control_ac(room, is_on, value);
     } else if (strcmp(device, "hood") == 0) {
-        control_hood(room, is_on);
+        control_success = control_hood(room, is_on);
     } else if (strcmp(device, "fan") == 0) {
-        control_fan(room, is_on);
+        control_success = control_fan(room, is_on);
     } else if (strcmp(device, "bedside_light") == 0) {
-        control_light(room, is_on);
-    }
+        control_success = control_light(room, is_on);
+    } 
+    // 添加其他设备类型的判断...
+    // else if (strcmp(device, "oven") == 0) {
+    //     control_oven(room, is_on);
+    // } 
+    else if (strcmp(device, "temp_sensor") == 0) {
+        // 温度传感器读取操作
+        float temp_value = read_temp_sensor(room);
+        Serial.print("[HAL] '"); Serial.print(room);
+        Serial.print("/temp_sensor' read: "); Serial.print(temp_value); Serial.println("°C");
+        // 发送包含传感器数据的回执
+        publish_sensor_state(room, device, "READ", correlation_id, temp_value, "°C");
+        return; // 已经发送回执，直接返回
+    } else if (strcmp(device, "humidity_sensor") == 0) {
+        // 湿度传感器读取操作
+        float humidity_value = read_humidity_sensor(room);
+        Serial.print("[HAL] '"); Serial.print(room);
+        Serial.print("/humidity_sensor' read: "); Serial.print(humidity_value); Serial.println("%");
+        // 发送包含传感器数据的回执
+        publish_sensor_state(room, device, "READ", correlation_id, humidity_value, "%");
+        return; // 已经发送回执，直接返回
+    } 
     // 添加其他设备类型的判断...
     // else if (strcmp(device, "oven") == 0) {
     //     control_oven(room, is_on);
@@ -164,9 +248,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
     else {
         Serial.print("Warning: No control logic in .ino for device type '");
         Serial.print(device); Serial.println("'");
-        return; // 未知设备类型，直接返回，不发送回执
+        publish_error_state(room, device, correlation_id, "UNKNOWN_DEVICE_TYPE", "Device type not supported");
+        return; // 未知设备类型，发送错误回执
     }
 
+    // 检查设备控制是否成功
+    if (!control_success) {
+        publish_error_state(room, device, correlation_id, "DEVICE_NOT_FOUND", "Device not found in this node's configuration");
+        return;
+    }
+    
     // 如果上面的if/else块执行了，说明是已知设备，发送回执
     publish_state(room, device, action, correlation_id);
 }

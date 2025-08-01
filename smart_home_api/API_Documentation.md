@@ -19,6 +19,8 @@
 |--------|----------|----------|----------|
 | `light` | 开关灯 | `ON`, `OFF` | 无需参数 |
 | `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `SET_TEMP`需要`value`参数(温度值) |
+| `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
+| `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
 ### 卧室设备 (bedroom)
 
@@ -27,6 +29,8 @@
 | `light` | 灯 | `ON`, `OFF` | 无需参数 |
 | `bedside_light` | 床头灯 | `ON`, `OFF` | 无需参数 |
 | `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `SET_TEMP`需要`value`参数(温度值) |
+| `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
+| `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
 ### 厨房设备 (kitchen)
 
@@ -34,6 +38,8 @@
 |--------|----------|----------|----------|
 | `light` | 厨房灯 | `ON`, `OFF` | 无需参数 |
 | `hood` | 油烟机 | `ON`, `OFF` | 无需参数 |
+| `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
+| `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
 ### 浴室设备 (bathroom)
 
@@ -41,6 +47,15 @@
 |--------|----------|----------|----------|
 | `light` | 浴室灯 | `ON`, `OFF` | 无需参数 |
 | `fan` | 排气扇 | `ON`, `OFF` | 无需参数 |
+| `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
+| `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
+
+### 室外设备 (outdoor)
+
+| 设备ID | 设备类型 | 支持操作 | 参数说明 |
+|--------|----------|----------|----------|
+| `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
+| `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
 ---
 
@@ -108,11 +123,30 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bathroom/fan/action \
   -d '{"action": "ON"}'
 ```
 
+### 传感器读取操作
+
+```bash
+# 读取客厅温度传感器
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/temp_sensor/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "READ"}'
+
+# 读取卧室湿度传感器
+curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/humidity_sensor/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "READ"}'
+
+# 读取室外温度传感器
+curl -X POST http://127.0.0.1:8000/api/v1/devices/outdoor/temp_sensor/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "READ"}'
+```
+
 ---
 
 ## 响应格式
 
-### 成功响应 (HTTP 200)
+### 设备操作成功响应 (HTTP 200)
 
 ```json
 {
@@ -129,6 +163,23 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bathroom/fan/action \
 - `confirmed_result.state`: 设备确认的执行状态
 - `confirmed_result.correlation_id`: 请求关联ID，用于追踪
 
+### 传感器读取响应 (HTTP 200)
+
+```json
+{
+  "status": "success",
+  "sensor_data": {
+    "value": 24.5,
+    "unit": "°C"
+  }
+}
+```
+
+**传感器响应字段说明**:
+- `status`: 操作状态，成功时为"success"
+- `sensor_data.value`: 传感器数值
+- `sensor_data.unit`: 数值单位
+
 ### 错误响应
 
 #### 400 Bad Request - 无效请求
@@ -142,6 +193,24 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bathroom/fan/action \
 - 房间ID不存在
 - 设备ID不存在
 - 操作名称不支持
+
+#### 502 Bad Gateway - 设备错误
+```json
+{
+  "detail": "Device error: DEVICE_NOT_FOUND - Device not found in this node's configuration"
+}
+```
+
+**触发条件**:
+- 设备返回了错误状态
+- 设备不支持请求的操作
+- 设备配置错误
+
+**常见错误代码**:
+- `JSON_PARSE_ERROR`: JSON格式错误
+- `MISSING_REQUIRED_FIELDS`: 缺少必需字段
+- `UNKNOWN_DEVICE_TYPE`: 未知设备类型
+- `DEVICE_NOT_FOUND`: 设备在当前节点配置中不存在
 
 #### 504 Gateway Timeout - 设备超时
 ```json
@@ -163,6 +232,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bathroom/fan/action \
 |------------|----------|------|----------|
 | 200 | 成功 | 设备操作成功执行 | - |
 | 400 | 请求错误 | 房间、设备或操作参数无效 | 检查请求参数是否正确 |
+| 502 | 设备错误 | 设备返回错误状态 | 检查设备配置和状态 |
 | 504 | 网关超时 | 设备未在3秒内响应 | 检查设备是否在线，网络是否正常 |
 
 ---

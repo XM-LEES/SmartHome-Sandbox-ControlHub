@@ -10,6 +10,14 @@ DEVICE_REGISTRY = {
         "ac": {
             "type": "air_conditioner",
             "valid_actions": ["ON", "OFF", "SET_TEMP"]
+        },
+        "temp_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "humidity_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
         }
     },
     "bedroom": {
@@ -24,6 +32,14 @@ DEVICE_REGISTRY = {
         "ac": {
             "type": "air_conditioner",
             "valid_actions": ["ON", "OFF", "SET_TEMP"]
+        },
+        "temp_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "humidity_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
         }
     },
     "kitchen": {
@@ -34,6 +50,14 @@ DEVICE_REGISTRY = {
         "hood": {
             "type": "fan",
             "valid_actions": ["ON", "OFF"]
+        },
+        "temp_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "humidity_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
         }
     },
     "bathroom": {
@@ -44,6 +68,24 @@ DEVICE_REGISTRY = {
         "fan": {
             "type": "fan",
             "valid_actions": ["ON", "OFF"]
+        },
+        "temp_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "humidity_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        }
+    },
+    "outdoor": {
+        "temp_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "humidity_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
         }
     }
 }
