@@ -170,8 +170,9 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
 ### 常见问题
 1. **504 Gateway Timeout**: 设备未响应，检查ESP32连接状态
 2. **400 Bad Request**: 请求参数错误，检查room_id、device_id、action
-3. **MQTT连接失败**: 确认Mosquitto服务已启动
-4. **ESP32无法连接**: 检查WiFi配置和网络连接
+3. **502 Bad Gateway**: 设备返回错误状态，检查错误代码和描述
+4. **MQTT连接失败**: 确认Mosquitto服务已启动
+5. **ESP32无法连接**: 检查WiFi配置和网络连接
 
 ### 调试方法
 - 查看FastAPI日志: `uvicorn smart_home_api.main:app --log-level debug`

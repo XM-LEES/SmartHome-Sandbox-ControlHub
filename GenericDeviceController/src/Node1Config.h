@@ -8,7 +8,7 @@
 const char* NODE_ID = "ESP32_Node_1_Kitchen_Bathroom";
 
 // 1. 定义这个节点控制的设备总数
-#define DEVICE_COUNT 23
+#define DEVICE_COUNT 26
 
 // 2. 定义设备结构体，包含room_id，用于支持多个房间
 struct Device {

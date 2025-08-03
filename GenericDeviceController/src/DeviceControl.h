@@ -5,6 +5,7 @@
 #define DEVICE_CONTROL_H
 
 #include <Arduino.h>
+#include "SensorDataManager.h"
 // 依赖于主程序.ino先包含一个Node_X_Config.h文件，
 // 从而获得 `devices` 数组和 `DEVICE_COUNT` 宏的定义。
 
@@ -129,60 +130,7 @@ bool control_fan(const char* room_id, bool is_on) {
     }
 }
 
-/**
- * @brief 读取温度传感器数据（虚拟传感器）
- * @param room_id 传感器所在的房间ID。
- * @return 温度值（摄氏度），如果读取失败返回-999.0
- */
-float read_temp_sensor(const char* room_id) {
-    // 模拟传感器读取可能失败的情况
-    // 在实际应用中，这里应该检查传感器是否响应、数据是否有效等
-    if (random(100) < 5) { // 5%的概率模拟传感器故障
-        return -999.0; // 特殊值表示读取失败
-    }
-    
-    // 模拟不同房间的温度数据
-    if (strcmp(room_id, "livingroom") == 0) {
-        return 24.5 + random(-5, 6) * 0.1; // 24.0-25.0°C
-    } else if (strcmp(room_id, "bedroom") == 0) {
-        return 23.8 + random(-5, 6) * 0.1; // 23.3-24.4°C
-    } else if (strcmp(room_id, "kitchen") == 0) {
-        return 26.1 + random(-5, 6) * 0.1; // 25.6-26.7°C
-    } else if (strcmp(room_id, "bathroom") == 0) {
-        return 25.3 + random(-5, 6) * 0.1; // 24.8-25.9°C
-    } else if (strcmp(room_id, "outdoor") == 0) {
-        return 20.0 + random(-10, 11) * 0.1; // 19.0-21.1°C
-    } else {
-        return -999.0; // 未知房间，返回错误值
-    }
-}
 
-/**
- * @brief 读取湿度传感器数据（虚拟传感器）
- * @param room_id 传感器所在的房间ID。
- * @return 湿度值（百分比），如果读取失败返回-999.0
- */
-float read_humidity_sensor(const char* room_id) {
-    // 模拟传感器读取可能失败的情况
-    if (random(100) < 5) { // 5%的概率模拟传感器故障
-        return -999.0; // 特殊值表示读取失败
-    }
-    
-    // 模拟不同房间的湿度数据
-    if (strcmp(room_id, "livingroom") == 0) {
-        return 45.2 + random(-10, 11) * 0.2; // 43.2-47.4%
-    } else if (strcmp(room_id, "bedroom") == 0) {
-        return 48.5 + random(-10, 11) * 0.2; // 46.5-50.7%
-    } else if (strcmp(room_id, "kitchen") == 0) {
-        return 52.3 + random(-10, 11) * 0.2; // 50.3-54.5%
-    } else if (strcmp(room_id, "bathroom") == 0) {
-        return 65.8 + random(-10, 11) * 0.2; // 63.8-68.0%
-    } else if (strcmp(room_id, "outdoor") == 0) {
-        return 60.0 + random(-20, 21) * 0.2; // 56.0-64.2%
-    } else {
-        return -999.0; // 未知房间，返回错误值
-    }
-}
 
 /**
  * @brief 控制指定房间的窗户开关。

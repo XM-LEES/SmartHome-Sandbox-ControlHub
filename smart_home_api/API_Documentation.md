@@ -319,6 +319,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
 - `JSON_PARSE_ERROR`: JSON格式错误
 - `MISSING_REQUIRED_FIELDS`: 缺少必需字段
 - `UNKNOWN_DEVICE_TYPE`: 未知设备类型
+- `UNKNOWN_ROOM`: 未知房间ID
 - `DEVICE_NOT_FOUND`: 设备在当前节点配置中不存在
 - `SENSOR_READ_ERROR`: 传感器读取失败
 
