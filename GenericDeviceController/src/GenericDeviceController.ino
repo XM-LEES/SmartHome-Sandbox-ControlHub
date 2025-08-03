@@ -7,6 +7,7 @@
 #include <ArduinoJson.h>
 #include "Config.h"
 #include "Node1Config.h"
+// #include "Node2Config.h"
 #include "DeviceControl.h"
 #include "SensorDataManager.h"
 #include "UIController.h"
@@ -302,7 +303,11 @@ void setup() {
     Serial.begin(115200);   // 启动串口，用于调试输出
     setup_devices();        // 初始化硬件设备
     initSensorData();       // 初始化传感器数据
-    uiController.begin();   // 初始化UI控制器
+    
+    #if ENABLE_UI_DISPLAY
+    uiController.begin();   // 初始化UI控制器（仅在有UI硬件时）
+    #endif
+    
     setup_wifi();           // 连接WiFi
     client.setServer(MQTT_SERVER, MQTT_PORT);    // 设置MQTT Broker的地址
     client.setCallback(callback);           // **注册核心的回调函数**
@@ -312,8 +317,10 @@ void setup() {
  * @brief 主循环。
  */
 void loop() {
-    // 更新UI控制器（处理输入和显示）
+    #if ENABLE_UI_DISPLAY
+    // 更新UI控制器（处理输入和显示）- 仅在有UI硬件时
     uiController.update();
+    #endif
     
     // 检查MQTT是否还连接着，如果断了就尝试重连
     if (!client.connected()) {

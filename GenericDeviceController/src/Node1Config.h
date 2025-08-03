@@ -5,10 +5,19 @@
 
 // =================== 物理节点配置 ===================
 // 这个物理节点（ESP32）的唯一标识符，用于MQTT Client ID
-const char* NODE_ID = "ESP32_Node_1_Kitchen_Bathroom";
+const char* NODE_ID = "ESP32_Node_1";
 
-// 1. 定义这个节点控制的设备总数
-#define DEVICE_COUNT 26
+// =================== 硬件功能配置 ===================
+// 根据此节点的实际硬件情况启用/禁用功能模块
+#define ENABLE_UI_DISPLAY    false  // 此节点专注于物理设备控制，无UI组件
+
+// UI硬件引脚定义（此节点禁用UI）
+#if ENABLE_UI_DISPLAY
+// 此节点无UI硬件
+#endif
+
+// 1. 定义这个节点控制的设备总数（仅物理设备）
+#define DEVICE_COUNT 16
 
 // 2. 定义设备结构体，包含room_id，用于支持多个房间
 struct Device {
@@ -25,40 +34,28 @@ struct Device {
 // 系统使用字符串比较来匹配设备，任何不一致都会导致控制失败
 Device devices[DEVICE_COUNT] = {
     // --- 客厅设备 ---
-    { "livingroom", "light", 23, false }, // 客厅灯
-    { "livingroom", "ac",    22, false }, // 客厅空调
-    { "livingroom", "window", 15, false }, // 客厅窗户
-    { "livingroom", "door", 14, false }, // 客厅门
-    { "livingroom", "curtain", 10, false }, // 客厅窗帘
-    { "livingroom", "temp_sensor", 0, true }, // 客厅温度传感器（虚拟）
-    { "livingroom", "humidity_sensor", 0, true }, // 客厅湿度传感器（虚拟）
+    { "livingroom", "light", 22, false }, // 客厅灯
+    { "livingroom", "ac",    21, false }, // 客厅空调
+    { "livingroom", "window", 19, false }, // 客厅窗户
+    { "livingroom", "door", 17, false }, // 客厅门
+    { "livingroom", "curtain", 16, false }, // 客厅窗帘
 
     // --- 卧室设备 ---
-    { "bedroom", "light", 20, false }, // 卧室灯
-    { "bedroom", "bedside_light", 21, false }, // 卧室床头灯
-    { "bedroom", "ac",    19, false }, // 卧室空调
-    { "bedroom", "window", 13, false }, // 卧室窗户
-    { "bedroom", "door", 12, false }, // 卧室门
-    { "bedroom", "curtain", 9, false }, // 卧室窗帘
-    { "bedroom", "temp_sensor", 0, true }, // 卧室温度传感器（虚拟）
-    { "bedroom", "humidity_sensor", 0, true }, // 卧室湿度传感器（虚拟）
+    { "bedroom", "light", 4, false }, // 卧室灯
+    { "bedroom", "bedside_light", 2, false }, // 卧室床头灯
+    { "bedroom", "ac",    15, false }, // 卧室空调
+    { "bedroom", "window", 32, false }, // 卧室窗户
+    { "bedroom", "door", 33, false }, // 卧室门
+    { "bedroom", "curtain", 25, false }, // 卧室窗帘
 
     // --- 厨房设备 ---
-    { "kitchen", "light", 18, false }, // 厨房灯
-    { "kitchen", "hood",  5, false },  // 厨房油烟机
-    { "kitchen", "temp_sensor", 0, true }, // 厨房温度传感器（虚拟）
-    { "kitchen", "humidity_sensor", 0, true }, // 厨房湿度传感器（虚拟）
+    { "kitchen", "light", 26, false }, // 厨房灯
+    { "kitchen", "hood",  27, false },  // 厨房油烟机
     
     // --- 卫生间设备 ---
-    { "bathroom", "light", 16, false }, // 卫生间灯
-    { "bathroom", "fan",   17, false }, // 卫生间排气扇
-    { "bathroom", "door", 11, false }, // 卫生间门
-    { "bathroom", "temp_sensor", 0, true }, // 卫生间温度传感器（虚拟）
-    { "bathroom", "humidity_sensor", 0, true },  // 卫生间湿度传感器（虚拟）
-
-    // --- 室外设备 ---
-    { "outdoor", "temp_sensor", 0, true }, // 室外温度传感器（虚拟）
-    { "outdoor", "humidity_sensor", 0, true }  // 室外湿度传感器（虚拟）
+    { "bathroom", "light", 14, false }, // 卫生间灯
+    { "bathroom", "fan",   13, false }, // 卫生间排气扇
+    { "bathroom", "door", 12, false } // 卫生间门
 };
 // ===============================================
 

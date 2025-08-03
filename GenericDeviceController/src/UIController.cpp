@@ -1,3 +1,4 @@
+#include "Node2Config.h"  // 必须先包含配置文件定义ENABLE_UI_DISPLAY
 #include "UIController.h"
 
 // 全局实例指针
@@ -19,6 +20,7 @@ void IRAM_ATTR backButtonISR() {
     if (g_uiController) g_uiController->handleBackButtonInterrupt();
 }
 
+#if ENABLE_UI_DISPLAY
 UIController::UIController() 
     : tft(TFT_CS, TFT_DC, TFT_RST),
       currentState(STATE_OVERVIEW),
@@ -35,8 +37,18 @@ UIController::UIController()
       blinkState(false) {
     g_uiController = this;
 }
+#else
+UIController::UIController() {
+    g_uiController = this;
+}
+#endif
 
+#if ENABLE_UI_DISPLAY
 void UIController::begin() {
+    // 初始化背光控制
+    pinMode(TFT_BLK, OUTPUT);
+    digitalWrite(TFT_BLK, HIGH); // 打开背光
+    
     // 初始化SPI和TFT
     tft.initR(INITR_BLACKTAB);
     tft.setRotation(0); // 竖屏模式
@@ -46,7 +58,7 @@ void UIController::begin() {
     pinMode(EC11_A, INPUT_PULLUP);
     pinMode(EC11_B, INPUT_PULLUP);
     pinMode(EC11_SW, INPUT_PULLUP);
-    pinMode(BTN_BACK, INPUT_PULLUP);
+    pinMode(BTN_OK, INPUT_PULLUP);
     
     // 读取初始编码器状态
     lastEncoderA = digitalRead(EC11_A);
@@ -54,7 +66,7 @@ void UIController::begin() {
     // 设置中断
     attachInterrupt(digitalPinToInterrupt(EC11_A), encoderISR, CHANGE);
     attachInterrupt(digitalPinToInterrupt(EC11_SW), encoderSwitchISR, FALLING);
-    attachInterrupt(digitalPinToInterrupt(BTN_BACK), backButtonISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(BTN_OK), backButtonISR, FALLING);
     
     Serial.println("[UI] UIController initialized");
 }
@@ -498,3 +510,5 @@ void IRAM_ATTR UIController::handleBackButtonInterrupt() {
         lastPress = now;
     }
 }
+
+#endif // ENABLE_UI_DISPLAY

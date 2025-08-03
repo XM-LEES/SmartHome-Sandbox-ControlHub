@@ -2,24 +2,17 @@
 #define UI_CONTROLLER_H
 
 #include <Arduino.h>
+#include "SensorDataManager.h"
+
+// 只有在启用UI时才包含相关库和定义
+#if ENABLE_UI_DISPLAY
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
-#include "SensorDataManager.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// 硬件引脚定义
-#define TFT_CS    5
-#define TFT_RST   4  
-#define TFT_DC    2
-#define TFT_MOSI  23
-#define TFT_SCLK  18
-
-#define EC11_A    12
-#define EC11_B    14
-#define EC11_SW   27
-#define BTN_BACK  26
+// 硬件引脚定义现在从NodeConfig中获取
 
 // 屏幕尺寸
 #define SCREEN_WIDTH  128
@@ -36,7 +29,9 @@
 #define COLOR_MAGENTA   0xF81F
 #define COLOR_GRAY      0x8410
 
-// UI状态枚举
+#endif // ENABLE_UI_DISPLAY (包含库和定义)
+
+// UI状态枚举（总是需要，用于接口）
 enum UIState {
     STATE_OVERVIEW,     // 概览页
     STATE_BROWSE,       // 房间浏览模式
@@ -44,7 +39,7 @@ enum UIState {
     STATE_SETTINGS      // 系统设置页
 };
 
-// 传感器项目枚举
+// 传感器项目枚举（总是需要，用于接口）
 enum SensorItem {
     ITEM_TEMPERATURE = 0,   // 温度
     ITEM_HUMIDITY = 1       // 湿度
@@ -53,6 +48,8 @@ enum SensorItem {
 // 房间名称映射（声明）
 extern const char* ROOM_NAMES[];
 
+#if ENABLE_UI_DISPLAY
+// 完整的UI控制器实现（有硬件时）
 class UIController {
 private:
     Adafruit_ST7735 tft;
@@ -115,5 +112,26 @@ private:
 
 // 全局实例（用于中断处理）
 extern UIController* g_uiController;
+
+#else
+// 空实现（无硬件时）
+class UIController {
+public:
+    UIController();  // 显式声明构造函数
+    void begin() { 
+        Serial.println("[UI] UI disabled - no display hardware configured"); 
+    }
+    void update() { /* 什么都不做 */ }
+    
+    // 空的中断处理函数（保持接口一致性）
+    void IRAM_ATTR handleEncoderInterrupt() { /* 什么都不做 */ }
+    void IRAM_ATTR handleEncoderSwitchInterrupt() { /* 什么都不做 */ }
+    void IRAM_ATTR handleBackButtonInterrupt() { /* 什么都不做 */ }
+};
+
+// 空的全局实例
+extern UIController* g_uiController;
+
+#endif // ENABLE_UI_DISPLAY
 
 #endif // UI_CONTROLLER_H
