@@ -21,6 +21,8 @@ struct Device {
 // 3. 初始化此节点控制的所有设备列表
 // 需要将GPIO引脚号修改为你实际连接的引脚
 // 虚拟设备（传感器）的pin设为0，is_virtual设为true
+// ⚠️ 重要：设备ID必须与上位机device_registry.py保持完全一致！
+// 系统使用字符串比较来匹配设备，任何不一致都会导致控制失败
 Device devices[DEVICE_COUNT] = {
     // --- 客厅设备 ---
     { "livingroom", "light", 23, false }, // 客厅灯

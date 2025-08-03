@@ -1,7 +1,7 @@
 #include "SensorDataManager.h"
 
 // 全局变量定义
-RoomEnvironment rooms[5];
+RoomEnvironment rooms[MAX_ROOMS];
 
 /**
  * @brief 获取指定房间的传感器数据
@@ -9,7 +9,7 @@ RoomEnvironment rooms[5];
  * @return 传感器数据
  */
 SensorData getSensorData(RoomIndex room) {
-    if (room >= 0 && room < 5) {
+    if (room >= 0 && room < MAX_ROOMS) {
         return rooms[room].sensors;
     }
     // 返回错误数据
@@ -24,7 +24,7 @@ SensorData getSensorData(RoomIndex room) {
  * @param humidity 湿度值
  */
 void setSensorData(RoomIndex room, float temp, float humidity) {
-    if (room >= 0 && room < 5) {
+    if (room >= 0 && room < MAX_ROOMS) {
         rooms[room].sensors.temperature = temp;
         rooms[room].sensors.humidity = humidity;
         Serial.print("[SensorDataManager] Updated room ");
@@ -66,23 +66,28 @@ void initSensorData() {
     Serial.println("[SensorDataManager] Sensor data initialized successfully");
 }
 
+// 房间ID映射表 - 与Node1Config.h中的room_id保持一致
+static const struct {
+    const char* name;
+    RoomIndex index;
+} room_map[] = {
+    {"livingroom", LIVINGROOM},
+    {"bedroom", BEDROOM},
+    {"kitchen", KITCHEN},
+    {"bathroom", BATHROOM},
+    {"outdoor", OUTDOOR}
+};
+
 /**
  * @brief 根据房间ID字符串获取房间索引
  * @param room_id 房间ID字符串
  * @return 房间索引，如果未找到返回-1
  */
 int getRoomIndex(const char* room_id) {
-    if (strcmp(room_id, "livingroom") == 0) {
-        return LIVINGROOM;
-    } else if (strcmp(room_id, "bedroom") == 0) {
-        return BEDROOM;
-    } else if (strcmp(room_id, "kitchen") == 0) {
-        return KITCHEN;
-    } else if (strcmp(room_id, "bathroom") == 0) {
-        return BATHROOM;
-    } else if (strcmp(room_id, "outdoor") == 0) {
-        return OUTDOOR;
-    } else {
-        return -1; // 未知房间
+    for (int i = 0; i < MAX_ROOMS; i++) {
+        if (strcmp(room_id, room_map[i].name) == 0) {
+            return room_map[i].index;
+        }
     }
+    return -1; // 未知房间
 } 

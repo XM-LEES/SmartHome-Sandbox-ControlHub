@@ -12,6 +12,9 @@ enum RoomIndex {
     OUTDOOR = 4
 };
 
+// 房间数量常量
+#define MAX_ROOMS 5
+
 // 传感器数据结构
 struct SensorData {
     float temperature;    // 当前温度
@@ -26,7 +29,7 @@ struct RoomEnvironment {
 };
 
 // 全局变量声明
-extern RoomEnvironment rooms[5];
+extern RoomEnvironment rooms[MAX_ROOMS];
 
 // 接口函数声明
 /**
