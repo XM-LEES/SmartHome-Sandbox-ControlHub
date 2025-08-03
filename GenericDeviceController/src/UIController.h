@@ -12,7 +12,22 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// 硬件引脚定义现在从NodeConfig中获取
+// UI硬件引脚定义（内置在UIController中）
+// TFT屏幕引脚 (ST7735s)
+#define TFT_SCLK  18   // SCL - SPI时钟线 (D18, VSPI_CLK原生)
+#define TFT_MOSI  23   // SDA - SPI数据线 (D23, VSPI_MOSI原生)
+#define TFT_RST   15    // RES - 复位 (D15)
+#define TFT_DC    2    // DC  - 数据/命令选择 (D2)
+#define TFT_CS    5    // CS  - 片选 (D5, VSPI_CS原生)
+#define TFT_BLK   4   // BLK - 背光控制 (D4)
+
+// EC11旋钮编码器引脚
+#define EC11_A    12   // A   - 编码器A相
+#define EC11_B    14   // B   - 编码器B相
+#define EC11_SW   27   // PUSH- 编码器按键
+
+// 独立按键引脚
+#define BTN_OK    26   // KO  - OK确认按键
 
 // 屏幕尺寸
 #define SCREEN_WIDTH  128

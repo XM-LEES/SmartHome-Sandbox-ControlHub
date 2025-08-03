@@ -1,4 +1,3 @@
-#include "Node2Config.h"  // 必须先包含配置文件定义ENABLE_UI_DISPLAY
 #include "UIController.h"
 
 // 全局实例指针

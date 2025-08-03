@@ -3,32 +3,17 @@
 
 #include <Arduino.h>
 
-// =================== 物理节点配置 ===================
+// =================== Node2特定配置 ===================
+// =================== WiFi配置 ===================
+// 替换为实际的WiFi SSID和密码
+const char* WIFI_SSID = "PDCN";
+const char* WIFI_PASSWORD = "1234567890";
+// =================== MQTT配置 ===================
+// 替换为实际的MQTT Broker地址（树莓派IP地址）
+const char* MQTT_SERVER = "192.168.123.210";
+const int MQTT_PORT = 1883;
 // 这个物理节点（ESP32）的唯一标识符，用于MQTT Client ID
 const char* NODE_ID = "ESP32_Node_2";
-
-// =================== 硬件功能配置 ===================
-// 根据此节点的实际硬件情况启用/禁用功能模块
-#define ENABLE_UI_DISPLAY    true   // 此节点负责UI显示和用户交互
-
-// UI硬件引脚定义（仅在ENABLE_UI_DISPLAY为true时生效）
-#if ENABLE_UI_DISPLAY
-// TFT屏幕引脚 (ST7735s)
-#define TFT_SCLK  18   // SCL - SPI时钟线 (D18, VSPI_CLK原生)
-#define TFT_MOSI  23   // SDA - SPI数据线 (D23, VSPI_MOSI原生)
-#define TFT_RST   15    // RES - 复位 (D15)
-#define TFT_DC    2    // DC  - 数据/命令选择 (D2)
-#define TFT_CS    5    // CS  - 片选 (D5, VSPI_CS原生)
-#define TFT_BLK   4   // BLK - 背光控制 (D4)
-
-// EC11旋钮编码器引脚
-#define EC11_A    12   // A   - 编码器A相
-#define EC11_B    14   // B   - 编码器B相
-#define EC11_SW   27   // PUSH- 编码器按键
-
-// 独立按键引脚
-#define BTN_OK    26   // KO  - OK确认按键
-#endif
 
 // 1. 定义这个节点控制的设备总数（主要是虚拟传感器）
 #define DEVICE_COUNT 10

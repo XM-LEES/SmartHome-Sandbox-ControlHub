@@ -1,20 +1,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// =================== WiFi配置 ===================
-// 替换为实际的WiFi SSID和密码
-const char* WIFI_SSID = "PDCN";
-const char* WIFI_PASSWORD = "1234567890";
+// =================== 编译配置 ===================
+// 决定此次编译使用哪个节点配置
+#define CURRENT_NODE 1  // 1=Node1, 2=Node2
 
-// =================== MQTT配置 ===================
-// 替换为实际的MQTT Broker地址（树莓派IP地址）
-const char* MQTT_SERVER = "192.168.123.210";
-const int MQTT_PORT = 1883;
-
-// =================== 开发环境配置 ===================
-// 如果需要切换到开发环境，取消注释下面的配置并注释上面的配置
-// const char* WIFI_SSID = "YOUR_WIFI_SSID";
-// const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-// const char* MQTT_SERVER = "192.168.1.100";
+// 根据节点选择包含对应配置并设置UI显示
+#if CURRENT_NODE == 1
+    #include "Node1Config.h"
+    #define ENABLE_UI_DISPLAY 0
+#elif CURRENT_NODE == 2  
+    #include "Node2Config.h"
+    #define ENABLE_UI_DISPLAY 1
+#else
+    #error "CURRENT_NODE must be 1 or 2"
+#endif
 
 #endif // CONFIG_H 

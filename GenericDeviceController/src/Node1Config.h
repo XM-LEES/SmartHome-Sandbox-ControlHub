@@ -3,18 +3,17 @@
 
 #include <Arduino.h>
 
-// =================== 物理节点配置 ===================
+// =================== Node1特定配置 ===================
+// =================== WiFi配置 ===================
+// 替换为实际的WiFi SSID和密码
+const char* WIFI_SSID = "PDCN";
+const char* WIFI_PASSWORD = "1234567890";
+// =================== MQTT配置 ===================
+// 替换为实际的MQTT Broker地址（树莓派IP地址）
+const char* MQTT_SERVER = "192.168.123.210";
+const int MQTT_PORT = 1883;
 // 这个物理节点（ESP32）的唯一标识符，用于MQTT Client ID
 const char* NODE_ID = "ESP32_Node_1";
-
-// =================== 硬件功能配置 ===================
-// 根据此节点的实际硬件情况启用/禁用功能模块
-#define ENABLE_UI_DISPLAY    false  // 此节点专注于物理设备控制，无UI组件
-
-// UI硬件引脚定义（此节点禁用UI）
-#if ENABLE_UI_DISPLAY
-// 此节点无UI硬件
-#endif
 
 // 1. 定义这个节点控制的设备总数（仅物理设备）
 #define DEVICE_COUNT 16
