@@ -163,7 +163,6 @@ void publish_error_state(const char* room_id, const char* device_id, const char*
 
 /**
  * @brief MQTT消息回调函数。当任何已订阅的Topic收到消息时，此函数会被自动调用。
- *        这是整个下位机的“大脑”。
  * @param topic 收到消息的Topic名称
  * @param payload 消息的具体内容
  * @param length 消息的长度
@@ -174,8 +173,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(topic);
 
     // 解析Topic获取房间和设备信息
-    // 语法: sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device);
-    // %[^/] 会匹配所有不是'/'的字符，直到遇到'/'或字符串末尾。
     char room[32], device[32];
     if (sscanf(topic, "smarthome/%[^/]/%[^/]/command", room, device) != 2) {
         Serial.println("Error: Topic format does not match 'smarthome/{room}/{device}/command'");
@@ -224,13 +221,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
         control_success = control_door(room, is_on);
     } else if (strcmp(device, "curtain") == 0) {
         control_success = control_curtain(room, is_on);
-    } 
-    // 添加其他设备类型的判断...
-    // else if (strcmp(device, "oven") == 0) {
-    //     control_oven(room, is_on);
-    // } 
-    else if (strcmp(device, "temp_sensor") == 0) {
-        // 温度传感器读取操作
+    } else if (strcmp(device, "temp_sensor") == 0) {
         int room_index = getRoomIndex(room);
         if (room_index == -1) {
             // 未知房间，发送错误回执
@@ -244,18 +235,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
         Serial.print("[HAL] '"); Serial.print(room);
         Serial.print("/temp_sensor' read: "); Serial.print(temp_value); Serial.println("°C");
         
-        // 检查传感器读取是否成功
         if (temp_value == -999.0) {
-            // 传感器读取失败，发送错误回执
+            // 传感器读取 -999.0 表示失败，发送错误回执
             publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Temperature sensor read failed");
             return;
         }
         
-        // 发送包含传感器数据的回执
         publish_sensor_state(room, device, "READ", correlation_id, temp_value, "°C");
-        return; // 已经发送回执，直接返回
+        return;
     } else if (strcmp(device, "humidity_sensor") == 0) {
-        // 湿度传感器读取操作
         int room_index = getRoomIndex(room);
         if (room_index == -1) {
             // 未知房间，发送错误回执
@@ -269,7 +257,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
         Serial.print("[HAL] '"); Serial.print(room);
         Serial.print("/humidity_sensor' read: "); Serial.print(humidity_value); Serial.println("%");
         
-        // 检查传感器读取是否成功
         if (humidity_value == -999.0) {
             // 传感器读取失败，发送错误回执
             publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Humidity sensor read failed");
@@ -278,7 +265,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
         
         // 发送包含传感器数据的回执
         publish_sensor_state(room, device, "READ", correlation_id, humidity_value, "%");
-        return; // 已经发送回执，直接返回
+        return;
     } 
     // 添加其他设备类型的判断...
     // else if (strcmp(device, "oven") == 0) {
@@ -287,8 +274,9 @@ void callback(char* topic, byte* payload, unsigned int length) {
     else {
         Serial.print("Warning: No control logic in .ino for device type '");
         Serial.print(device); Serial.println("'");
+        // 未知设备类型，发送错误回执
         publish_error_state(room, device, correlation_id, "UNKNOWN_DEVICE_TYPE", "Device type not supported");
-        return; // 未知设备类型，发送错误回执
+        return; 
     }
 
     // 检查设备控制是否成功
