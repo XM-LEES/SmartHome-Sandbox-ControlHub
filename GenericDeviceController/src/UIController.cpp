@@ -3,6 +3,9 @@
 // 全局实例指针
 UIController* g_uiController = nullptr;
 
+// 房间名称映射（定义）
+const char* ROOM_NAMES[] = {"客厅", "卧室", "厨房", "浴室", "室外"};
+
 // 中断服务程序包装函数
 void IRAM_ATTR encoderISR() {
     if (g_uiController) g_uiController->handleEncoderInterrupt();

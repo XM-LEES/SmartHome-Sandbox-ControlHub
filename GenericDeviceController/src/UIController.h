@@ -50,8 +50,8 @@ enum SensorItem {
     ITEM_HUMIDITY = 1       // 湿度
 };
 
-// 房间名称映射
-const char* ROOM_NAMES[] = {"客厅", "卧室", "厨房", "浴室", "室外"};
+// 房间名称映射（声明）
+extern const char* ROOM_NAMES[];
 
 class UIController {
 private:
