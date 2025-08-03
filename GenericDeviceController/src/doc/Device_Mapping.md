@@ -152,7 +152,7 @@ smarthome/{room_id}/{device_id}/state
 ## 传感器数据管理
 
 ### 传感器数据管理器
-- **文件**: `SensorDataManager.h` 和 `SensorDataManager.cpp`
+- **文件**: `core/SensorDataManager.h` 和 `core/SensorDataManager.cpp`
 - **功能**: 管理所有房间的传感器数据，提供数据存储、更新和读取功能
 - **数据更新**: 通过 `setSensorData()` 接口手动更新传感器数据
 - **数据范围**: 每个房间都有预定义的温度和湿度范围

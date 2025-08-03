@@ -8,14 +8,14 @@
 #include "Config.h"
 
 #if CURRENT_NODE == 1
-    #include "Node1Config.h"
+    #include "nodeconfig/Node1Config.h"
 #elif CURRENT_NODE == 2  
-    #include "Node2Config.h"
+    #include "nodeconfig/Node2Config.h"
 #endif
 
-#include "DeviceControl.h"
-#include "SensorDataManager.h"
-#include "UIController.h"
+#include "core/DeviceControl.h"
+#include "core/SensorDataManager.h"
+#include "ui/UIController.h"
 
 // --- 初始化客户端实例 ---
 WiFiClient espClient;

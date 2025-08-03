@@ -2,8 +2,8 @@
 #define UI_CONTROLLER_H
 
 #include <Arduino.h>
-#include "Config.h"
-#include "SensorDataManager.h"
+#include "../Config.h"
+#include "../core/SensorDataManager.h"
 
 
 // 只有在启用UI时才包含相关库和定义

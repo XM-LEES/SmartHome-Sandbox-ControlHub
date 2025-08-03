@@ -9,11 +9,31 @@
 - 通过条件编译实现硬件功能的启用/禁用
 - 编译时优化，无硬件功能的代码完全不会被包含
 
+### 📁 目录结构
+```
+src/
+├── GenericDeviceController.ino    # 主程序
+├── Config.h                       # 编译配置
+├── README.md                      # 项目文档
+├── nodeconfig/                    # 节点配置
+│   ├── Node1Config.h             # Node1节点配置
+│   └── Node2Config.h             # Node2节点配置
+├── core/                          # 核心模块
+│   ├── DeviceControl.h           # 设备控制抽象层
+│   ├── SensorDataManager.h       # 传感器数据管理
+│   └── SensorDataManager.cpp     # 传感器数据实现
+├── ui/                           # UI模块
+│   ├── UIController.h            # UI控制器
+│   └── UIController.cpp          # UI实现
+└── doc/                          # 文档
+    └── Device_Mapping.md         # 引脚映射文档
+```
+
 ## 功能特性
-- **多设备支持**: 通过配置文件 (`NodeXConfig.h`) 可灵活定义单个ESP32节点所控制的多个设备及其引脚
+- **多设备支持**: 通过配置文件 (`nodeconfig/NodeXConfig.h`) 可灵活定义单个ESP32节点所控制的多个设备及其引脚
 - **动态Topic订阅**: 启动时会根据配置文件自动订阅所有相关设备的`command` Topic
 - **可靠回执**: 只有在硬件操作**成功执行**后，才会向对应的`state` Topic发布状态回执，以完成闭环控制
-- **分层设计**: 代码结构清晰，分为主逻辑 (`.ino`) 和硬件抽象层 (`DeviceControl.h`)，便于维护和扩展
+- **分层设计**: 代码结构清晰，分为主逻辑 (`.ino`) 和硬件抽象层 (`core/DeviceControl.h`)，便于维护和扩展
 - **硬件适配**: 支持有UI屏幕的交互式节点和无UI的纯控制节点
 
 ## 📁 节点配置文件
@@ -70,14 +90,14 @@
 ```
 
 ### 配置步骤
-1.  **配置设备映射**: 修改相应的`NodeXConfig.h`文件，定义此ESP32节点所控制的所有设备
+1.  **配置设备映射**: 修改相应的`nodeconfig/NodeXConfig.h`文件，定义此ESP32节点所控制的所有设备
 2.  **修改配置**: 在`Config.h`中修改WiFi凭据和MQTT Broker的IP地址
 3.  **上传固件**: 使用 Arduino IDE 或 PlatformIO 将代码编译并上传到ESP32
 4.  **监控**: 通过串口监视器查看设备的连接状态、收到的命令和执行日志
 
 ## ⚙️ 配置文件结构
 
-每个NodeXConfig.h文件包含：
+每个`nodeconfig/NodeXConfig.h`文件包含：
 
 ```cpp
 // 1. 节点标识
