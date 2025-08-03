@@ -159,9 +159,9 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
 - **持久化**: 支持消息持久化存储
 
 ### ESP32配置
-- **WiFi**: 在 `Node1Config.h` 中配置SSID和密码
-- **MQTT**: 配置Broker IP地址
-- **设备映射**: 通过配置文件定义引脚和设备关系
+- **WiFi**: 在 `Config.h` 中配置SSID和密码
+- **MQTT**: 在 `Config.h` 中配置Broker IP地址
+- **设备映射**: 在 `Node1Config.h` 中定义引脚和设备关系
 
 ---
 
@@ -207,9 +207,11 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
 
 ## 🔮 未来计划 / Roadmap
 
-- [ ] 支持更多设备类型（传感器、安防设备等）
+- [x] 支持传感器设备（温度、湿度传感器）- ✅ 已完成
+- [ ] 支持更多设备类型（安防设备、摄像头等）
 - [ ] 添加Web管理界面
 - [ ] 实现设备状态持久化
 - [ ] 支持设备分组和场景模式
 - [ ] 添加用户认证和权限管理
 - [ ] 支持设备固件OTA更新
+- [ ] 集成真实硬件传感器（DHT22、DS18B20等）
