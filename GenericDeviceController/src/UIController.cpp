@@ -67,6 +67,9 @@ void UIController::begin() {
     attachInterrupt(digitalPinToInterrupt(EC11_SW), encoderSwitchISR, FALLING);
     attachInterrupt(digitalPinToInterrupt(BTN_OK), backButtonISR, FALLING);
     
+    // 显示启动界面
+    displayStartupScreen();
+    
     Serial.println("[UI] UIController initialized");
 }
 
@@ -508,6 +511,39 @@ void IRAM_ATTR UIController::handleBackButtonInterrupt() {
         backButtonPressed = true;
         lastPress = now;
     }
+}
+
+void UIController::displayStartupScreen() {
+    // 清屏
+    tft.fillScreen(COLOR_BLACK);
+    
+    // 显示欢迎信息
+    tft.setTextColor(COLOR_WHITE);
+    tft.setTextSize(2);
+    tft.setCursor(10, 30);
+    tft.println("智能家居");
+    
+    tft.setTextSize(1);
+    tft.setCursor(10, 60);
+    tft.println("控制中心");
+    
+    tft.setCursor(10, 80);
+    tft.println("Node2 - UI模块");
+    
+    // 显示状态信息
+    tft.setTextColor(COLOR_YELLOW);
+    tft.setCursor(10, 110);
+    tft.println("正在初始化...");
+    
+    tft.setTextColor(COLOR_CYAN);
+    tft.setCursor(10, 130);
+    tft.println("连接WiFi中...");
+    
+    // 显示操作提示
+    tft.setTextColor(COLOR_GREEN);
+    tft.setTextSize(1);
+    tft.setCursor(10, 150);
+    tft.println("旋转编码器操作");
 }
 
 #endif // ENABLE_UI_DISPLAY

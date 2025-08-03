@@ -6,16 +6,23 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include "Config.h"
+
+#if CURRENT_NODE == 1
+    #include "Node1Config.h"
+#elif CURRENT_NODE == 2  
+    #include "Node2Config.h"
+#endif
+
 #include "DeviceControl.h"
 #include "SensorDataManager.h"
-// #include "UIController.h"
+#include "UIController.h"
 
 // --- 初始化客户端实例 ---
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// // --- UI控制器实例 ---
-// UIController uiController;
+// --- UI控制器实例 ---
+UIController uiController;
 
 /**
  * @brief 连接到WiFi网络。
@@ -302,9 +309,9 @@ void setup() {
     setup_devices();        // 初始化硬件设备
     initSensorData();       // 初始化传感器数据
     
-    // #if ENABLE_UI_DISPLAY
-    // uiController.begin();   // 初始化UI控制器（仅在有UI硬件时）
-    // #endif
+    #if ENABLE_UI_DISPLAY
+    uiController.begin();   // 初始化UI控制器（仅在有UI硬件时）
+    #endif
     
     setup_wifi();           // 连接WiFi
     client.setServer(MQTT_SERVER, MQTT_PORT);    // 设置MQTT Broker的地址
@@ -315,10 +322,10 @@ void setup() {
  * @brief 主循环。
  */
 void loop() {
-    // #if ENABLE_UI_DISPLAY
-    // // 更新UI控制器（处理输入和显示）- 仅在有UI硬件时
-    // uiController.update();
-    // #endif
+    #if ENABLE_UI_DISPLAY
+    // 更新UI控制器（处理输入和显示）- 仅在有UI硬件时
+    uiController.update();
+    #endif
     
     // 检查MQTT是否还连接着，如果断了就尝试重连
     if (!client.connected()) {

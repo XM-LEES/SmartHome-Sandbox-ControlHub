@@ -2,7 +2,9 @@
 #define UI_CONTROLLER_H
 
 #include <Arduino.h>
+#include "Config.h"
 #include "SensorDataManager.h"
+
 
 // 只有在启用UI时才包含相关库和定义
 #if ENABLE_UI_DISPLAY
@@ -109,6 +111,7 @@ private:
     void drawProgressBar(int x, int y, int width, int height, float value, float maxValue);
     void drawWiFiIcon(int x, int y);
     void drawMQTTIcon(int x, int y);
+    void displayStartupScreen();
     
     // 输入处理
     void handleEncoderRotation(int direction);
