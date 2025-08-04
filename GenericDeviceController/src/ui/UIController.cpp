@@ -30,6 +30,8 @@ UIController::UIController()
       backButtonPressed(false),
       encoderDirection(0),
       lastEncoderA(HIGH),
+      encoderStepAccumulator(0),
+      lastEncoderTime(0),
       lastUpdate(0),
       needRedraw(true),
       blinkTimer(0),
@@ -76,6 +78,9 @@ void UIController::begin() {
     // 显示启动界面
     displayStartupScreen();
     
+    // 延迟显示，方便调整布局
+    delay(50000);  // 停留5秒
+    
     Serial.println("[UI] UIController initialized");
 }
 
@@ -88,8 +93,8 @@ void UIController::update() {
     // 更新闪烁状态
     updateBlinkState();
     
-    // 定期刷新显示或需要重绘时
-    if (needRedraw || (currentTime - lastUpdate > 1000)) {
+    // 仅在需要重绘时刷新显示
+    if (needRedraw) {
         switch (currentState) {
             case STATE_OVERVIEW:
                 drawOverviewPage();
@@ -104,28 +109,49 @@ void UIController::update() {
         }
         needRedraw = false;
         lastUpdate = currentTime;
+        Serial.println("[UI] 屏幕已刷新");
     }
 }
 
 void UIController::handleInput() {
-    // 处理编码器旋转
+    unsigned long currentTime = millis();
+    
+    // 处理编码器旋转 - 两个咔嗒对应一个步长
     if (encoderDirection != 0) {
-        handleEncoderRotation(encoderDirection);
+        encoderStepAccumulator += encoderDirection;
+        lastEncoderTime = currentTime;
         encoderDirection = 0;
+        
+        // 当累积器达到±2时，执行一次旋转操作
+        if (abs(encoderStepAccumulator) >= 2) {
+            int logicalDirection = (encoderStepAccumulator > 0) ? 1 : -1;
+            handleEncoderRotation(logicalDirection);
+            encoderStepAccumulator = 0;  // 重置累积器
+            Serial.print("[UI] 编码器累积步长达到，执行旋转: ");
+            Serial.println(logicalDirection > 0 ? "正向" : "反向");
+        }
+    }
+    
+    // 超时重置累积器（500ms内没有新的编码器活动）
+    if (encoderStepAccumulator != 0 && (currentTime - lastEncoderTime) > 500) {
+        Serial.println("[UI] 编码器累积器超时重置");
+        encoderStepAccumulator = 0;
     }
     
     // 处理编码器按下
     if (encoderPressed) {
         encoderPressed = false;
+        Serial.println("[UI] 编码器按键触发");
         handleEncoderPress();
-        delay(200); // 防抖
+        delay(300); // 增加防抖延迟
     }
     
     // 处理返回按键
     if (backButtonPressed) {
         backButtonPressed = false;
+        Serial.println("[UI] 返回按键触发");
         handleBackButton();
-        delay(200); // 防抖
+        delay(300); // 增加防抖延迟
     }
 }
 
@@ -142,6 +168,8 @@ void UIController::handleEncoderRotation(int direction) {
         case STATE_BROWSE:
             // 浏览模式：选择传感器项目
             selectedItem = (selectedItem == ITEM_TEMPERATURE) ? ITEM_HUMIDITY : ITEM_TEMPERATURE;
+            Serial.print("[UI] 浏览模式切换到: ");
+            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
             setRedraw();
             break;
             
@@ -164,6 +192,8 @@ void UIController::handleEncoderPress() {
             currentState = STATE_BROWSE;
             selectedItem = ITEM_TEMPERATURE;
             editMode = false;
+            Serial.print("[UI] 进入房间浏览模式，初始选择: ");
+            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
             setRedraw();
             break;
             
@@ -171,6 +201,8 @@ void UIController::handleEncoderPress() {
             // 浏览模式：进入编辑模式
             currentState = STATE_EDIT;
             editMode = true;
+            Serial.print("[UI] 进入编辑模式，编辑项目: ");
+            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
             setRedraw();
             break;
             
@@ -178,6 +210,8 @@ void UIController::handleEncoderPress() {
             // 编辑模式：退出编辑，回到浏览模式
             currentState = STATE_BROWSE;
             editMode = false;
+            Serial.print("[UI] 退出编辑模式，当前选择: ");
+            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
             setRedraw();
             break;
             
@@ -190,7 +224,7 @@ void UIController::handleEncoderPress() {
 void UIController::handleBackButton() {
     switch (currentState) {
         case STATE_OVERVIEW:
-            // 概览页：进入系统设置页
+            // 概览页：进入系统信息页
             currentState = STATE_SETTINGS;
             setRedraw();
             break;
@@ -215,10 +249,10 @@ void UIController::adjustSensorValue(int direction) {
     SensorData data = getSensorData((RoomIndex)selectedRoom);
     
     if (selectedItem == ITEM_TEMPERATURE) {
-        data.temperature += direction * 0.5f;
+        data.temperature += direction * 0.2f;
         data.temperature = constrain(data.temperature, 0.0f, 50.0f);
     } else {
-        data.humidity += direction * 1.0f;
+        data.humidity += direction * 0.5f;
         data.humidity = constrain(data.humidity, 0.0f, 100.0f);
     }
     
@@ -231,8 +265,17 @@ void UIController::drawOverviewPage() {
     // 绘制标题
     drawHeader("环境监控");
     
-    // 绘制所有房间数据
+    // 绘制列标题
     int y = 25;
+    tft.setTextColor(COLOR_GRAY);
+    tft.setTextSize(1);
+    printChineseSmall(8, y + 8, "房间", COLOR_GRAY);
+    printChineseSmall(50, y + 8, "温度", COLOR_GRAY);
+    printChineseSmall(95, y + 8, "湿度", COLOR_GRAY);
+    
+    y += 15;  // 列标题和数据之间的间距
+    
+    // 绘制所有房间数据
     for (int i = 0; i < MAX_ROOMS; i++) {
         SensorData data = getSensorData((RoomIndex)i);
         
@@ -250,41 +293,38 @@ void UIController::drawOverviewPage() {
         // 房间名（中文）
         printChineseSmall(8, y + 8, getRoomName(i), textColor);
         
-        // 温度数据（英文数字）
-        tft.setCursor(50, y);
+        // 温度和湿度显示在同一行
+        tft.setTextColor(textColor);
+        
+        // 温度数据
+        tft.setCursor(45, y);
         tft.print(data.temperature, 1);
         tft.print("C");
         
-        // 湿度（下一行）
-        y += 12;
-        tft.setCursor(50, y);
+        // 湿度数据（同一行，右侧）
+        tft.setCursor(90, y);
         tft.print(data.humidity, 1);
         tft.print("%");
         
-        y += 16;
+        y += 20;  // 行间距调整
     }
     
-    // 底部状态栏
-    y = SCREEN_HEIGHT - 20;
-    tft.setTextColor(COLOR_CYAN);
-    tft.setTextSize(1);
+    // 底部操作提示
+    int bottomY = SCREEN_HEIGHT - 20;
     
-    // WiFi和MQTT状态图标
-    drawWiFiIcon(0, y);
-    drawMQTTIcon(20, y);
+    // 左下角：系统信息
+    printChineseSmall(0, bottomY + 18, "系统信息", COLOR_GREEN);
     
-    // 操作提示
-    tft.setCursor(40, y);
-    tft.print(" <>");
-    
-    printChineseSmall(0, y + 18, "转动选择 按下进入", COLOR_CYAN);
+    // 右下角：转动选择 按下确认
+    printChineseSmall(SCREEN_WIDTH - 50, bottomY + 8, "转动选择", COLOR_GREEN);
+    printChineseSmall(SCREEN_WIDTH - 50, bottomY + 18, "按下确认", COLOR_GREEN);
 }
 
 void UIController::drawRoomPage() {
     tft.fillScreen(COLOR_BLACK);
     
     // 绘制标题
-    String title = String("🏠") + getRoomName(selectedRoom);
+    String title = getRoomName(selectedRoom);
     drawHeader(title.c_str());
     
     SensorData data = getSensorData((RoomIndex)selectedRoom);
@@ -297,7 +337,7 @@ void UIController::drawRoomPage() {
     
     uint16_t tempColor = COLOR_WHITE;
     if (tempSelected) {
-        tempColor = tempEditing ? (blinkState ? COLOR_YELLOW : COLOR_RED) : COLOR_YELLOW;
+        tempColor = tempEditing ? COLOR_RED : COLOR_YELLOW;
     }
     
     tft.setTextColor(tempColor);
@@ -308,10 +348,10 @@ void UIController::drawRoomPage() {
         tft.print(">");
     }
     
-    // 使用U8g2显示emoji + 中文
+    // 使用U8g2显示中文
     u8g2.setForegroundColor(tempColor);
     u8g2.setCursor(8, y + 8);
-    u8g2.print("🌡️温度:");
+    u8g2.print("温度:");
     
     // 使用原生库显示数字
     tft.setTextColor(tempColor);
@@ -319,7 +359,12 @@ void UIController::drawRoomPage() {
     tft.print(data.temperature, 1);
     tft.print("C");
     
-    y += 16;
+    y += 12;
+    
+    // 温度进度条
+    drawProgressBar(8, y, 100, 6, data.temperature, 50.0f);
+    
+    y += 12;
     
     // 湿度行
     bool humSelected = (selectedItem == ITEM_HUMIDITY);
@@ -327,7 +372,7 @@ void UIController::drawRoomPage() {
     
     uint16_t humColor = COLOR_WHITE;
     if (humSelected) {
-        humColor = humEditing ? (blinkState ? COLOR_CYAN : COLOR_BLUE) : COLOR_CYAN;
+        humColor = humEditing ? COLOR_BLUE : COLOR_CYAN;
     }
     
     tft.setTextColor(humColor);
@@ -337,10 +382,10 @@ void UIController::drawRoomPage() {
         tft.print(">");
     }
     
-    // 使用U8g2显示emoji + 中文
+    // 使用U8g2显示中文
     u8g2.setForegroundColor(humColor);
     u8g2.setCursor(8, y + 8);
-    u8g2.print("💧湿度:");
+    u8g2.print("湿度:");
     
     // 使用原生库显示数字
     tft.setTextColor(humColor);
@@ -348,46 +393,44 @@ void UIController::drawRoomPage() {
     tft.print(data.humidity, 1);
     tft.print("%");
     
-    y += 25;
+    y += 12;
     
-    // 进度条
-    if (selectedItem == ITEM_TEMPERATURE) {
-        drawProgressBar(8, y, 100, 8, data.temperature, 50.0f);
-    } else {
-        drawProgressBar(8, y, 100, 8, data.humidity, 100.0f);
-    }
+    // 湿度进度条
+    drawProgressBar(8, y, 100, 6, data.humidity, 100.0f);
+    
+    y += 20;  // 调整到底部提示的间距
     
     // 底部操作提示
-    y = SCREEN_HEIGHT - 30;
-    tft.setTextColor(COLOR_GREEN);
-    tft.setTextSize(1);
+    int bottomY = SCREEN_HEIGHT - 20;
     
+    // 左下角：返回
+    printChineseSmall(0, bottomY + 18, "返回", COLOR_GREEN);
+    
+    // 右下角：根据状态显示不同提示
     if (currentState == STATE_BROWSE) {
-        printChineseSmall(0, y + 8, "转动选择", COLOR_GREEN);
-        printChineseSmall(0, y + 18, "按下编辑", COLOR_GREEN);
+        printChineseSmall(SCREEN_WIDTH - 50, bottomY + 8, "转动选择", COLOR_GREEN);
+        printChineseSmall(SCREEN_WIDTH - 50, bottomY + 18, "按下编辑", COLOR_GREEN);
     } else {
-        printChineseSmall(0, y + 8, "转动调节", COLOR_GREEN);
-        printChineseSmall(0, y + 18, "按下确认", COLOR_GREEN);
+        printChineseSmall(SCREEN_WIDTH - 50, bottomY + 8, "转动调节", COLOR_GREEN);
+        printChineseSmall(SCREEN_WIDTH - 50, bottomY + 18, "按下确认", COLOR_GREEN);
     }
-    
-    printChineseSmall(0, y + 28, "按键返回", COLOR_GREEN);
 }
 
 void UIController::drawSettingsPage() {
     tft.fillScreen(COLOR_BLACK);
     
-    drawHeader("系统设置");
+    drawHeader("系统信息");
     
     int y = 30;
     tft.setTextColor(COLOR_WHITE);
     tft.setTextSize(1);
     
     // WiFi状态
-    u8g2.setForegroundColor(COLOR_WHITE);
-    u8g2.setCursor(0, y + 8);
-    u8g2.print("📶 WiFi:");
+    tft.setTextColor(COLOR_WHITE);
+    tft.setCursor(0, y);
+    tft.print("WiFi:");
     if (WiFi.status() == WL_CONNECTED) {
-        printChineseSmall(50, y + 8, "已连接", COLOR_GREEN);
+        printChineseSmall(35, y + 8, "已连接", COLOR_GREEN);
         y += 12;
         tft.setCursor(0, y);
         tft.print("   ");
@@ -397,30 +440,54 @@ void UIController::drawSettingsPage() {
         tft.print("   ");
         tft.print(WiFi.localIP());
     } else {
-        printChineseSmall(50, y + 8, "未连接", COLOR_RED);
+        printChineseSmall(35, y + 8, "未连接", COLOR_RED);
     }
     
     y += 20;
     
     // MQTT状态
     extern PubSubClient client; // 引用外部MQTT客户端
-    u8g2.setForegroundColor(COLOR_WHITE);
-    u8g2.setCursor(0, y + 8);
-    u8g2.print("🔗 MQTT:");
+    tft.setTextColor(COLOR_WHITE);
+    tft.setCursor(0, y);
+    tft.print("MQTT:");
     if (client.connected()) {
-        printChineseSmall(50, y + 8, "在线", COLOR_GREEN);
+        printChineseSmall(40, y + 8, "在线", COLOR_GREEN);
     } else {
-        printChineseSmall(50, y + 8, "离线", COLOR_RED);
+        printChineseSmall(40, y + 8, "离线", COLOR_RED);
     }
     
     // 底部操作提示
-    y = SCREEN_HEIGHT - 20;
-    printChineseSmall(0, y + 8, "按键返回", COLOR_GREEN);
+    int bottomY = SCREEN_HEIGHT - 20;
+    
+    // 左下角：返回
+    printChineseSmall(0, bottomY + 18, "返回", COLOR_GREEN);
+    
+    // 右下角：空白（无操作提示）
 }
 
 void UIController::drawHeader(const char* title) {
-    // 使用U8g2显示中文标题
-    printChinese((SCREEN_WIDTH - strlen(title) * 6) / 2, 15, title, COLOR_WHITE);
+    // 计算中文字符串的显示宽度（更准确的方法）
+    int titleWidth = 0;
+    const char* p = title;
+    while (*p) {
+        if ((*p & 0x80) == 0) {
+            // ASCII字符
+            titleWidth += 6;
+            p++;
+        } else {
+            // 中文字符（UTF-8编码）
+            titleWidth += 12;  // U8g2中文字体宽度约12像素
+            // 跳过UTF-8多字节序列
+            if ((*p & 0xE0) == 0xC0) p += 2;      // 2字节
+            else if ((*p & 0xF0) == 0xE0) p += 3; // 3字节（中文）
+            else if ((*p & 0xF8) == 0xF0) p += 4; // 4字节
+            else p++;
+        }
+    }
+    
+    // 居中显示
+    int x = (SCREEN_WIDTH - titleWidth) / 2;
+    printChinese(x, 15, title, COLOR_WHITE);
     
     // 绘制分隔线
     tft.drawLine(0, 18, SCREEN_WIDTH, 18, COLOR_GRAY);
@@ -454,26 +521,26 @@ void UIController::drawProgressBar(int x, int y, int width, int height, float va
 
 void UIController::drawWiFiIcon(int x, int y) {
     if (WiFi.status() == WL_CONNECTED) {
-        u8g2.setForegroundColor(COLOR_GREEN);
-        u8g2.setCursor(x, y + 8);
-        u8g2.print("📶");
+        tft.setTextColor(COLOR_GREEN);
+        tft.setCursor(x, y);
+        tft.print("W");
     } else {
-        u8g2.setForegroundColor(COLOR_RED);
-        u8g2.setCursor(x, y + 8);
-        u8g2.print("📶");
+        tft.setTextColor(COLOR_RED);
+        tft.setCursor(x, y);
+        tft.print("W");
     }
 }
 
 void UIController::drawMQTTIcon(int x, int y) {
     extern PubSubClient client;
     if (client.connected()) {
-        u8g2.setForegroundColor(COLOR_GREEN);
-        u8g2.setCursor(x, y + 8);
-        u8g2.print("🔗");
+        tft.setTextColor(COLOR_GREEN);
+        tft.setCursor(x, y);
+        tft.print("M");
     } else {
-        u8g2.setForegroundColor(COLOR_RED);
-        u8g2.setCursor(x, y + 8);
-        u8g2.print("🔗");
+        tft.setTextColor(COLOR_RED);
+        tft.setCursor(x, y);
+        tft.print("M");
     }
 }
 
@@ -489,13 +556,8 @@ SensorData UIController::getCurrentRoomData() {
 }
 
 void UIController::updateBlinkState() {
-    if (millis() - blinkTimer > 500) {
-        blinkState = !blinkState;
-        blinkTimer = millis();
-        if (currentState == STATE_EDIT) {
-            setRedraw();
-        }
-    }
+    // 不再需要闪烁效果，但保留函数结构以免影响其他调用
+    // 编辑模式现在使用固定颜色：温度(YELLOW→RED) 湿度(CYAN→BLUE)
 }
 
 // 中断处理函数实现
@@ -505,9 +567,9 @@ void IRAM_ATTR UIController::handleEncoderInterrupt() {
     
     if (currentA != lastEncoderA) {
         if (currentA == currentB) {
-            encoderDirection = 1; // 顺时针
-        } else {
             encoderDirection = -1; // 逆时针
+        } else {
+            encoderDirection = 1; // 顺时针
         }
         lastEncoderA = currentA;
     }
@@ -516,7 +578,7 @@ void IRAM_ATTR UIController::handleEncoderInterrupt() {
 void IRAM_ATTR UIController::handleEncoderSwitchInterrupt() {
     static unsigned long lastPress = 0;
     unsigned long now = millis();
-    if (now - lastPress > 200) { // 防抖
+    if (now - lastPress > 300) { // 增加防抖时间到300ms
         encoderPressed = true;
         lastPress = now;
     }
@@ -525,7 +587,7 @@ void IRAM_ATTR UIController::handleEncoderSwitchInterrupt() {
 void IRAM_ATTR UIController::handleBackButtonInterrupt() {
     static unsigned long lastPress = 0;
     unsigned long now = millis();
-    if (now - lastPress > 200) { // 防抖
+    if (now - lastPress > 300) { // 增加防抖时间到300ms
         backButtonPressed = true;
         lastPress = now;
     }
@@ -535,26 +597,46 @@ void UIController::displayStartupScreen() {
     // 清屏
     tft.fillScreen(COLOR_BLACK);
     
-    // 显示欢迎信息
+    // 主标题：智能家居控制中心（居中显示）
     u8g2.setForegroundColor(COLOR_WHITE);
     u8g2.setFont(u8g2_font_wqy14_t_gb2312);
-    u8g2.setCursor(20, 40);
-    u8g2.println("智能家居");
     
-    u8g2.setCursor(20, 60);
-    u8g2.println("控制中心");
+    // 计算"智能家居控制中心"的居中位置
+    int titleWidth = 7 * 14;  // 7个中文字符 * 14像素宽度
+    int titleX = (SCREEN_WIDTH - titleWidth) / 2;
+    u8g2.setCursor(titleX, 35);
+    u8g2.print("智能家居控制中心");
     
+    // 英文副标题（居中显示）
     tft.setTextColor(COLOR_WHITE);
     tft.setTextSize(1);
-    tft.setCursor(10, 80);
-    tft.println("Node1 - UI Module");
+    int subTitleWidth = strlen("SmartHome") * 6;
+    int subTitleX = (SCREEN_WIDTH - subTitleWidth) / 2;
+    tft.setCursor(subTitleX, 60);
+    tft.println("SmartHome");
     
-    // 显示状态信息
-    printChineseSmall(10, 110, "正在初始化...", COLOR_YELLOW);
-    printChineseSmall(10, 130, "连接WiFi中...", COLOR_CYAN);
+    int subTitle2Width = strlen("Control Center") * 6;
+    int subTitle2X = (SCREEN_WIDTH - subTitle2Width) / 2;
+    tft.setCursor(subTitle2X, 75);
+    tft.println("Control Center");
     
-    // 显示操作提示
-    printChineseSmall(10, 150, "使用编码器操作", COLOR_GREEN);
+    // 节点信息（居中显示）
+    tft.setTextColor(COLOR_CYAN);
+    int nodeInfoWidth = strlen("Node1 - ") * 6;
+    printChineseSmall(10, 105, "主控节点", COLOR_CYAN);
+    tft.setCursor(10, 95);
+    tft.print("Node1 - ");
+    
+    // 状态信息（居中显示）
+    printChineseSmall((SCREEN_WIDTH - 7*12)/2, 130, "正在初始化...", COLOR_YELLOW);
+    
+    // 版本信息（居中显示，底部）
+    tft.setTextColor(COLOR_GRAY);
+    tft.setTextSize(1);
+    int versionWidth = strlen("v1.0  2024.01") * 6;
+    int versionX = (SCREEN_WIDTH - versionWidth) / 2;
+    tft.setCursor(versionX, 150);
+    tft.print("v1.0  2024.01");
 }
 
 #endif // ENABLE_UI_DISPLAY

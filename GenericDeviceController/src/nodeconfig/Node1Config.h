@@ -10,7 +10,7 @@ const char* WIFI_SSID = "PDCN";
 const char* WIFI_PASSWORD = "1234567890";
 // =================== MQTT配置 ===================
 // 替换为实际的MQTT Broker地址（树莓派IP地址）
-const char* MQTT_SERVER = "192.168.123.210";
+const char* MQTT_SERVER = "192.168.123.62";
 const int MQTT_PORT = 1883;
 // 这个物理节点（ESP32）的唯一标识符，用于MQTT Client ID
 const char* NODE_ID = "ESP32_Node_1";
@@ -42,7 +42,7 @@ Device devices[DEVICE_COUNT] = {
     // --- 卧室设备 ---
     { "bedroom", "light", 4, false }, // 卧室灯
     { "bedroom", "bedside_light", 2, false }, // 卧室床头灯
-    { "bedroom", "ac",    15, false }, // 卧室空调
+    { "bedroom", "ac",    34, false }, // 卧室空调
     { "bedroom", "window", 32, false }, // 卧室窗户
     { "bedroom", "door", 33, false }, // 卧室门
     { "bedroom", "curtain", 25, false }, // 卧室窗帘

@@ -25,12 +25,12 @@
 #define TFT_BLK   4   // BLK - 背光控制 (D4)
 
 // EC11旋钮编码器引脚
-#define EC11_A    12   // A   - 编码器A相
-#define EC11_B    14   // B   - 编码器B相
-#define EC11_SW   27   // PUSH- 编码器按键
+#define EC11_A    14   // A   - 编码器A相
+#define EC11_B    27   // B   - 编码器B相
+#define EC11_SW   26   // PUSH- 编码器按键
 
 // 独立按键引脚
-#define BTN_OK    26   // KO  - OK确认按键
+#define BTN_OK    25   // KO  - OK确认按键
 
 // 屏幕尺寸
 #define SCREEN_WIDTH  128
@@ -84,6 +84,8 @@ private:
     volatile bool backButtonPressed;
     volatile int encoderDirection;
     int lastEncoderA;
+    int encoderStepAccumulator;  // 步长累积器：两个咔嗒对应一个步长
+    unsigned long lastEncoderTime;  // 上次编码器活动时间
     
     // 显示刷新
     unsigned long lastUpdate;

@@ -10,7 +10,7 @@ const char* WIFI_SSID = "PDCN";
 const char* WIFI_PASSWORD = "1234567890";
 // =================== MQTT配置 ===================
 // 替换为实际的MQTT Broker地址（树莓派IP地址）
-const char* MQTT_SERVER = "192.168.123.210";
+const char* MQTT_SERVER = "192.168.123.62";
 const int MQTT_PORT = 1883;
 // 这个物理节点（ESP32）的唯一标识符，用于MQTT Client ID
 const char* NODE_ID = "ESP32_Node_2";
