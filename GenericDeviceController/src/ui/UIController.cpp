@@ -79,7 +79,7 @@ void UIController::begin() {
     displayStartupScreen();
     
     // 延迟显示，方便调整布局
-    delay(2000);  // 停留2秒
+    delay(10000);  // 停留5秒
     
     // Serial.println("[UI] UIController initialized");
 }
@@ -618,35 +618,26 @@ void IRAM_ATTR UIController::handleBackButtonInterrupt() {
 void UIController::displayStartupScreen() {
     // 清屏
     tft.fillScreen(COLOR_BLACK);
-    
-    // 主标题：智能家居控制中心（居中显示）
-    u8g2.setForegroundColor(COLOR_WHITE);
-    u8g2.setFont(u8g2_font_wqy14_t_gb2312);
-    
-    // 计算"智能家居控制中心"的居中位置
-    int titleWidth = 7 * 14;  // 7个中文字符 * 14像素宽度
-    int titleX = (SCREEN_WIDTH - titleWidth) / 2;
-    u8g2.setCursor(titleX, 35);
-    u8g2.print("智能家居控制中心");
-    
-    // 英文副标题（居中显示）
+
     tft.setTextColor(COLOR_WHITE);
-    tft.setTextSize(1);
-    int subTitleWidth = strlen("SmartHome") * 6;
-    int subTitleX = (SCREEN_WIDTH - subTitleWidth) / 2;
-    tft.setCursor(subTitleX, 60);
+    tft.setTextSize(2);
+
+    int title1Width = strlen("SmartHome") * 6 * 2;
+    int title1X = (SCREEN_WIDTH - title1Width) / 2;
+    tft.setCursor(title1X, 35);
     tft.println("SmartHome");
     
-    int subTitle2Width = strlen("Control Center") * 6;
-    int subTitle2X = (SCREEN_WIDTH - subTitle2Width) / 2;
-    tft.setCursor(subTitle2X, 75);
-    tft.println("Control Center");
-    
+    tft.setTextSize(1);
+    int title2Width = strlen("Sensor Simulator") * 6 * 1;
+    int title2X = (SCREEN_WIDTH - title2Width) / 2;
+    tft.setCursor(title2X, 55);
+    tft.println("Sensor Simulator");
+
     // 节点信息（居中显示）
-    printChineseSmall(10, 105, "Node2-节点", COLOR_CYAN);
+    printChineseSmall((SCREEN_WIDTH - 5*12)/2, 100, "Node2-节点", COLOR_CYAN);
     
     // 状态信息（居中显示）
-    printChineseSmall((SCREEN_WIDTH - 7*12)/2, 130, "正在初始化...", COLOR_YELLOW);
+    printChineseSmall((SCREEN_WIDTH - 6*12)/2, 130, "正在初始化...", COLOR_YELLOW);
     
     // 版本信息（居中显示，底部）
     tft.setTextColor(COLOR_GRAY);
