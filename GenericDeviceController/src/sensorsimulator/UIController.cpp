@@ -71,21 +71,14 @@ void UIController::begin() {
     // 显示启动界面
     displayStartupScreen();
     
-    // 延迟显示，方便调整布局
-    delay(2000);  // 停留2秒
-    
-    // Serial.println("[UI] UIController initialized");
+    delay(2000);
 }
 
 void UIController::update() {
     unsigned long currentTime = millis();
     
-    // 处理输入
     handleInput();
     
-
-    
-    // 仅在需要重绘时刷新显示
     if (needRedraw) {
         switch (currentState) {
             case STATE_OVERVIEW:
@@ -124,18 +117,16 @@ void UIController::handleInput() {
         }
     }
     
-    // 超时重置累积器（500ms内没有新的编码器活动）
+    // 超时重置累积器
     if (encoderStepAccumulator != 0 && (currentTime - lastEncoderTime) > 500) {
-        // Serial.println("[UI] 编码器累积器超时重置");
         encoderStepAccumulator = 0;
     }
     
-    // 处理编码器按下
     if (encoderPressed) {
         encoderPressed = false;
         // Serial.println("[UI] 编码器按键触发");
         handleEncoderPress();
-        delay(300); // 增加防抖延迟
+        delay(300);
     }
     
     // 处理返回按键
@@ -143,7 +134,7 @@ void UIController::handleInput() {
         backButtonPressed = false;
         // Serial.println("[UI] 返回按键触发");
         handleBackButton();
-        delay(300); // 增加防抖延迟
+        delay(300);
     }
 }
 
@@ -265,7 +256,7 @@ void UIController::drawOverviewPage() {
     printChineseSmall(50, y + 8, "温度", COLOR_GRAY);
     printChineseSmall(95, y + 8, "湿度", COLOR_GRAY);
     
-    y += 15;  // 列标题和数据之间的间距
+    y += 15;
     
     // 绘制所有房间数据
     for (int i = 0; i < MAX_ROOMS; i++) {
@@ -285,7 +276,6 @@ void UIController::drawOverviewPage() {
         // 房间名（中文）
         printChineseSmall(8, y + 8, getRoomName(i), textColor);
         
-        // 温度和湿度显示在同一行
         tft.setTextColor(textColor);
         
         // 温度数据
@@ -293,12 +283,12 @@ void UIController::drawOverviewPage() {
         tft.print(data.temperature, 1);
         tft.print("C");
         
-        // 湿度数据（同一行，右侧）
+        // 湿度数据
         tft.setCursor(90, y);
         tft.print(data.humidity, 1);
         tft.print("%");
         
-        y += 20;  // 行间距调整
+        y += 20;
     }
     
     // 底部操作提示
@@ -392,7 +382,7 @@ void UIController::drawRoomPage() {
     // 湿度进度条
     drawProgressBar(8, y, 100, 6, data.humidity, 100.0f);
     
-    y += 20;  // 调整到底部提示的间距
+    y += 20;
     
     // 底部操作提示
     int bottomY = SCREEN_HEIGHT - 20;
@@ -456,11 +446,10 @@ void UIController::drawSettingsPage() {
     // 左下角：返回
     printChineseSmall(0, bottomY + 18, "返回", COLOR_GREEN);
     
-    // 右下角：空白（无操作提示）
 }
 
 void UIController::drawHeader(const char* title) {
-    // 计算中文字符串的显示宽度（更准确的方法）
+    // 计算中文字符串的显示宽度
     int titleWidth = 0;
     const char* p = title;
     while (*p) {
@@ -609,7 +598,6 @@ void IRAM_ATTR UIController::handleBackButtonInterrupt() {
 }
 
 void UIController::displayStartupScreen() {
-    // 清屏
     tft.fillScreen(COLOR_BLACK);
 
     tft.setTextColor(COLOR_WHITE);
@@ -632,7 +620,7 @@ void UIController::displayStartupScreen() {
     // 状态信息（居中显示）
     printChineseSmall((SCREEN_WIDTH - 6*12)/2, 130, "正在初始化...", COLOR_YELLOW);
     
-    // 版本信息（居中显示，底部）
+    // 版本信息（居中显示）
     tft.setTextColor(COLOR_GRAY);
     tft.setTextSize(1);
     int versionWidth = strlen("v1.0  2024.01") * 6;

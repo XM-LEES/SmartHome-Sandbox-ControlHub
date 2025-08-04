@@ -24,8 +24,6 @@ struct SensorData {
 // 房间环境数据结构
 struct RoomEnvironment {
     SensorData sensors;
-    // 预留接口，后续可以添加硬件编码器输入
-    // 比如：手动调节旋钮、按键等
 };
 
 // 全局变量声明

@@ -89,5 +89,5 @@ int getRoomIndex(const char* room_id) {
             return room_map[i].index;
         }
     }
-    return -1; // 未知房间
+    return -1;
 } 

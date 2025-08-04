@@ -34,30 +34,27 @@ void setup_wifi() {
     Serial.print("Connecting to WiFi: ");
     Serial.println(WIFI_SSID);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    // 循环等待，直到WiFi连接成功
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
     }
     Serial.println("\nWiFi connected!");
     Serial.print("IP address: ");
-    Serial.println(WiFi.localIP()); // 打印获取到的IP地址，方便调试
+    Serial.println(WiFi.localIP());
 }
 
 /**
  * @brief 当MQTT连接断开时，尝试重新连接并重新订阅Topic。
  */
 void reconnect() {
-    // 循环尝试，直到重连成功
     while (!client.connected()) {
         Serial.print("Attempting MQTT connection...");
         Serial.print(NODE_ID); Serial.print("'...");
 
-        // 尝试连接到Broker，NODE_ID是这个客户端的唯一ID
+        // 尝试连接到Broker，NODE_ID是当前客户端的唯一ID
         if (client.connect(NODE_ID)) {
             Serial.println("connected!");
 
-            // 动态订阅所有设备的command topic
             for (int i = 0; i < DEVICE_COUNT; i++) {
                 char command_topic[128];
                 snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", devices[i].room_id, devices[i].device_id);
@@ -68,7 +65,7 @@ void reconnect() {
             Serial.print("failed, rc=");
             Serial.print(client.state()); // 打印失败原因代码
             Serial.println(" try again in 5 seconds");
-            delay(5000); // 等待5秒后重试
+            delay(5000);
         }
     }
 }
@@ -88,8 +85,6 @@ void publish_state(const char* room_id, const char* device_id, const char* state
     StaticJsonDocument<256> doc;
     doc["state"] = state;
     doc["correlation_id"] = correlation_id;
-    // 可以添加更多状态信息，如错误码等
-    // doc["error"] = nullptr; 
 
     // 将JSON对象序列化为字符串
     char buffer[256];
@@ -191,7 +186,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
         return;
     }
 
-    // 从JSON中提取关键信息
     const char* action = doc["action"];
     int value = doc["value"] | 0; // 如果"value"不存在，则默认为0
     const char* correlation_id = doc["correlation_id"];
@@ -270,12 +264,12 @@ void setup() {
     
     #if ENABLE_SENSOR_SIMULATOR
     initSensorData();       // 初始化传感器数据
-    uiController.begin();   // 初始化UI控制器（仅在有UI硬件时）
+    uiController.begin();   // 初始化UI控制器
     #endif
     
-    setup_wifi();           // 连接WiFi
-    client.setServer(MQTT_SERVER, MQTT_PORT);    // 设置MQTT Broker的地址
-    client.setCallback(callback);           // **注册核心的回调函数**
+    setup_wifi();                               // 连接WiFi
+    client.setServer(MQTT_SERVER, MQTT_PORT);   // 设置MQTT Broker的地址
+    client.setCallback(callback);               // 注册的回调函数
 }
 
 /**
@@ -283,15 +277,14 @@ void setup() {
  */
 void loop() {
     #if ENABLE_SENSOR_SIMULATOR
-    // 更新UI控制器（处理输入和显示）- 仅在有UI硬件时
     uiController.update();
     #endif
     
-    // 检查MQTT是否还连接着，如果断了就尝试重连
+    // 检查MQTT连接状态，断线重连
     if (!client.connected()) {
         reconnect();
     }
     // PubSubClient库的心跳函数，必须在loop中持续调用
-    // 它负责处理底层的网络收发和消息检查，并在有新消息时触发我们注册的callback函数
+    // 负责处理底层的网络收发和消息检查，并在有新消息时触发注册的callback函数
     client.loop();
 }
