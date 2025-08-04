@@ -95,9 +95,7 @@ private:
     unsigned long lastUpdate;
     bool needRedraw;
     
-    // 闪烁控制
-    unsigned long blinkTimer;
-    bool blinkState;
+
 
 public:
     UIController();
@@ -137,7 +135,7 @@ private:
     void setRedraw() { needRedraw = true; }
     const char* getRoomName(int index);
     SensorData getCurrentRoomData();
-    void updateBlinkState();
+
 };
 
 // 全局实例（用于中断处理）

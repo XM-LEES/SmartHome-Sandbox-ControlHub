@@ -35,9 +35,7 @@ UIController::UIController()
       lastEncoderSwitchState(HIGH),
       lastBackButtonState(HIGH),
       lastUpdate(0),
-      needRedraw(true),
-      blinkTimer(0),
-      blinkState(false) {
+      needRedraw(true) {
     g_uiController = this;
 }
 #else
@@ -83,7 +81,7 @@ void UIController::begin() {
     // 延迟显示，方便调整布局
     delay(2000);  // 停留2秒
     
-    Serial.println("[UI] UIController initialized");
+    // Serial.println("[UI] UIController initialized");
 }
 
 void UIController::update() {
@@ -92,8 +90,7 @@ void UIController::update() {
     // 处理输入
     handleInput();
     
-    // 更新闪烁状态
-    updateBlinkState();
+
     
     // 仅在需要重绘时刷新显示
     if (needRedraw) {
@@ -111,7 +108,7 @@ void UIController::update() {
         }
         needRedraw = false;
         lastUpdate = currentTime;
-        Serial.println("[UI] 屏幕已刷新");
+        // Serial.println("[UI] 屏幕已刷新");
     }
 }
 
@@ -129,21 +126,21 @@ void UIController::handleInput() {
             int logicalDirection = (encoderStepAccumulator > 0) ? 1 : -1;
             handleEncoderRotation(logicalDirection);
             encoderStepAccumulator = 0;  // 重置累积器
-            Serial.print("[UI] 编码器累积步长达到，执行旋转: ");
-            Serial.println(logicalDirection > 0 ? "正向" : "反向");
+            // Serial.print("[UI] 编码器累积步长达到，执行旋转: ");
+            // Serial.println(logicalDirection > 0 ? "正向" : "反向");
         }
     }
     
     // 超时重置累积器（500ms内没有新的编码器活动）
     if (encoderStepAccumulator != 0 && (currentTime - lastEncoderTime) > 500) {
-        Serial.println("[UI] 编码器累积器超时重置");
+        // Serial.println("[UI] 编码器累积器超时重置");
         encoderStepAccumulator = 0;
     }
     
     // 处理编码器按下
     if (encoderPressed) {
         encoderPressed = false;
-        Serial.println("[UI] 编码器按键触发");
+        // Serial.println("[UI] 编码器按键触发");
         handleEncoderPress();
         delay(300); // 增加防抖延迟
     }
@@ -151,7 +148,7 @@ void UIController::handleInput() {
     // 处理返回按键
     if (backButtonPressed) {
         backButtonPressed = false;
-        Serial.println("[UI] 返回按键触发");
+        // Serial.println("[UI] 返回按键触发");
         handleBackButton();
         delay(300); // 增加防抖延迟
     }
@@ -251,8 +248,8 @@ void UIController::adjustSensorValue(int direction) {
     SensorData data = getSensorData((RoomIndex)selectedRoom);
     
     if (selectedItem == ITEM_TEMPERATURE) {
-        data.temperature += direction * 0.2f;
-        data.temperature = constrain(data.temperature, 0.0f, 50.0f);
+        data.temperature += direction * 0.5f;
+        data.temperature = constrain(data.temperature, -10.0f, 40.0f);
     } else {
         data.humidity += direction * 0.5f;
         data.humidity = constrain(data.humidity, 0.0f, 100.0f);
@@ -363,8 +360,10 @@ void UIController::drawRoomPage() {
     
     y += 12;
     
-    // 温度进度条
-    drawProgressBar(8, y, 100, 6, data.temperature, 50.0f);
+    // 温度进度条 (范围: -10°C ~ 40°C，总共50°C)
+    // 将温度值映射到0-50范围用于进度条显示
+    float tempForProgress = data.temperature + 10.0f;  // 将-10~40映射到0~50
+    drawProgressBar(8, y, 100, 6, tempForProgress, 50.0f);
     
     y += 12;
     
@@ -557,10 +556,7 @@ SensorData UIController::getCurrentRoomData() {
     return getSensorData((RoomIndex)selectedRoom);
 }
 
-void UIController::updateBlinkState() {
-    // 不再需要闪烁效果，但保留函数结构以免影响其他调用
-    // 编辑模式现在使用固定颜色：温度(YELLOW→RED) 湿度(CYAN→BLUE)
-}
+
 
 // 中断处理函数实现
 void IRAM_ATTR UIController::handleEncoderInterrupt() {
