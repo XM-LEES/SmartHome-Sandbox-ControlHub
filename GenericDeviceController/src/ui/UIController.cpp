@@ -53,6 +53,12 @@ void UIController::begin() {
     tft.setRotation(0); // 竖屏模式
     tft.fillScreen(COLOR_BLACK);
     
+    // 初始化U8g2库，用于中文显示
+    u8g2.begin(tft);
+    u8g2.setFontMode(1);  // 透明背景
+    u8g2.setFontDirection(0);  // 从左到右
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312);  // 设置中文字体
+    
     // 初始化GPIO引脚
     pinMode(EC11_A, INPUT_PULLUP);
     pinMode(EC11_B, INPUT_PULLUP);
@@ -223,7 +229,7 @@ void UIController::drawOverviewPage() {
     tft.fillScreen(COLOR_BLACK);
     
     // 绘制标题
-    drawHeader("环境模拟");
+    drawHeader("环境监控");
     
     // 绘制所有房间数据
     int y = 25;
@@ -241,17 +247,17 @@ void UIController::drawOverviewPage() {
             tft.print(">");
         }
         
-        // 房间名和温度
-        tft.setCursor(8, y);
-        tft.print(getRoomName(i));
-        tft.print(" ");
+        // 房间名（中文）
+        printChineseSmall(8, y + 8, getRoomName(i), textColor);
+        
+        // 温度数据（英文数字）
+        tft.setCursor(50, y);
         tft.print(data.temperature, 1);
         tft.print("C");
         
         // 湿度（下一行）
         y += 12;
-        tft.setCursor(8, y);
-        tft.print("  ");
+        tft.setCursor(50, y);
         tft.print(data.humidity, 1);
         tft.print("%");
         
@@ -271,8 +277,7 @@ void UIController::drawOverviewPage() {
     tft.setCursor(40, y);
     tft.print(" <>");
     
-    tft.setCursor(0, y + 10);
-    tft.print("转动选择 按下进入");
+    printChineseSmall(0, y + 18, "转动选择 按下进入", COLOR_CYAN);
 }
 
 void UIController::drawRoomPage() {
@@ -303,8 +308,14 @@ void UIController::drawRoomPage() {
         tft.print(">");
     }
     
-    tft.setCursor(8, y);
-    tft.print("🌡️");
+    // 使用U8g2显示emoji + 中文
+    u8g2.setForegroundColor(tempColor);
+    u8g2.setCursor(8, y + 8);
+    u8g2.print("🌡️温度:");
+    
+    // 使用原生库显示数字
+    tft.setTextColor(tempColor);
+    tft.setCursor(65, y);
     tft.print(data.temperature, 1);
     tft.print("C");
     
@@ -326,8 +337,14 @@ void UIController::drawRoomPage() {
         tft.print(">");
     }
     
-    tft.setCursor(8, y);
-    tft.print("💧");
+    // 使用U8g2显示emoji + 中文
+    u8g2.setForegroundColor(humColor);
+    u8g2.setCursor(8, y + 8);
+    u8g2.print("💧湿度:");
+    
+    // 使用原生库显示数字
+    tft.setTextColor(humColor);
+    tft.setCursor(65, y);
     tft.print(data.humidity, 1);
     tft.print("%");
     
@@ -346,19 +363,14 @@ void UIController::drawRoomPage() {
     tft.setTextSize(1);
     
     if (currentState == STATE_BROWSE) {
-        tft.setCursor(0, y);
-        tft.print("转动选择");
-        tft.setCursor(0, y + 10);
-        tft.print("按下编辑");
+        printChineseSmall(0, y + 8, "转动选择", COLOR_GREEN);
+        printChineseSmall(0, y + 18, "按下编辑", COLOR_GREEN);
     } else {
-        tft.setCursor(0, y);
-        tft.print("转动调节");
-        tft.setCursor(0, y + 10);
-        tft.print("按下确认");
+        printChineseSmall(0, y + 8, "转动调节", COLOR_GREEN);
+        printChineseSmall(0, y + 18, "按下确认", COLOR_GREEN);
     }
     
-    tft.setCursor(0, y + 20);
-    tft.print("按键返回");
+    printChineseSmall(0, y + 28, "按键返回", COLOR_GREEN);
 }
 
 void UIController::drawSettingsPage() {
@@ -371,12 +383,11 @@ void UIController::drawSettingsPage() {
     tft.setTextSize(1);
     
     // WiFi状态
-    tft.setCursor(0, y);
-    tft.print("📶 WiFi: ");
+    u8g2.setForegroundColor(COLOR_WHITE);
+    u8g2.setCursor(0, y + 8);
+    u8g2.print("📶 WiFi:");
     if (WiFi.status() == WL_CONNECTED) {
-        tft.setTextColor(COLOR_GREEN);
-        tft.print("已连接");
-        tft.setTextColor(COLOR_WHITE);
+        printChineseSmall(50, y + 8, "已连接", COLOR_GREEN);
         y += 12;
         tft.setCursor(0, y);
         tft.print("   ");
@@ -386,41 +397,48 @@ void UIController::drawSettingsPage() {
         tft.print("   ");
         tft.print(WiFi.localIP());
     } else {
-        tft.setTextColor(COLOR_RED);
-        tft.print("未连接");
-        tft.setTextColor(COLOR_WHITE);
+        printChineseSmall(50, y + 8, "未连接", COLOR_RED);
     }
     
     y += 20;
     
     // MQTT状态
     extern PubSubClient client; // 引用外部MQTT客户端
-    tft.setCursor(0, y);
-    tft.print("🔗 MQTT: ");
+    u8g2.setForegroundColor(COLOR_WHITE);
+    u8g2.setCursor(0, y + 8);
+    u8g2.print("🔗 MQTT:");
     if (client.connected()) {
-        tft.setTextColor(COLOR_GREEN);
-        tft.print("在线");
+        printChineseSmall(50, y + 8, "在线", COLOR_GREEN);
     } else {
-        tft.setTextColor(COLOR_RED);
-        tft.print("离线");
+        printChineseSmall(50, y + 8, "离线", COLOR_RED);
     }
     
     // 底部操作提示
     y = SCREEN_HEIGHT - 20;
-    tft.setTextColor(COLOR_GREEN);
-    tft.setTextSize(1);
-    tft.setCursor(0, y);
-    tft.print("按键返回");
+    printChineseSmall(0, y + 8, "按键返回", COLOR_GREEN);
 }
 
 void UIController::drawHeader(const char* title) {
-    tft.setTextColor(COLOR_WHITE);
-    tft.setTextSize(1);
-    tft.setCursor((SCREEN_WIDTH - strlen(title) * 6) / 2, 5);
-    tft.print(title);
+    // 使用U8g2显示中文标题
+    printChinese((SCREEN_WIDTH - strlen(title) * 6) / 2, 15, title, COLOR_WHITE);
     
     // 绘制分隔线
     tft.drawLine(0, 18, SCREEN_WIDTH, 18, COLOR_GRAY);
+}
+
+// U8g2中文显示辅助函数
+void UIController::printChinese(int x, int y, const char* text, uint16_t color) {
+    u8g2.setForegroundColor(color);
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312);
+    u8g2.setCursor(x, y);
+    u8g2.print(text);
+}
+
+void UIController::printChineseSmall(int x, int y, const char* text, uint16_t color) {
+    u8g2.setForegroundColor(color);
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312);  // 可以换成更小的字体
+    u8g2.setCursor(x, y);
+    u8g2.print(text);
 }
 
 void UIController::drawProgressBar(int x, int y, int width, int height, float value, float maxValue) {
@@ -436,26 +454,26 @@ void UIController::drawProgressBar(int x, int y, int width, int height, float va
 
 void UIController::drawWiFiIcon(int x, int y) {
     if (WiFi.status() == WL_CONNECTED) {
-        tft.setTextColor(COLOR_GREEN);
-        tft.setCursor(x, y);
-        tft.print("📶");
+        u8g2.setForegroundColor(COLOR_GREEN);
+        u8g2.setCursor(x, y + 8);
+        u8g2.print("📶");
     } else {
-        tft.setTextColor(COLOR_RED);
-        tft.setCursor(x, y);
-        tft.print("📶");
+        u8g2.setForegroundColor(COLOR_RED);
+        u8g2.setCursor(x, y + 8);
+        u8g2.print("📶");
     }
 }
 
 void UIController::drawMQTTIcon(int x, int y) {
     extern PubSubClient client;
     if (client.connected()) {
-        tft.setTextColor(COLOR_GREEN);
-        tft.setCursor(x, y);
-        tft.print("🔗");
+        u8g2.setForegroundColor(COLOR_GREEN);
+        u8g2.setCursor(x, y + 8);
+        u8g2.print("🔗");
     } else {
-        tft.setTextColor(COLOR_RED);
-        tft.setCursor(x, y);
-        tft.print("🔗");
+        u8g2.setForegroundColor(COLOR_RED);
+        u8g2.setCursor(x, y + 8);
+        u8g2.print("🔗");
     }
 }
 
@@ -518,32 +536,25 @@ void UIController::displayStartupScreen() {
     tft.fillScreen(COLOR_BLACK);
     
     // 显示欢迎信息
+    u8g2.setForegroundColor(COLOR_WHITE);
+    u8g2.setFont(u8g2_font_wqy14_t_gb2312);
+    u8g2.setCursor(20, 40);
+    u8g2.println("智能家居");
+    
+    u8g2.setCursor(20, 60);
+    u8g2.println("控制中心");
+    
     tft.setTextColor(COLOR_WHITE);
-    tft.setTextSize(2);
-    tft.setCursor(10, 30);
-    tft.println("智能家居");
-    
     tft.setTextSize(1);
-    tft.setCursor(10, 60);
-    tft.println("控制中心");
-    
     tft.setCursor(10, 80);
-    tft.println("Node2 - UI模块");
+    tft.println("Node1 - UI Module");
     
     // 显示状态信息
-    tft.setTextColor(COLOR_YELLOW);
-    tft.setCursor(10, 110);
-    tft.println("正在初始化...");
-    
-    tft.setTextColor(COLOR_CYAN);
-    tft.setCursor(10, 130);
-    tft.println("连接WiFi中...");
+    printChineseSmall(10, 110, "正在初始化...", COLOR_YELLOW);
+    printChineseSmall(10, 130, "连接WiFi中...", COLOR_CYAN);
     
     // 显示操作提示
-    tft.setTextColor(COLOR_GREEN);
-    tft.setTextSize(1);
-    tft.setCursor(10, 150);
-    tft.println("旋转编码器操作");
+    printChineseSmall(10, 150, "使用编码器操作", COLOR_GREEN);
 }
 
 #endif // ENABLE_UI_DISPLAY

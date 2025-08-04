@@ -13,6 +13,7 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <U8g2_for_Adafruit_GFX.h>
 
 // UI硬件引脚定义（内置在UIController中）
 // TFT屏幕引脚 (ST7735s)
@@ -70,6 +71,7 @@ extern const char* ROOM_NAMES[];
 class UIController {
 private:
     Adafruit_ST7735 tft;
+    U8G2_FOR_ADAFRUIT_GFX u8g2;
     
     // UI状态变量
     UIState currentState;
@@ -112,6 +114,10 @@ private:
     void drawWiFiIcon(int x, int y);
     void drawMQTTIcon(int x, int y);
     void displayStartupScreen();
+    
+    // U8g2中文显示辅助函数
+    void printChinese(int x, int y, const char* text, uint16_t color);
+    void printChineseSmall(int x, int y, const char* text, uint16_t color);
     
     // 输入处理
     void handleEncoderRotation(int direction);
