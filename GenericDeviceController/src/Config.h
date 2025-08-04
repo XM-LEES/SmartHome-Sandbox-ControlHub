@@ -6,7 +6,7 @@
 #define CURRENT_NODE 1  // 1=Node1, 2=Node2
 
 // 根据节点选择包含对应配置并设置UI显示
-#if CURRENT_NODE == 2
+#if CURRENT_NODE == 1
     #define ENABLE_SENSOR_SIMULATOR 0
 #elif CURRENT_NODE == 2  
     #define ENABLE_SENSOR_SIMULATOR 1
