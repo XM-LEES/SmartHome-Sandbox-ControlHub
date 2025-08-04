@@ -87,6 +87,10 @@ private:
     int encoderStepAccumulator;  // 步长累积器：两个咔嗒对应一个步长
     unsigned long lastEncoderTime;  // 上次编码器活动时间
     
+    // 按键状态记录（用于CHANGE中断的电平检测）
+    bool lastEncoderSwitchState;  // 编码器按键上次状态
+    bool lastBackButtonState;     // 返回按键上次状态
+    
     // 显示刷新
     unsigned long lastUpdate;
     bool needRedraw;

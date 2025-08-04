@@ -32,6 +32,8 @@ UIController::UIController()
       lastEncoderA(HIGH),
       encoderStepAccumulator(0),
       lastEncoderTime(0),
+      lastEncoderSwitchState(HIGH),
+      lastBackButtonState(HIGH),
       lastUpdate(0),
       needRedraw(true),
       blinkTimer(0),
@@ -72,14 +74,14 @@ void UIController::begin() {
     
     // 设置中断
     attachInterrupt(digitalPinToInterrupt(EC11_A), encoderISR, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(EC11_SW), encoderSwitchISR, FALLING);
-    attachInterrupt(digitalPinToInterrupt(BTN_OK), backButtonISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(EC11_SW), encoderSwitchISR, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(BTN_OK), backButtonISR, CHANGE);
     
     // 显示启动界面
     displayStartupScreen();
     
     // 延迟显示，方便调整布局
-    delay(50000);  // 停留5秒
+    delay(2000);  // 停留2秒
     
     Serial.println("[UI] UIController initialized");
 }
@@ -576,21 +578,45 @@ void IRAM_ATTR UIController::handleEncoderInterrupt() {
 }
 
 void IRAM_ATTR UIController::handleEncoderSwitchInterrupt() {
-    static unsigned long lastPress = 0;
+    static unsigned long lastChange = 0;
     unsigned long now = millis();
-    if (now - lastPress > 300) { // 增加防抖时间到300ms
-        encoderPressed = true;
-        lastPress = now;
+    
+    // 基本防抖：忽略80ms内的重复变化
+    if (now - lastChange < 80) {
+        return;
     }
+    
+    bool currentState = digitalRead(EC11_SW);
+    
+    // 检测从高到低的变化（按下事件）
+    if (lastEncoderSwitchState == HIGH && currentState == LOW) {
+        encoderPressed = true;
+        lastChange = now;
+    }
+    
+    // 更新状态（无论是按下还是松开）
+    lastEncoderSwitchState = currentState;
 }
 
 void IRAM_ATTR UIController::handleBackButtonInterrupt() {
-    static unsigned long lastPress = 0;
+    static unsigned long lastChange = 0;
     unsigned long now = millis();
-    if (now - lastPress > 300) { // 增加防抖时间到300ms
-        backButtonPressed = true;
-        lastPress = now;
+    
+    // 基本防抖：忽略50ms内的重复变化
+    if (now - lastChange < 50) {
+        return;
     }
+    
+    bool currentState = digitalRead(BTN_OK);
+    
+    // 检测从高到低的变化（按下事件）
+    if (lastBackButtonState == HIGH && currentState == LOW) {
+        backButtonPressed = true;
+        lastChange = now;
+    }
+    
+    // 更新状态（无论是按下还是松开）
+    lastBackButtonState = currentState;
 }
 
 void UIController::displayStartupScreen() {
@@ -621,11 +647,7 @@ void UIController::displayStartupScreen() {
     tft.println("Control Center");
     
     // 节点信息（居中显示）
-    tft.setTextColor(COLOR_CYAN);
-    int nodeInfoWidth = strlen("Node1 - ") * 6;
-    printChineseSmall(10, 105, "主控节点", COLOR_CYAN);
-    tft.setCursor(10, 95);
-    tft.print("Node1 - ");
+    printChineseSmall(10, 105, "Node2-节点", COLOR_CYAN);
     
     // 状态信息（居中显示）
     printChineseSmall((SCREEN_WIDTH - 7*12)/2, 130, "正在初始化...", COLOR_YELLOW);
