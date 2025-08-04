@@ -1,4 +1,4 @@
-# 设备映射关系表
+# 设备映射文档
 
 ## 概述
 
@@ -10,22 +10,22 @@
 
 | 房间 | 设备ID | 设备类型 | 控制函数 | GPIO引脚 | 备注 |
 |------|--------|----------|----------|----------|------|
-| livingroom | light | 客厅灯 | control_light() | 23 | 开关控制 |
-| livingroom | ac | 客厅空调 | control_ac() | 22 | 支持温度设置 |
-| livingroom | window | 客厅窗户 | control_window() | 15 | 开关控制 |
-| livingroom | door | 客厅门 | control_door() | 14 | 开关控制 |
-| livingroom | curtain | 客厅窗帘 | control_curtain() | 10 | 开关控制 |
-| bedroom | light | 卧室灯 | control_light() | 20 | 开关控制 |
-| bedroom | bedside_light | 床头灯 | control_light() | 21 | 复用灯控制逻辑 |
-| bedroom | ac | 卧室空调 | control_ac() | 19 | 支持温度设置 |
-| bedroom | window | 卧室窗户 | control_window() | 13 | 开关控制 |
-| bedroom | door | 卧室门 | control_door() | 12 | 开关控制 |
-| bedroom | curtain | 卧室窗帘 | control_curtain() | 9 | 开关控制 |
-| kitchen | light | 厨房灯 | control_light() | 18 | 开关控制 |
-| kitchen | hood | 油烟机 | control_hood() | 5 | 开关控制 |
-| bathroom | light | 浴室灯 | control_light() | 16 | 开关控制 |
-| bathroom | fan | 排气扇 | control_fan() | 17 | 开关控制 |
-| bathroom | door | 浴室门 | control_door() | 11 | 开关控制 |
+| livingroom | light | 客厅灯 | control_light() | 22 | 开关控制 |
+| livingroom | ac | 客厅空调 | control_ac() | 21 | 支持温度设置 |
+| livingroom | window | 客厅窗户 | control_window() | 19 | 开关控制 |
+| livingroom | door | 客厅门 | control_door() | 17 | 开关控制 |
+| livingroom | curtain | 客厅窗帘 | control_curtain() | 16 | 开关控制 |
+| bedroom | light | 卧室灯 | control_light() | 4 | 开关控制 |
+| bedroom | bedside_light | 床头灯 | control_light() | 2 | 复用灯控制逻辑 |
+| bedroom | ac | 卧室空调 | control_ac() | 34 | 支持温度设置 |
+| bedroom | window | 卧室窗户 | control_window() | 32 | 开关控制 |
+| bedroom | door | 卧室门 | control_door() | 33 | 开关控制 |
+| bedroom | curtain | 卧室窗帘 | control_curtain() | 25 | 开关控制 |
+| kitchen | light | 厨房灯 | control_light() | 26 | 开关控制 |
+| kitchen | hood | 油烟机 | control_hood() | 27 | 开关控制 |
+| bathroom | light | 浴室灯 | control_light() | 14 | 开关控制 |
+| bathroom | fan | 排气扇 | control_fan() | 13 | 开关控制 |
+| bathroom | door | 浴室门 | control_door() | 12 | 开关控制 |
 
 ### 虚拟设备 - 传感器（10个）
 
@@ -59,22 +59,22 @@
 ## GPIO引脚分配
 
 ### 已使用的引脚
-- GPIO 5: 厨房油烟机
-- GPIO 9: 卧室窗帘
-- GPIO 10: 客厅窗帘
-- GPIO 11: 浴室门
-- GPIO 12: 卧室门
-- GPIO 13: 卧室窗户
-- GPIO 14: 客厅门
-- GPIO 15: 客厅窗户
-- GPIO 16: 浴室灯
-- GPIO 17: 浴室排气扇
-- GPIO 18: 厨房灯
-- GPIO 19: 卧室空调
-- GPIO 20: 卧室灯
-- GPIO 21: 卧室床头灯
-- GPIO 22: 客厅空调
-- GPIO 23: 客厅灯
+- GPIO 2: 卧室床头灯
+- GPIO 4: 卧室灯
+- GPIO 12: 浴室门
+- GPIO 13: 浴室排气扇
+- GPIO 14: 浴室灯
+- GPIO 16: 客厅窗帘
+- GPIO 17: 客厅门
+- GPIO 19: 客厅窗户
+- GPIO 21: 客厅空调
+- GPIO 22: 客厅灯
+- GPIO 25: 卧室窗帘
+- GPIO 26: 厨房灯
+- GPIO 27: 厨房油烟机
+- GPIO 32: 卧室窗户
+- GPIO 33: 卧室门
+- GPIO 34: 卧室空调
 
 ### 引脚分配原则
 - 避免使用ESP32的特殊引脚（如启动引脚、下载引脚等）
@@ -133,6 +133,22 @@
   - is_on: true=开, false=关
 - **适用设备**: 窗帘（curtain）
 
+### control_temperature_sensor(room_id)
+- **功能**: 读取温度传感器数据
+- **参数**:
+  - room_id: 房间ID
+- **返回值**: 温度值（°C），-999.0表示读取失败或不支持
+- **适用设备**: 温度传感器（temp_sensor）
+- **注意**: 仅在ENABLE_SENSOR_SIMULATOR=1时有效
+
+### control_humidity_sensor(room_id)
+- **功能**: 读取湿度传感器数据
+- **参数**:
+  - room_id: 房间ID
+- **返回值**: 湿度值（%），-999.0表示读取失败或不支持
+- **适用设备**: 湿度传感器（humidity_sensor）
+- **注意**: 仅在ENABLE_SENSOR_SIMULATOR=1时有效
+
 ## MQTT Topic格式
 
 ### 命令Topic
@@ -152,25 +168,7 @@ smarthome/{room_id}/{device_id}/state
 ## 传感器数据管理
 
 ### 传感器数据管理器
-- **文件**: `core/SensorDataManager.h` 和 `core/SensorDataManager.cpp`
+- **文件**: `sensorsimulator/SensorDataManager.h` 和 `sensorsimulator/SensorDataManager.cpp`
 - **功能**: 管理所有房间的传感器数据，提供数据存储、更新和读取功能
 - **数据更新**: 通过 `setSensorData()` 接口手动更新传感器数据
 - **数据范围**: 每个房间都有预定义的温度和湿度范围
-
-### 传感器数据特点
-- **持久化存储**: 传感器数据在ESP32内存中持续维护
-- **稳定数据**: 数据保持稳定，确保同一时间读取得到相同结果
-- **故障模拟**: 支持模拟传感器读取失败
-- **调试支持**: 提供数据打印功能，便于调试
-
-
-
-
-
-## 注意事项
-
-1. **床头灯复用**: 床头灯使用与普通灯相同的控制逻辑，简化了代码实现
-2. **引脚冲突**: 确保没有引脚冲突，每个设备使用独立的GPIO引脚
-3. **设备类型**: 所有设备都支持标准的ON/OFF操作，空调额外支持温度设置
-4. **错误处理**: 每个控制函数都包含完整的错误处理和调试输出
-5. **传感器数据**: 传感器数据由SensorDataManager统一管理，确保数据一致性和真实性

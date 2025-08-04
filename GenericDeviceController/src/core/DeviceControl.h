@@ -5,7 +5,6 @@
 #define DEVICE_CONTROL_H
 
 #include <Arduino.h>
-#include "SensorDataManager.h"
 
 /**
  * @brief (私有辅助函数) 在设备数组中根据room_id和device_id查找对应的引脚。room_id和device_id定义在Node1Config.h
@@ -194,5 +193,74 @@ bool control_curtain(const char* room_id, bool is_on) {
 }
 
 // ... 可以根据需要，在这里添加更多 `control_` 系列函数。
+
+// =================== 传感器控制函数 ===================
+#if ENABLE_SENSOR_SIMULATOR
+    #include "../sensorsimulator/SensorDataManager.h"
+
+    /**
+     * @brief 控制温度传感器读取
+     * @param room_id 房间ID
+     * @return 温度值，-999.0表示读取失败
+     */
+    float control_temperature_sensor(const char* room_id) {
+        int room_index = getRoomIndex(room_id);
+        if (room_index == -1) {
+            Serial.print("[HAL-ERROR] Unknown room for temp sensor: "); Serial.println(room_id);
+            return -999.0;
+        }
+        
+        SensorData sensor_data = getSensorData((RoomIndex)room_index);
+        float temp_value = sensor_data.temperature;
+        
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/temp_sensor' read: "); Serial.print(temp_value); Serial.println("°C");
+        
+        return temp_value;
+    }
+
+    /**
+     * @brief 控制湿度传感器读取
+     * @param room_id 房间ID
+     * @return 湿度值，-999.0表示读取失败
+     */
+    float control_humidity_sensor(const char* room_id) {
+        int room_index = getRoomIndex(room_id);
+        if (room_index == -1) {
+            Serial.print("[HAL-ERROR] Unknown room for humidity sensor: "); Serial.println(room_id);
+            return -999.0;
+        }
+        
+        SensorData sensor_data = getSensorData((RoomIndex)room_index);
+        float humidity_value = sensor_data.humidity;
+        
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/humidity_sensor' read: "); Serial.print(humidity_value); Serial.println("%");
+        
+        return humidity_value;
+    }
+
+#else
+    // 无传感器支持的存根实现
+    /**
+     * @brief 温度传感器存根实现（无传感器支持时）
+     * @param room_id 房间ID
+     * @return 始终返回-999.0表示不支持
+     */
+    float control_temperature_sensor(const char* room_id) {
+        Serial.println("[HAL-ERROR] Temperature sensor not supported on this node");
+        return -999.0;
+    }
+
+    /**
+     * @brief 湿度传感器存根实现（无传感器支持时）
+     * @param room_id 房间ID
+     * @return 始终返回-999.0表示不支持
+     */
+    float control_humidity_sensor(const char* room_id) {
+        Serial.println("[HAL-ERROR] Humidity sensor not supported on this node");
+        return -999.0;
+    }
+#endif
 
 #endif // DEVICE_CONTROL_H

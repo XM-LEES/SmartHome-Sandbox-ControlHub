@@ -3,11 +3,9 @@
 
 #include <Arduino.h>
 #include "../Config.h"
-#include "../core/SensorDataManager.h"
+#include "SensorDataManager.h"
 
-
-// 只有在启用UI时才包含相关库和定义
-#if ENABLE_UI_DISPLAY
+// UI相关库（UIController只在传感器模拟器启用时被包含，无需条件判断）
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
@@ -47,8 +45,6 @@
 #define COLOR_MAGENTA   0xF81F
 #define COLOR_GRAY      0x8410
 
-#endif // ENABLE_UI_DISPLAY (包含库和定义)
-
 // UI状态枚举（总是需要，用于接口）
 enum UIState {
     STATE_OVERVIEW,     // 概览页
@@ -66,8 +62,7 @@ enum SensorItem {
 // 房间名称映射（声明）
 extern const char* ROOM_NAMES[];
 
-#if ENABLE_UI_DISPLAY
-// 完整的UI控制器实现（有硬件时）
+// UI控制器实现
 class UIController {
 private:
     Adafruit_ST7735 tft;
@@ -140,26 +135,5 @@ private:
 
 // 全局实例（用于中断处理）
 extern UIController* g_uiController;
-
-#else
-// 空实现（无硬件时）
-class UIController {
-public:
-    UIController();  // 显式声明构造函数
-    void begin() { 
-        Serial.println("[UI] UI disabled - no display hardware configured"); 
-    }
-    void update() { /* 什么都不做 */ }
-    
-    // 空的中断处理函数（保持接口一致性）
-    void IRAM_ATTR handleEncoderInterrupt() { /* 什么都不做 */ }
-    void IRAM_ATTR handleEncoderSwitchInterrupt() { /* 什么都不做 */ }
-    void IRAM_ATTR handleBackButtonInterrupt() { /* 什么都不做 */ }
-};
-
-// 空的全局实例
-extern UIController* g_uiController;
-
-#endif // ENABLE_UI_DISPLAY
 
 #endif // UI_CONTROLLER_H

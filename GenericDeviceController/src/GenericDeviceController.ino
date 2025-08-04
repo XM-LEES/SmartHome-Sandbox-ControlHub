@@ -14,15 +14,16 @@
 #endif
 
 #include "core/DeviceControl.h"
-#include "core/SensorDataManager.h"
-#include "ui/UIController.h"
+
+#if ENABLE_SENSOR_SIMULATOR
+    #include "sensorsimulator/UIController.h"
+    // --- UI控制器实例 ---
+    UIController uiController;
+#endif
 
 // --- 初始化客户端实例 ---
 WiFiClient espClient;
 PubSubClient client(espClient);
-
-// --- UI控制器实例 ---
-UIController uiController;
 
 /**
  * @brief 连接到WiFi网络。
@@ -222,51 +223,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (strcmp(device, "curtain") == 0) {
         control_success = control_curtain(room, is_on);
     } else if (strcmp(device, "temp_sensor") == 0) {
-        int room_index = getRoomIndex(room);
-        if (room_index == -1) {
-            // 未知房间，发送错误回执
-            publish_error_state(room, device, correlation_id, "UNKNOWN_ROOM", "Unknown room ID");
-            return;
-        }
-        
-        SensorData sensor_data = getSensorData((RoomIndex)room_index);
-        float temp_value = sensor_data.temperature;
-        
-        Serial.print("[HAL] '"); Serial.print(room);
-        Serial.print("/temp_sensor' read: "); Serial.print(temp_value); Serial.println("°C");
-        
-        if (temp_value == -999.0) {
-            // 传感器读取 -999.0 表示失败，发送错误回执
+        float temp_value = control_temperature_sensor(room);
+        if (temp_value != -999.0) {
+            publish_sensor_state(room, device, "READ", correlation_id, temp_value, "°C");
+        } else {
             publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Temperature sensor read failed");
-            return;
         }
-        
-        publish_sensor_state(room, device, "READ", correlation_id, temp_value, "°C");
         return;
     } else if (strcmp(device, "humidity_sensor") == 0) {
-        int room_index = getRoomIndex(room);
-        if (room_index == -1) {
-            // 未知房间，发送错误回执
-            publish_error_state(room, device, correlation_id, "UNKNOWN_ROOM", "Unknown room ID");
-            return;
-        }
-        
-        SensorData sensor_data = getSensorData((RoomIndex)room_index);
-        float humidity_value = sensor_data.humidity;
-        
-        Serial.print("[HAL] '"); Serial.print(room);
-        Serial.print("/humidity_sensor' read: "); Serial.print(humidity_value); Serial.println("%");
-        
-        if (humidity_value == -999.0) {
-            // 传感器读取失败，发送错误回执
+        float humidity_value = control_humidity_sensor(room);
+        if (humidity_value != -999.0) {
+            publish_sensor_state(room, device, "READ", correlation_id, humidity_value, "%");
+        } else {
             publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Humidity sensor read failed");
-            return;
         }
-        
-        // 发送包含传感器数据的回执
-        publish_sensor_state(room, device, "READ", correlation_id, humidity_value, "%");
         return;
-    } 
+    }
     // 添加其他设备类型的判断...
     // else if (strcmp(device, "oven") == 0) {
     //     control_oven(room, is_on);
@@ -295,9 +267,9 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void setup() {
     Serial.begin(115200);   // 启动串口，用于调试输出
     setup_devices();        // 初始化硬件设备
-    initSensorData();       // 初始化传感器数据
     
-    #if ENABLE_UI_DISPLAY
+    #if ENABLE_SENSOR_SIMULATOR
+    initSensorData();       // 初始化传感器数据
     uiController.begin();   // 初始化UI控制器（仅在有UI硬件时）
     #endif
     
@@ -310,7 +282,7 @@ void setup() {
  * @brief 主循环。
  */
 void loop() {
-    #if ENABLE_UI_DISPLAY
+    #if ENABLE_SENSOR_SIMULATOR
     // 更新UI控制器（处理输入和显示）- 仅在有UI硬件时
     uiController.update();
     #endif

@@ -19,7 +19,6 @@ void IRAM_ATTR backButtonISR() {
     if (g_uiController) g_uiController->handleBackButtonInterrupt();
 }
 
-#if ENABLE_UI_DISPLAY
 UIController::UIController() 
     : tft(TFT_CS, TFT_DC, TFT_RST),
       currentState(STATE_OVERVIEW),
@@ -38,13 +37,7 @@ UIController::UIController()
       needRedraw(true) {
     g_uiController = this;
 }
-#else
-UIController::UIController() {
-    g_uiController = this;
-}
-#endif
 
-#if ENABLE_UI_DISPLAY
 void UIController::begin() {
     // 初始化背光控制
     pinMode(TFT_BLK, OUTPUT);
@@ -79,7 +72,7 @@ void UIController::begin() {
     displayStartupScreen();
     
     // 延迟显示，方便调整布局
-    delay(10000);  // 停留5秒
+    delay(2000);  // 停留2秒
     
     // Serial.println("[UI] UIController initialized");
 }
@@ -647,5 +640,3 @@ void UIController::displayStartupScreen() {
     tft.setCursor(versionX, 150);
     tft.print("v1.0  2024.01");
 }
-
-#endif // ENABLE_UI_DISPLAY

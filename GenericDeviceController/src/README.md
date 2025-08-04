@@ -1,15 +1,31 @@
-# 通用设备控制器固件 (GenericDeviceController)
+# 通用设备控制器固件
 
 本项目是为智能家居沙盘系统设计的通用ESP32固件，通过MQTT协议接收并执行来自上位机的控制指令。
 
 ## 🏗️ 架构设计
 
-### 核心思想
-- **一个通用程序** + **不同配置文件** = **适配不同硬件的节点**
-- 通过条件编译实现硬件功能的启用/禁用
-- 编译时优化，无硬件功能的代码完全不会被包含
+**核心理念：** 一个固件 + 条件编译 = 多种节点配置
 
-### 📁 目录结构
+### 依赖关系
+```mermaid
+graph TD
+    A[主程序] --> B[HAL层<br/>DeviceControl.h]
+    A --> C[传感器交互<br/>UIController.h]
+    
+    B --> D[传感器数据<br/>SensorDataManager.h]
+    C --> D
+    
+    E[编译配置] --> F[Node1: 物理设备]
+    E --> G[Node2: 传感器模拟器]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#fff3e0
+    style D fill:#e8f5e8
+```
+
+## 📁 项目结构
+
 ```
 src/
 ├── GenericDeviceController.ino    # 主程序
@@ -19,71 +35,33 @@ src/
 │   ├── Node1Config.h             # Node1节点配置
 │   └── Node2Config.h             # Node2节点配置
 ├── core/                          # 核心模块
-│   ├── DeviceControl.h           # 设备控制抽象层
-│   ├── SensorDataManager.h       # 传感器数据管理
-│   └── SensorDataManager.cpp     # 传感器数据实现
-├── ui/                           # UI模块
-│   ├── UIController.h            # UI控制器
-│   └── UIController.cpp          # UI实现
+│   └── DeviceControl.h           # 设备控制抽象层
+├── sensorsimulator/               # 传感器模拟器模块
+│   ├── SensorDataManager.h       # 传感器数据存储和管理
+│   ├── SensorDataManager.cpp
+│   ├── UIController.h            # 用户交互和数据调节
+│   └── UIController.cpp
 └── doc/                          # 文档
-    └── Device_Mapping.md         # 引脚映射文档
+    ├── UI_Guide.md               # UI界面与交互说明文档
+    └── Device_Mapping.md         # 设备映射关系与引脚分配文档
 ```
 
-## 功能特性
-- **多设备支持**: 通过配置文件 (`nodeconfig/NodeXConfig.h`) 可灵活定义单个ESP32节点所控制的多个设备及其引脚
-- **动态Topic订阅**: 启动时会根据配置文件自动订阅所有相关设备的`command` Topic
-- **可靠回执**: 只有在硬件操作**成功执行**后，才会向对应的`state` Topic发布状态回执，以完成闭环控制
-- **分层设计**: 代码结构清晰，分为主逻辑 (`.ino`) 和硬件抽象层 (`core/DeviceControl.h`)，便于维护和扩展
-- **硬件适配**: 支持有UI屏幕的交互式节点和无UI的纯控制节点
+## ⚙️ 节点类型
 
-## 📁 节点配置文件
+| 节点 | 用途 | 硬件 | 功能 |
+|------|------|------|------|
+| **Node1** | 设备控制 | GPIO物理设备 | 灯光、空调、门窗控制 |
+| **Node2** | 传感器模拟 | TFT屏+编码器 | 温湿度数据+交互界面 |
 
-### Node1Config.h - 主控节点（厨房+卫生间）
-```cpp
-特点：
-✅ 包含UI显示屏和编码器
-✅ 包含物理控制设备
-✅ 包含虚拟传感器
-✅ 支持本地交互控制
+## 🚀 快速开始
 
-硬件：
-- ST7735 TFT显示屏
-- EC11旋转编码器
-- 返回按键
-- 继电器控制的设备
-```
+1. **配置节点**：修改 `Config.h` 中的 `CURRENT_NODE`
+2. **设置设备**：编辑对应的 `nodeconfig/NodeXConfig.h`
+3. **编译上传**：PlatformIO 或 Arduino IDE
 
-### Node2Config.h - 执行节点（客厅+卧室）
-```cpp
-特点：
-❌ 无UI硬件
-✅ 专注物理设备控制
-❌ 不包含传感器
-✅ 纯MQTT命令执行
+## 📖 详细文档
 
-硬件：
-- 继电器控制的设备
-- 无显示屏
-- 无用户交互界面
-```
-
-## 依赖库
-- `ArduinoJson`
-- `PubSubClient`
-- `WiFi`
-- `Adafruit_GFX` & `Adafruit_ST7735` (仅UI节点)
-
-## 🔧 使用方法
-
-### 配置和部署
-1. **选择节点**: 在`Config.h`中设置`CURRENT_NODE = 1`或`2`
-2. **配置设备**: 修改对应的`nodeconfig/NodeXConfig.h`文件
-3. **上传固件**: 编译并上传到ESP32
-4. **监控运行**: 通过串口监视器查看状态
-
-## 📋 详细文档
-
-- **设备配置**: 参见 `doc/Device_Mapping.md`
-- **引脚映射**: 参见各节点配置文件
+- 📋 [设备映射与引脚分配](doc/Device_Mapping.md)
+- 🎮 [UI界面操作指南](doc/UI_Guide.md)
 
 
