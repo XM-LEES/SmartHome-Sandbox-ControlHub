@@ -49,18 +49,30 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid request: room, device, or action not recognized."
         )
+    
+    # 2. 空调特殊参数验证
+    if device_id == "ac":
+        if req.action in ["ON", "SET_TEMP"]:
+            if req.value is None or req.value < 0 or req.value > 40:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"AC {req.action} operation requires valid temperature value (0-40°C)."
+                )
+        elif req.action == "OFF":
+            # OFF操作不需要value参数，但如果提供了也不报错
+            pass
 
-    # 2. 生成一个唯一的correlation_id，用于匹配请求和响应
+    # 3. 生成一个唯一的correlation_id，用于匹配请求和响应
     correlation_id = str(uuid.uuid4())
     
-    # 3. 从RequestManager获取一个Event对象，用于等待设备执行确认
+    # 4. 从RequestManager获取一个Event对象，用于等待设备执行确认
     event = request_manager.start_request(correlation_id)
     
-    # 4. 根据API路径参数构造MQTT的Topic，用于发送命令和接收回执
+    # 5. 根据API路径参数构造MQTT的Topic，用于发送命令和接收回执
     command_topic = f"smarthome/{room_id}/{device_id}/command"
     state_topic = f"smarthome/{room_id}/{device_id}/state"
     
-    # 5. 构造要发送给设备的JSON命令，包括action、value和correlation_id
+    # 6. 构造要发送给设备的JSON命令，包括action、value和correlation_id
     payload = {
         "action": req.action,
         "value": req.value,
@@ -69,20 +81,20 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
 
     # 使用 try...finally 结构确保清理工作总能被执行
     try:
-        # 6. 临时订阅状态Topic，准备接收回执。必须在发布命令前订阅，以防错过快速的回执。
+        # 7. 临时订阅状态Topic，准备接收回执。必须在发布命令前订阅，以防错过快速的回执。
         mqtt_client.subscribe(state_topic)
         
-        # 7. 发布命令
+        # 8. 发布命令
         mqtt_client.publish(command_topic, json.dumps(payload))
 
-        # 8. 等待设备执行确认，如果设备在规定时间内没有响应，则抛出超时异常
+        # 9. 等待设备执行确认，如果设备在规定时间内没有响应，则抛出超时异常
         # 程序会在这里阻塞，直到event.set()被调用，或者超时
         await asyncio.wait_for(event.wait(), timeout=API_REQUEST_TIMEOUT)
 
-        # 9. 从RequestManager获取设备返回的结果
+        # 10. 从RequestManager获取设备返回的结果
         result = request_manager.get_result(correlation_id)
         
-        # 10. 检查设备是否返回错误状态
+        # 11. 检查设备是否返回错误状态
         if result and result.get("state") == "ERROR":
             # 502表示设备返回了错误状态
             error_code = result.get("error_code", "UNKNOWN_ERROR")
@@ -107,6 +119,9 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
                     status_code=status.HTTP_502_BAD_GATEWAY,
                     detail="Sensor data incomplete or malformed"
                 )
+        elif device_id == "ac" and req.action == "SET_TEMP":
+            # 空调温度设置响应 - 包含温度信息
+            return {"status": "success", "confirmed_result": result}
         else:
             # 普通设备响应
             return {"status": "success", "confirmed_result": result}
@@ -119,5 +134,5 @@ async def device_action(room_id: str, device_id: str, req: ActionRequest):
             detail="Device did not respond in time."
         )
     finally:
-        # 11. 取消订阅状态Topic，释放资源。这可以防止API服务不必要地接收该设备未来的所有状态更新
+        # 12. 取消订阅状态Topic，释放资源。这可以防止API服务不必要地接收该设备未来的所有状态更新
         mqtt_client.unsubscribe(state_topic)

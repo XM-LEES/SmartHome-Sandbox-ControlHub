@@ -6,6 +6,39 @@
 
 #include <Arduino.h>
 
+// =================== 空调状态管理 ===================
+struct AirConditionerState {
+    bool is_on;              // 空调是否开启
+    int target_temperature;  // 目标温度
+};
+
+// 手动定义空调状态数组 - 按房间索引
+// 0: livingroom, 1: bedroom, 2: kitchen, 3: bathroom
+AirConditionerState ac_states[4] = {
+    {false, 24},  // livingroom 空调：关闭，默认24度
+    {false, 24},  // bedroom 空调：关闭，默认24度  
+    {false, 26},  // kitchen 空调：关闭，默认26度（厨房稍热）
+    {false, 25}   // bathroom 空调：关闭，默认25度
+};
+
+// 获取房间对应的数组索引
+int get_room_index(const char* room_id) {
+    if (strcmp(room_id, "livingroom") == 0) return 0;
+    if (strcmp(room_id, "bedroom") == 0) return 1;
+    if (strcmp(room_id, "kitchen") == 0) return 2;
+    if (strcmp(room_id, "bathroom") == 0) return 3;
+    return -1;  // 未知房间
+}
+
+// 获取空调状态
+AirConditionerState* get_ac_state(const char* room_id) {
+    int index = get_room_index(room_id);
+    if (index >= 0 && index < 4) {
+        return &ac_states[index];
+    }
+    return nullptr;
+}
+
 /**
  * @brief (私有辅助函数) 在设备数组中根据room_id和device_id查找对应的引脚。room_id和device_id定义在Node1Config.h
  * @param room_id 要查找的房间ID。
@@ -60,21 +93,67 @@
 }
 
 /**
+ * @brief 专门处理空调温度设置。
+ * @param room_id 空调所在的房间ID。
+ * @param temperature 目标温度。
+ * @return true表示成功，false表示失败
+ */
+bool control_ac_set_temperature(const char* room_id, int temperature) {
+    // 温度范围检查
+    if (temperature < 0 || temperature > 40) {
+        Serial.print("[HAL-ERROR] Invalid temperature: "); Serial.print(temperature);
+        Serial.println(". Valid range: 0-40°C");
+        return false;
+    }
+    
+    // 获取空调状态
+    AirConditionerState* state = get_ac_state(room_id);
+    if (state == nullptr) {
+        Serial.print("[HAL-ERROR] Room '"); Serial.print(room_id);
+        Serial.println("' not found for AC temperature setting");
+        return false;
+    }
+    
+    // 更新目标温度
+    state->target_temperature = temperature;
+    
+    // 这里可以添加实际的硬件控制逻辑（如红外发射、串口通信等）
+    Serial.print("[HAL] AC in "); Serial.print(room_id);
+    Serial.print(" temperature set to: "); Serial.print(temperature);
+    Serial.println("°C");
+    
+    return true;
+}
+
+/**
  * @brief 控制指定房间的空调开关。
  * @param room_id 空调所在的房间ID。
  * @param is_on true为开，false为关。
- * @param temperature 设定温度（仅用于打印输出）。
+ * @param temperature 设定温度（用于ON操作时更新目标温度）。
  * @return true表示成功，false表示失败
  */
  bool control_ac(const char* room_id, bool is_on, int temperature) {
     int pin = find_pin(room_id, "ac"); // 硬编码device_id为"ac"
     if (pin != -1) {
         digitalWrite(pin, is_on ? HIGH : LOW);
+        
+        // 更新状态
+        AirConditionerState* state = get_ac_state(room_id);
+        if (state != nullptr) {
+            state->is_on = is_on;
+            if (is_on && temperature >= 0 && temperature <= 40) {
+                // ON操作时必须设置提供的温度值
+                state->target_temperature = temperature;
+            } else if (!is_on) {
+                // OFF操作时保持当前温度设置
+            }
+        }
+        
         Serial.print("[HAL] '"); Serial.print(room_id);
         Serial.print("/ac' (Pin "); Serial.print(pin);
         Serial.print(") turned "); Serial.print(is_on ? "ON" : "OFF");
-        if (is_on) {
-            Serial.print(", set temp to: "); Serial.print(temperature);
+        if (is_on && state != nullptr) {
+            Serial.print(", temp: "); Serial.print(state->target_temperature); Serial.print("°C");
         }
         Serial.println();
         return true;

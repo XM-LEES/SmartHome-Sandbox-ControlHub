@@ -91,12 +91,25 @@
 - **适用设备**: 所有灯类设备（light, bedside_light）
 
 ### control_ac(room_id, is_on, temperature)
-- **功能**: 控制空调设备
+- **功能**: 控制空调开关状态
 - **参数**:
   - room_id: 房间ID
   - is_on: true=开, false=关
-  - temperature: 设定温度
+  - temperature: 设定温度（ON操作时必须提供有效值）
 - **适用设备**: 空调设备（ac）
+- **支持操作**: ON, OFF
+- **调用规则**:
+  - `ON`：必须提供有效温度(0-40°C)，开启空调并设置温度
+  - `OFF`：温度参数被忽略，仅关闭空调
+
+### control_ac_set_temperature(room_id, temperature)
+- **功能**: 设置空调目标温度
+- **参数**:
+  - room_id: 房间ID
+  - temperature: 目标温度（0-40°C）
+- **适用设备**: 空调设备（ac）
+- **支持操作**: SET_TEMP
+- **返回值**: true=成功, false=失败（温度超出范围或房间不存在）
 
 ### control_hood(room_id, is_on)
 - **功能**: 控制油烟机

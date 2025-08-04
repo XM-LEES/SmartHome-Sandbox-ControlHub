@@ -43,7 +43,7 @@
 | 设备ID | 设备类型 | 支持操作 | 参数说明 |
 |--------|----------|----------|----------|
 | `light` | 开关灯 | `ON`, `OFF` | 无需参数 |
-| `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `SET_TEMP`需要`value`参数(温度值) |
+| `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `ON`和`SET_TEMP`都需要`value`参数(温度值0-40°C) |
 | `window` | 窗户 | `ON`, `OFF` | 无需参数 |
 | `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
@@ -56,7 +56,7 @@
 |--------|----------|----------|----------|
 | `light` | 灯 | `ON`, `OFF` | 无需参数 |
 | `bedside_light` | 床头灯 | `ON`, `OFF` | 无需参数 |
-| `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `SET_TEMP`需要`value`参数(温度值) |
+| `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `ON`和`SET_TEMP`都需要`value`参数(温度值0-40°C) |
 | `window` | 窗户 | `ON`, `OFF` | 无需参数 |
 | `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
@@ -179,16 +179,26 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/curtain/action \
 ### 带参数操作
 
 ```bash
-# 设置客厅空调温度为25度
+# 开启客厅空调并设置温度为25度
 curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
   -H "Content-Type: application/json" \
-  -d '{"action": "SET_TEMP", "value": 25}'
+  -d '{"action": "ON", "value": 25}'
 
-# 设置卧室空调温度为23度
+# 设置卧室空调温度（不改变开关状态）
 curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
   -H "Content-Type: application/json" \
   -d '{"action": "SET_TEMP", "value": 23}'
+
+# 关闭客厅空调（无需value参数）
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "OFF"}'
 ```
+
+> **空调操作说明**：
+> - `ON`：开启空调，**必须**提供 `value` 参数设置温度（0-40°C）
+> - `SET_TEMP`：设置目标温度，**必须**提供 `value` 参数（0-40°C）
+> - `OFF`：关闭空调，**无需** `value` 参数
 
 ### 传感器读取操作
 
@@ -259,6 +269,27 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
 - `confirmed_result.state`: 设备确认的执行状态
 - `confirmed_result.correlation_id`: 请求关联ID，用于追踪
 
+### 空调温度设置响应 (HTTP 200)
+
+```json
+{
+  "status": "success",
+  "confirmed_result": {
+    "state": "SET_TEMP",
+    "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
+    "temperature": 25,
+    "unit": "°C"
+  }
+}
+```
+
+**空调温度设置响应字段说明**:
+- `status`: 操作状态，成功时为"success"
+- `confirmed_result.state`: 设备确认的执行状态（"SET_TEMP"）
+- `confirmed_result.correlation_id`: 请求关联ID
+- `confirmed_result.temperature`: 设置的目标温度值
+- `confirmed_result.unit`: 温度单位
+
 ### 传感器读取响应 (HTTP 200)
 
 ```json
@@ -322,6 +353,9 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
 - `UNKNOWN_ROOM`: 未知房间ID
 - `DEVICE_NOT_FOUND`: 设备在当前节点配置中不存在
 - `SENSOR_READ_ERROR`: 传感器读取失败
+- `INVALID_TEMPERATURE`: 温度值无效（有效范围：0-40°C）
+- `MISSING_OR_INVALID_VALUE`: 缺少必需的value参数或参数无效
+- `UNKNOWN_ACTION`: 设备不支持的操作
 
 #### 504 Gateway Timeout - 设备超时
 ```json

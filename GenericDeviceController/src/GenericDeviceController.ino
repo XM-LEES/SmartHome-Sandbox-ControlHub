@@ -130,6 +130,37 @@ void publish_sensor_state(const char* room_id, const char* device_id, const char
 }
 
 /**
+ * @brief 发布空调状态，包含温度信息
+ * @param room_id 房间ID
+ * @param device_id 空调设备ID
+ * @param state 状态字符串，"SET_TEMP"等
+ * @param correlation_id 关联ID
+ * @param temperature 温度值
+ */
+void publish_ac_state(const char* room_id, const char* device_id, const char* state, const char* correlation_id, int temperature) {
+    // 构造状态Topic的字符串
+    char state_topic[128];
+    snprintf(state_topic, sizeof(state_topic), "smarthome/%s/%s/state", room_id, device_id);
+
+    // 使用ArduinoJson创建一个JSON对象
+    StaticJsonDocument<256> doc;
+    doc["state"] = state;
+    doc["correlation_id"] = correlation_id;
+    doc["temperature"] = temperature;
+    doc["unit"] = "°C";
+
+    // 将JSON对象序列化为字符串
+    char buffer[256];
+    size_t n = serializeJson(doc, buffer);
+
+    // 发布回执消息
+    client.publish(state_topic, buffer, n);
+    Serial.print("Published AC state to "); 
+    Serial.print(state_topic);
+    Serial.print(": "); Serial.println(buffer);
+}
+
+/**
  * @brief 发送错误回执给上位机
  * @param room_id 房间ID
  * @param device_id 设备ID
@@ -203,7 +234,28 @@ void callback(char* topic, byte* payload, unsigned int length) {
     if (strcmp(device, "light") == 0) {
         control_success = control_light(room, is_on);
     } else if (strcmp(device, "ac") == 0) {
-        control_success = control_ac(room, is_on, value);
+        if (strcmp(action, "SET_TEMP") == 0) {
+            // SET_TEMP操作：必须提供有效温度值
+            if (value < 0 || value > 40) {
+                publish_error_state(room, device, correlation_id, "INVALID_TEMPERATURE", "Temperature value invalid. Valid range: 0-40°C");
+                return;
+            }
+            control_success = control_ac_set_temperature(room, value);
+        } else if (strcmp(action, "ON") == 0) {
+            // ON操作：必须提供有效温度值
+            if (value >= 0 && value <= 40) {
+                control_success = control_ac(room, true, value);
+            } else {
+                publish_error_state(room, device, correlation_id, "MISSING_OR_INVALID_VALUE", "ON operation requires valid temperature value (0-40°C)");
+                return;
+            }
+        } else if (strcmp(action, "OFF") == 0) {
+            // OFF操作：不需要温度值
+            control_success = control_ac(room, false, 0);
+        } else {
+            publish_error_state(room, device, correlation_id, "UNKNOWN_ACTION", "Unsupported action for AC device");
+            return;
+        }
     } else if (strcmp(device, "hood") == 0) {
         control_success = control_hood(room, is_on);
     } else if (strcmp(device, "fan") == 0) {
@@ -252,7 +304,18 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     
     // 如果上面的if/else块执行了，说明是已知设备，发送回执
-    publish_state(room, device, action, correlation_id);
+    if (strcmp(device, "ac") == 0 && strcmp(action, "SET_TEMP") == 0) {
+        // 空调温度设置操作需要特殊回执，包含温度信息
+        AirConditionerState* state = get_ac_state(room);
+        if (state != nullptr) {
+            publish_ac_state(room, device, action, correlation_id, state->target_temperature);
+        } else {
+            publish_state(room, device, action, correlation_id);
+        }
+    } else {
+        // 其他操作使用标准回执
+        publish_state(room, device, action, correlation_id);
+    }
 }
 
 /**
