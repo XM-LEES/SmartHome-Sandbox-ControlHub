@@ -264,8 +264,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
         control_success = control_light(room, is_on);
     } else if (strcmp(device, "window") == 0) {
         control_success = control_window(room, is_on);
-    } else if (strcmp(device, "door") == 0) {
-        control_success = control_door(room, is_on);
+    // } else if (strcmp(device, "door") == 0) {
+    //     control_success = control_door(room, is_on);  // 门设备控制已禁用
     } else if (strcmp(device, "curtain") == 0) {
         control_success = control_curtain(room, is_on);
     } else if (strcmp(device, "temp_sensor") == 0) {

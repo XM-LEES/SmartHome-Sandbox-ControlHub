@@ -13,7 +13,7 @@ import sys
 from typing import Dict, List, Any
 
 # API配置
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = "http://192.168.123.62:8000"
 API_ENDPOINT = "/api/v1/devices/{room_id}/{device_id}/action"
 
 # 测试配置
@@ -190,7 +190,7 @@ class APITester:
         # 开关类设备
         self.test_switch_device(room_id, "light", "客厅灯")
         self.test_switch_device(room_id, "window", "客厅窗户")
-        self.test_switch_device(room_id, "door", "客厅门")
+        # self.test_switch_device(room_id, "door", "客厅门")  # 门设备测试已禁用
         self.test_switch_device(room_id, "curtain", "客厅窗帘")
         
         # 空调设备
@@ -209,7 +209,7 @@ class APITester:
         self.test_switch_device(room_id, "light", "卧室灯")
         self.test_switch_device(room_id, "bedside_light", "床头灯")
         self.test_switch_device(room_id, "window", "卧室窗户")
-        self.test_switch_device(room_id, "door", "卧室门")
+        # self.test_switch_device(room_id, "door", "卧室门")  # 门设备测试已禁用
         self.test_switch_device(room_id, "curtain", "卧室窗帘")
         
         # 空调设备
@@ -240,7 +240,7 @@ class APITester:
         # 开关类设备
         self.test_switch_device(room_id, "light", "浴室灯")
         self.test_switch_device(room_id, "fan", "排气扇")
-        self.test_switch_device(room_id, "door", "浴室门")
+        # self.test_switch_device(room_id, "door", "浴室门")  # 门设备测试已禁用
         
         # 传感器设备
         self.test_sensor_device(room_id, "temp_sensor", "浴室温度传感器")
@@ -312,7 +312,7 @@ def main():
     tester.run_all_tests()
     
     # 保存结果
-    tester.save_results("test/test_results.json")
+    tester.save_results("./test_results.json")
     
     # 如果有失败的测试，返回非零退出码
     if tester.failed_tests > 0:

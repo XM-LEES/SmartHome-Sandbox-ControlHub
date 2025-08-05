@@ -229,6 +229,8 @@ bool control_window(const char* room_id, bool is_on) {
     }
 }
 
+/*
+// 门设备控制功能已禁用
 /**
  * @brief 控制指定房间的门开关。
  * @param room_id 门所在的房间ID。
@@ -249,6 +251,7 @@ bool control_door(const char* room_id, bool is_on) {
         return false;
     }
 }
+*/
 
 /**
  * @brief 控制指定房间的窗帘开关。

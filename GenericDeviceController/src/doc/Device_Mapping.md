@@ -6,26 +6,24 @@
 
 ## 设备映射表
 
-### 物理设备（16个）
+### 物理设备（13个）
 
 | 房间 | 设备ID | 设备类型 | 控制函数 | GPIO引脚 | 备注 |
 |------|--------|----------|----------|----------|------|
 | livingroom | light | 客厅灯 | control_light() | 22 | 开关控制 |
 | livingroom | ac | 客厅空调 | control_ac() | 21 | 支持温度设置 |
 | livingroom | window | 客厅窗户 | control_window() | 19 | 开关控制 |
-| livingroom | door | 客厅门 | control_door() | 17 | 开关控制 |
 | livingroom | curtain | 客厅窗帘 | control_curtain() | 16 | 开关控制 |
 | bedroom | light | 卧室灯 | control_light() | 4 | 开关控制 |
 | bedroom | bedside_light | 床头灯 | control_light() | 2 | 复用灯控制逻辑 |
 | bedroom | ac | 卧室空调 | control_ac() | 34 | 支持温度设置 |
 | bedroom | window | 卧室窗户 | control_window() | 32 | 开关控制 |
-| bedroom | door | 卧室门 | control_door() | 33 | 开关控制 |
 | bedroom | curtain | 卧室窗帘 | control_curtain() | 25 | 开关控制 |
 | kitchen | light | 厨房灯 | control_light() | 26 | 开关控制 |
 | kitchen | hood | 油烟机 | control_hood() | 27 | 开关控制 |
 | bathroom | light | 浴室灯 | control_light() | 14 | 开关控制 |
 | bathroom | fan | 排气扇 | control_fan() | 13 | 开关控制 |
-| bathroom | door | 浴室门 | control_door() | 12 | 开关控制 |
+
 
 ### 虚拟设备 - 传感器（10个）
 
@@ -131,13 +129,6 @@
   - room_id: 房间ID
   - is_on: true=开, false=关
 - **适用设备**: 窗户（window）
-
-### control_door(room_id, is_on)
-- **功能**: 控制门
-- **参数**:
-  - room_id: 房间ID
-  - is_on: true=开, false=关
-- **适用设备**: 门（door）
 
 ### control_curtain(room_id, is_on)
 - **功能**: 控制窗帘
