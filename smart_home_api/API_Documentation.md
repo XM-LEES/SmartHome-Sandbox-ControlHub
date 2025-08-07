@@ -30,10 +30,10 @@
 
 | 房间 | 设备数量 | 设备类型 |
 |------|----------|----------|
-| 客厅 (livingroom) | 7个 | 灯、空调、窗户、门、窗帘、温度传感器、湿度传感器 |
-| 卧室 (bedroom) | 8个 | 灯、床头灯、空调、窗户、门、窗帘、温度传感器、湿度传感器 |
+| 客厅 (livingroom) | 6个 | 灯、空调、窗户、窗帘、温度传感器、湿度传感器 |
+| 卧室 (bedroom) | 7个 | 灯、床头灯、空调、窗户、窗帘、温度传感器、湿度传感器 |
 | 厨房 (kitchen) | 4个 | 灯、油烟机、温度传感器、湿度传感器 |
-| 浴室 (bathroom) | 5个 | 灯、排气扇、门、温度传感器、湿度传感器 |
+| 浴室 (bathroom) | 4个 | 灯、排气扇、温度传感器、湿度传感器 |
 | 室外 (outdoor) | 2个 | 温度传感器、湿度传感器 |
 
 ### 详细设备列表
@@ -45,7 +45,6 @@
 | `light` | 开关灯 | `ON`, `OFF` | 无需参数 |
 | `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `ON`和`SET_TEMP`都需要`value`参数(温度值0-40°C) |
 | `window` | 窗户 | `ON`, `OFF` | 无需参数 |
-| `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
@@ -58,7 +57,6 @@
 | `bedside_light` | 床头灯 | `ON`, `OFF` | 无需参数 |
 | `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `ON`和`SET_TEMP`都需要`value`参数(温度值0-40°C) |
 | `window` | 窗户 | `ON`, `OFF` | 无需参数 |
-| `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
@@ -78,7 +76,6 @@
 |--------|----------|----------|----------|
 | `light` | 浴室灯 | `ON`, `OFF` | 无需参数 |
 | `fan` | 排气扇 | `ON`, `OFF` | 无需参数 |
-| `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
@@ -159,11 +156,6 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
 curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/window/action \
   -H "Content-Type: application/json" \
   -d '{"action": "ON"}'
-
-# 关闭卧室门
-curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/door/action \
-  -H "Content-Type: application/json" \
-  -d '{"action": "OFF"}'
 
 # 打开客厅窗帘
 curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/curtain/action \

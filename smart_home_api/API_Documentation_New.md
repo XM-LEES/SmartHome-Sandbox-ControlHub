@@ -23,13 +23,13 @@
 
 | 房间 | 设备数量 | 设备类型 |
 |------|----------|----------|
-| 客厅 (livingroom) | 7个 | 灯、空调、窗户、门、窗帘、温度传感器、湿度传感器 |
-| 卧室 (bedroom) | 8个 | 灯、床头灯、空调、窗户、门、窗帘、温度传感器、湿度传感器 |
+| 客厅 (livingroom) | 6个 | 灯、空调、窗户、窗帘、温度传感器、湿度传感器 |
+| 卧室 (bedroom) | 7个 | 灯、床头灯、空调、窗户、窗帘、温度传感器、湿度传感器 |
 | 厨房 (kitchen) | 4个 | 灯、油烟机、温度传感器、湿度传感器 |
-| 浴室 (bathroom) | 5个 | 灯、排气扇、门、温度传感器、湿度传感器 |
+| 浴室 (bathroom) | 4个 | 灯、排气扇、温度传感器、湿度传感器 |
 | 室外 (outdoor) | 2个 | 温度传感器、湿度传感器 |
 
-**总设备数量**: 26个（16个物理设备 + 10个虚拟传感器）
+**总设备数量**: 23个（13个物理设备 + 10个虚拟传感器）
 
 ### 2.2 详细设备列表
 
@@ -40,7 +40,6 @@
 | `light` | 开关灯 | `ON`, `OFF` | 无需参数 |
 | `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `ON`和`SET_TEMP`都需要`value`参数(温度值0-40°C) |
 | `window` | 窗户 | `ON`, `OFF` | 无需参数 |
-| `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
@@ -53,7 +52,6 @@
 | `bedside_light` | 床头灯 | `ON`, `OFF` | 无需参数 |
 | `ac` | 空调 | `ON`, `OFF`, `SET_TEMP` | `ON`和`SET_TEMP`都需要`value`参数(温度值0-40°C) |
 | `window` | 窗户 | `ON`, `OFF` | 无需参数 |
-| `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
@@ -73,7 +71,6 @@
 |--------|----------|----------|----------|
 | `light` | 浴室灯 | `ON`, `OFF` | 无需参数 |
 | `fan` | 排气扇 | `ON`, `OFF` | 无需参数 |
-| `door` | 门 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
 
@@ -473,91 +470,3 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/humidity_sensor/action
 | `UNKNOWN_ACTION` | 未知操作 | 设备不支持的操作 | 使用设备支持的操作 |
 
 ---
-
-## 6. 使用指南
-
-### 6.1 快速开始
-
-**常用操作示例**:
-
-```bash
-# 1. 开启客厅灯
-curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/light/action \
-  -H "Content-Type: application/json" \
-  -d '{"action": "ON"}'
-
-# 2. 开启客厅空调并设置25度
-curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
-  -H "Content-Type: application/json" \
-  -d '{"action": "ON", "value": 25}'
-
-# 3. 读取客厅温度
-curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/temp_sensor/action \
-  -H "Content-Type: application/json" \
-  -d '{"action": "READ"}'
-```
-
-**测试工具推荐**:
-- Postman：图形化API测试
-- curl：命令行测试
-- Python requests：编程测试
-
-### 6.2 最佳实践
-
-**错误重试机制**:
-```python
-import requests
-import time
-
-def control_device_with_retry(room_id, device_id, action, value=None, max_retries=3):
-    url = f"http://127.0.0.1:8000/api/v1/devices/{room_id}/{device_id}/action"
-    payload = {"action": action}
-    if value is not None:
-        payload["value"] = value
-    
-    for attempt in range(max_retries):
-        try:
-            response = requests.post(url, json=payload, timeout=5)
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 504:  # 超时重试
-                time.sleep(1)
-                continue
-            else:
-                return response.json()  # 其他错误不重试
-        except requests.exceptions.Timeout:
-            time.sleep(1)
-            continue
-    
-    return {"error": "Max retries exceeded"}
-```
-
-**并发请求处理**:
-- 避免同时控制同一设备
-- 传感器读取可以并发执行
-- 建议每个设备间隔100ms以上
-
-### 6.3 故障排除
-
-**常见问题和解决方案**:
-
-1. **设备不响应 (504错误)**
-   - 检查ESP32是否在线
-   - 检查WiFi连接状态
-   - 检查MQTT Broker是否运行
-
-2. **设备操作失败 (502错误)**
-   - 检查设备是否正确连接到GPIO引脚
-   - 检查设备配置是否与硬件匹配
-   - 查看ESP32串口输出日志
-
-3. **参数错误 (400错误)**
-   - 检查JSON格式是否正确
-   - 检查必需参数是否提供
-   - 检查参数值是否在有效范围内
-
-**调试建议**:
-- 使用浏览器访问 `http://127.0.0.1:8000/docs` 查看交互式API文档
-- 查看FastAPI服务器日志获取详细错误信息
-- 使用MQTT客户端工具监控消息传递
-- 检查ESP32串口输出了解设备端状态
