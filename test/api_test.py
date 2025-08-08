@@ -199,6 +199,7 @@ class APITester:
         # 传感器设备
         self.test_sensor_device(room_id, "temp_sensor", "客厅温度传感器")
         self.test_sensor_device(room_id, "humidity_sensor", "客厅湿度传感器")
+        self.test_sensor_device(room_id, "brightness_sensor", "客厅亮度传感器")
     
     def test_bedroom(self):
         """测试卧室设备"""
@@ -218,6 +219,7 @@ class APITester:
         # 传感器设备
         self.test_sensor_device(room_id, "temp_sensor", "卧室温度传感器")
         self.test_sensor_device(room_id, "humidity_sensor", "卧室湿度传感器")
+        self.test_sensor_device(room_id, "brightness_sensor", "卧室亮度传感器")
     
     def test_kitchen(self):
         """测试厨房设备"""
@@ -254,6 +256,7 @@ class APITester:
         # 传感器设备
         self.test_sensor_device(room_id, "temp_sensor", "室外温度传感器")
         self.test_sensor_device(room_id, "humidity_sensor", "室外湿度传感器")
+        self.test_sensor_device(room_id, "brightness_sensor", "室外亮度传感器")
     
     def print_summary(self):
         """打印测试总结"""

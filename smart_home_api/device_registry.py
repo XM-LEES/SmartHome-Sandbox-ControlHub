@@ -30,6 +30,10 @@ DEVICE_REGISTRY = {
         "humidity_sensor": {
             "type": "sensor",
             "valid_actions": ["READ"]
+        },
+        "brightness_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
         }
     },
     "bedroom": {
@@ -62,6 +66,10 @@ DEVICE_REGISTRY = {
             "valid_actions": ["READ"]
         },
         "humidity_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "brightness_sensor": {
             "type": "sensor",
             "valid_actions": ["READ"]
         }
@@ -112,6 +120,10 @@ DEVICE_REGISTRY = {
             "valid_actions": ["READ"]
         },
         "humidity_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "brightness_sensor": {
             "type": "sensor",
             "valid_actions": ["READ"]
         }

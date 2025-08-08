@@ -322,6 +322,27 @@ bool control_curtain(const char* room_id, bool is_on) {
         return humidity_value;
     }
 
+    /**
+     * @brief 控制亮度传感器读取
+     * @param room_id 房间ID
+     * @return 亮度值，-999.0表示读取失败
+     */
+    float control_brightness_sensor(const char* room_id) {
+        int room_index = getRoomIndex(room_id);
+        if (room_index == -1) {
+            Serial.print("[HAL-ERROR] Unknown room for brightness sensor: "); Serial.println(room_id);
+            return -999.0;
+        }
+        
+        SensorData sensor_data = getSensorData((RoomIndex)room_index);
+        float brightness_value = sensor_data.brightness;
+        
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/brightness_sensor' read: "); Serial.print(brightness_value); Serial.println("%");
+        
+        return brightness_value;
+    }
+
 #else
     // 无传感器支持的存根实现
     /**
@@ -341,6 +362,16 @@ bool control_curtain(const char* room_id, bool is_on) {
      */
     float control_humidity_sensor(const char* room_id) {
         Serial.println("[HAL-ERROR] Humidity sensor not supported on this node");
+        return -999.0;
+    }
+
+    /**
+     * @brief 亮度传感器存根实现（无传感器支持时）
+     * @param room_id 房间ID
+     * @return 始终返回-999.0表示不支持
+     */
+    float control_brightness_sensor(const char* room_id) {
+        Serial.println("[HAL-ERROR] Brightness sensor not supported on this node");
         return -999.0;
     }
 #endif

@@ -150,9 +150,24 @@ void UIController::handleEncoderRotation(int direction) {
             
         case STATE_BROWSE:
             // 浏览模式：选择传感器项目
-            selectedItem = (selectedItem == ITEM_TEMPERATURE) ? ITEM_HUMIDITY : ITEM_TEMPERATURE;
+            if (selectedRoom == LIVINGROOM || selectedRoom == BEDROOM || selectedRoom == OUTDOOR) {
+                // 卧室、客厅、室外：温度 -> 湿度 -> 亮度 -> 温度
+                if (selectedItem == ITEM_TEMPERATURE) {
+                    selectedItem = ITEM_HUMIDITY;
+                } else if (selectedItem == ITEM_HUMIDITY) {
+                    selectedItem = ITEM_BRIGHTNESS;
+                } else {
+                    selectedItem = ITEM_TEMPERATURE;
+                }
+            } else {
+                // 其他房间：温度 -> 湿度 -> 温度
+                selectedItem = (selectedItem == ITEM_TEMPERATURE) ? ITEM_HUMIDITY : ITEM_TEMPERATURE;
+            }
+            
             Serial.print("[UI] 浏览模式切换到: ");
-            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
+            if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
+            else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
+            else Serial.println("亮度");
             setRedraw();
             break;
             
@@ -176,7 +191,9 @@ void UIController::handleEncoderPress() {
             selectedItem = ITEM_TEMPERATURE;
             editMode = false;
             Serial.print("[UI] 进入房间浏览模式，初始选择: ");
-            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
+            if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
+            else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
+            else Serial.println("亮度");
             setRedraw();
             break;
             
@@ -185,7 +202,9 @@ void UIController::handleEncoderPress() {
             currentState = STATE_EDIT;
             editMode = true;
             Serial.print("[UI] 进入编辑模式，编辑项目: ");
-            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
+            if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
+            else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
+            else Serial.println("亮度");
             setRedraw();
             break;
             
@@ -194,7 +213,9 @@ void UIController::handleEncoderPress() {
             currentState = STATE_BROWSE;
             editMode = false;
             Serial.print("[UI] 退出编辑模式，当前选择: ");
-            Serial.println(selectedItem == ITEM_TEMPERATURE ? "温度" : "湿度");
+            if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
+            else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
+            else Serial.println("亮度");
             setRedraw();
             break;
             
@@ -234,12 +255,15 @@ void UIController::adjustSensorValue(int direction) {
     if (selectedItem == ITEM_TEMPERATURE) {
         data.temperature += direction * 0.5f;
         data.temperature = constrain(data.temperature, -10.0f, 40.0f);
-    } else {
+    } else if (selectedItem == ITEM_HUMIDITY) {
         data.humidity += direction * 0.5f;
         data.humidity = constrain(data.humidity, 0.0f, 100.0f);
+    } else if (selectedItem == ITEM_BRIGHTNESS) {
+        data.brightness += direction * 2.0f;
+        data.brightness = constrain(data.brightness, 0.0f, 100.0f);
     }
     
-    setSensorData((RoomIndex)selectedRoom, data.temperature, data.humidity);
+    setSensorData((RoomIndex)selectedRoom, data.temperature, data.humidity, data.brightness);
 }
 
 void UIController::drawOverviewPage() {
@@ -319,7 +343,7 @@ void UIController::drawRoomPage() {
     
     uint16_t tempColor = COLOR_WHITE;
     if (tempSelected) {
-        tempColor = tempEditing ? COLOR_RED : COLOR_YELLOW;
+        tempColor = tempEditing ? COLOR_RED : COLOR_ORANGE;
     }
     
     tft.setTextColor(tempColor);
@@ -382,7 +406,45 @@ void UIController::drawRoomPage() {
     // 湿度进度条
     drawProgressBar(8, y, 100, 6, data.humidity, 100.0f);
     
-    y += 20;
+    y += 12;
+    
+    // 亮度行（只在卧室、客厅、室外显示）
+    if (selectedRoom == LIVINGROOM || selectedRoom == BEDROOM || selectedRoom == OUTDOOR) {
+        bool brightSelected = (selectedItem == ITEM_BRIGHTNESS);
+        bool brightEditing = (currentState == STATE_EDIT && brightSelected);
+        
+        uint16_t brightColor = COLOR_WHITE;
+        if (brightSelected) {
+            brightColor = brightEditing ? COLOR_GOLD : COLOR_LIGHT_YELLOW;
+        }
+        
+        tft.setTextColor(brightColor);
+        
+        if (brightSelected) {
+            tft.setCursor(0, y);
+            tft.print(">");
+        }
+        
+        // 使用U8g2显示中文
+        u8g2.setForegroundColor(brightColor);
+        u8g2.setCursor(8, y + 8);
+        u8g2.print("亮度:");
+        
+        // 使用原生库显示数字
+        tft.setTextColor(brightColor);
+        tft.setCursor(65, y);
+        tft.print(data.brightness, 1);
+        tft.print("%");
+        
+        y += 12;
+        
+        // 亮度进度条
+        drawProgressBar(8, y, 100, 6, data.brightness, 100.0f);
+        
+        y += 12;
+    }
+    
+    y += 8;
     
     // 底部操作提示
     int bottomY = SCREEN_HEIGHT - 20;
