@@ -46,6 +46,10 @@ static unsigned long nextMqttRetryMs = 0;
 static unsigned long wifiConnectStartMs = 0;
 static unsigned long mqttConnectStartMs = 0;
 
+// --- 状态缓存，用于检测状态变化 ---
+static WiFiState lastWifiState = WIFI_DISCONNECTED;
+static MQTTState lastMqttState = MQTT_STATE_DISCONNECTED;
+
 // --- 状态机超时配置 ---
 static const unsigned long WIFI_CONNECT_TIMEOUT_MS = 10000;  // WiFi连接超时10秒
 static const unsigned long WIFI_RETRY_INTERVAL_MS = 5000;    // WiFi重试间隔5秒
@@ -77,11 +81,6 @@ void handleWiFiState() {
                 Serial.println("[WiFi] Connected successfully!");
                 Serial.print("[WiFi] IP: ");
                 Serial.println(WiFi.localIP());
-                
-                // 触发UI刷新
-                #if ENABLE_SENSOR_SIMULATOR
-                if (g_uiController) g_uiController->setRedraw();
-                #endif
             } else if (millis() - wifiConnectStartMs >= WIFI_CONNECT_TIMEOUT_MS) {
                 // 事件：连接超时
                 Serial.println("[WiFi] Connection timeout, will retry later");
@@ -97,13 +96,16 @@ void handleWiFiState() {
                 Serial.println("[WiFi] Connection lost");
                 wifiState = WIFI_DISCONNECTED;
                 nextWifiRetryMs = millis() + 1000; // 1秒后重试
-                
-                // 触发UI刷新
-                #if ENABLE_SENSOR_SIMULATOR
-                if (g_uiController) g_uiController->setRedraw();
-                #endif
             }
             break;
+    }
+    
+    // 检查状态是否发生变化，只在变化时触发UI刷新
+    if (wifiState != lastWifiState) {
+        lastWifiState = wifiState;
+        #if ENABLE_SENSOR_SIMULATOR
+        if (g_uiController) g_uiController->setRedraw();
+        #endif
     }
 }
 
@@ -137,11 +139,6 @@ void handleMQTTState() {
                     Serial.print("[MQTT] Subscribed to: ");
                     Serial.println(command_topic);
                 }
-                
-                // 触发UI刷新
-                #if ENABLE_SENSOR_SIMULATOR
-                if (g_uiController) g_uiController->setRedraw();
-                #endif
             } else if (millis() - mqttConnectStartMs >= MQTT_CONNECT_TIMEOUT_MS) {
                 // 事件：连接超时
                 Serial.println("[MQTT] Connection timeout, will retry later");
@@ -163,13 +160,16 @@ void handleMQTTState() {
                 Serial.println("[MQTT] Connection lost");
                 mqttState = MQTT_STATE_DISCONNECTED;
                 nextMqttRetryMs = millis() + 1000; // 1秒后重试
-                
-                // 触发UI刷新
-                #if ENABLE_SENSOR_SIMULATOR
-                if (g_uiController) g_uiController->setRedraw();
-                #endif
             }
             break;
+    }
+    
+    // 检查状态是否发生变化，只在变化时触发UI刷新
+    if (mqttState != lastMqttState) {
+        lastMqttState = mqttState;
+        #if ENABLE_SENSOR_SIMULATOR
+        if (g_uiController) g_uiController->setRedraw();
+        #endif
     }
 }
 
@@ -460,13 +460,10 @@ void setup() {
     client.setSocketTimeout(1);                 // 降低阻塞时长，单位秒
     client.setCallback(callback);               // 注册的回调函数
 
-    // WiFi状态事件，触发UI刷新
+    // WiFi状态事件，触发UI刷新（状态机会自动处理状态变化检测）
     WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t){
-        if (event == ARDUINO_EVENT_WIFI_STA_DISCONNECTED || event == ARDUINO_EVENT_WIFI_STA_GOT_IP) {
-            #if ENABLE_SENSOR_SIMULATOR
-            if (g_uiController) g_uiController->setRedraw();
-            #endif
-        }
+        // 事件回调保留，但实际刷新由状态机统一处理
+        // 避免重复刷新
     });
 }
 

@@ -79,15 +79,6 @@ void UIController::update() {
     
     handleInput();
     
-    // 设置页定时刷新，反映网络状态变化
-    if (currentState == STATE_SETTINGS) {
-        static unsigned long lastSettingsRefresh = 0;
-        if (currentTime - lastSettingsRefresh >= 1000) {
-            setRedraw();
-            lastSettingsRefresh = currentTime;
-        }
-    }
-    
     if (needRedraw) {
         switch (currentState) {
             case STATE_OVERVIEW:
