@@ -103,6 +103,9 @@ public:
     void IRAM_ATTR handleEncoderSwitchInterrupt();
     void IRAM_ATTR handleBackButtonInterrupt();
 
+    // 工具函数
+    void setRedraw() { needRedraw = true; }
+
 private:
     // 页面绘制函数
     void drawOverviewPage();
@@ -127,7 +130,6 @@ private:
     void adjustSensorValue(int direction);
     
     // 工具函数
-    void setRedraw() { needRedraw = true; }
     const char* getRoomName(int index);
     SensorData getCurrentRoomData();
 
