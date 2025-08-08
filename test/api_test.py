@@ -233,6 +233,8 @@ class APITester:
         # 传感器设备
         self.test_sensor_device(room_id, "temp_sensor", "厨房温度传感器")
         self.test_sensor_device(room_id, "humidity_sensor", "厨房湿度传感器")
+        self.test_sensor_device(room_id, "smoke_sensor", "厨房烟雾传感器")
+        self.test_sensor_device(room_id, "gas_sensor", "厨房燃气传感器")
     
     def test_bathroom(self):
         """测试浴室设备"""

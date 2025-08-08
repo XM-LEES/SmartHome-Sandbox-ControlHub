@@ -144,10 +144,11 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
 - **通信协议**: 基于JSON的请求-响应模式，支持correlation_id追踪
 
 ### 支持的设备类型
-- **客厅**: 灯光(ON/OFF), 空调(ON/OFF/SET_TEMP), 窗户(ON/OFF), 窗帘(ON/OFF)
-- **卧室**: 主灯(ON/OFF), 床头灯(ON/OFF), 空调(ON/OFF/SET_TEMP), 窗户(ON/OFF), 窗帘(ON/OFF)
-- **厨房**: 灯光(ON/OFF), 抽油烟机(ON/OFF)
-- **浴室**: 灯光(ON/OFF), 排气扇(ON/OFF)
+- **客厅**: 灯光(ON/OFF), 空调(ON/OFF/SET_TEMP), 窗户(ON/OFF), 窗帘(ON/OFF), 温度传感器, 湿度传感器, 亮度传感器
+- **卧室**: 主灯(ON/OFF), 床头灯(ON/OFF), 空调(ON/OFF/SET_TEMP), 窗户(ON/OFF), 窗帘(ON/OFF), 温度传感器, 湿度传感器, 亮度传感器
+- **厨房**: 灯光(ON/OFF), 抽油烟机(ON/OFF), 温度传感器, 湿度传感器, 烟雾传感器, 燃气传感器
+- **浴室**: 灯光(ON/OFF), 排气扇(ON/OFF), 温度传感器, 湿度传感器
+- **室外**: 温度传感器, 湿度传感器, 亮度传感器
 
 ---
 
@@ -208,6 +209,8 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/ac/action \
 ## 🔮 未来计划 / Roadmap
 
 - [x] 支持传感器设备（温度、湿度传感器）- ✅ 已完成
+- [x] 支持亮度传感器（卧室、客厅、室外）- ✅ 已完成
+- [x] 支持安全传感器（烟雾、燃气传感器）- ✅ 已完成
 - [ ] 支持更多设备类型（安防设备、摄像头等）
 - [ ] 添加Web管理界面
 - [ ] 实现设备状态持久化

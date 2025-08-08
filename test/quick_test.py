@@ -52,6 +52,8 @@ def main():
     test_api("livingroom", "temp_sensor", "READ", description="读取客厅温度")
     test_api("livingroom", "humidity_sensor", "READ", description="读取客厅湿度")
     test_api("livingroom", "brightness_sensor", "READ", description="读取客厅亮度")
+    test_api("kitchen", "smoke_sensor", "READ", description="读取厨房烟雾传感器")
+    test_api("kitchen", "gas_sensor", "READ", description="读取厨房燃气传感器")
     
     # 测试错误情况
     test_api("livingroom", "ac", "ON", description="空调开启无温度参数(应该失败)")
