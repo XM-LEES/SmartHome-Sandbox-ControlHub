@@ -79,6 +79,15 @@ void UIController::update() {
     
     handleInput();
     
+    // 设置页定时刷新，反映网络状态变化
+    if (currentState == STATE_SETTINGS) {
+        static unsigned long lastSettingsRefresh = 0;
+        if (currentTime - lastSettingsRefresh >= 1000) {
+            setRedraw();
+            lastSettingsRefresh = currentTime;
+        }
+    }
+    
     if (needRedraw) {
         switch (currentState) {
             case STATE_OVERVIEW:
@@ -413,7 +422,7 @@ void UIController::drawSettingsPage() {
     tft.setTextColor(COLOR_WHITE);
     tft.setCursor(0, y);
     tft.print("WiFi:");
-    if (WiFi.status() == WL_CONNECTED) {
+    if (WiFi.isConnected()) {
         printChineseSmall(35, y + 8, "已连接", COLOR_GREEN);
         y += 12;
         tft.setCursor(0, y);
@@ -503,7 +512,7 @@ void UIController::drawProgressBar(int x, int y, int width, int height, float va
 }
 
 void UIController::drawWiFiIcon(int x, int y) {
-    if (WiFi.status() == WL_CONNECTED) {
+    if (WiFi.isConnected()) {
         tft.setTextColor(COLOR_GREEN);
         tft.setCursor(x, y);
         tft.print("W");
