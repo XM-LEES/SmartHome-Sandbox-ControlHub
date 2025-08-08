@@ -33,14 +33,14 @@ enum WiFiState {
 };
 
 enum MQTTState {
-    MQTT_DISCONNECTED,    // 未连接
-    MQTT_CONNECTING,      // 正在连接
-    MQTT_CONNECTED        // 已连接
+    MQTT_STATE_DISCONNECTED,    // 未连接
+    MQTT_STATE_CONNECTING,      // 正在连接
+    MQTT_STATE_CONNECTED        // 已连接
 };
 
 // --- 状态机变量 ---
 static WiFiState wifiState = WIFI_DISCONNECTED;
-static MQTTState mqttState = MQTT_DISCONNECTED;
+static MQTTState mqttState = MQTT_STATE_DISCONNECTED;
 static unsigned long nextWifiRetryMs = 0;
 static unsigned long nextMqttRetryMs = 0;
 static unsigned long wifiConnectStartMs = 0;
@@ -112,21 +112,21 @@ void handleWiFiState() {
  */
 void handleMQTTState() {
     switch (mqttState) {
-        case MQTT_DISCONNECTED:
+        case MQTT_STATE_DISCONNECTED:
             // 状态：未连接
             if (wifiState == WIFI_CONNECTED && millis() >= nextMqttRetryMs) {
                 // 事件：WiFi已连接且到重试时间，开始连接
                 Serial.println("[MQTT] Starting connection...");
-                mqttState = MQTT_CONNECTING;
+                mqttState = MQTT_STATE_CONNECTING;
                 mqttConnectStartMs = millis();
             }
             break;
             
-        case MQTT_CONNECTING:
+        case MQTT_STATE_CONNECTING:
             // 状态：正在连接
             if (client.connected()) {
                 // 事件：连接成功
-                mqttState = MQTT_CONNECTED;
+                mqttState = MQTT_STATE_CONNECTED;
                 Serial.println("[MQTT] Connected successfully!");
                 
                 // 订阅所有设备Topic
@@ -145,7 +145,7 @@ void handleMQTTState() {
             } else if (millis() - mqttConnectStartMs >= MQTT_CONNECT_TIMEOUT_MS) {
                 // 事件：连接超时
                 Serial.println("[MQTT] Connection timeout, will retry later");
-                mqttState = MQTT_DISCONNECTED;
+                mqttState = MQTT_STATE_DISCONNECTED;
                 nextMqttRetryMs = millis() + MQTT_RETRY_INTERVAL_MS;
             } else {
                 // 尝试连接（非阻塞，因为设置了短超时）
@@ -156,12 +156,12 @@ void handleMQTTState() {
             }
             break;
             
-        case MQTT_CONNECTED:
+        case MQTT_STATE_CONNECTED:
             // 状态：已连接
             if (!client.connected()) {
                 // 事件：连接断开
                 Serial.println("[MQTT] Connection lost");
-                mqttState = MQTT_DISCONNECTED;
+                mqttState = MQTT_STATE_DISCONNECTED;
                 nextMqttRetryMs = millis() + 1000; // 1秒后重试
                 
                 // 触发UI刷新
