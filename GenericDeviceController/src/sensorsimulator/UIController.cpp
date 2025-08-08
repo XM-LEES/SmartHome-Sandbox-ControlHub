@@ -135,7 +135,7 @@ void UIController::handleInput() {
         encoderPressed = false;
         // Serial.println("[UI] 编码器按键触发");
         handleEncoderPress();
-        delay(300);
+        delay(200);
     }
     
     // 处理返回按键
@@ -143,7 +143,7 @@ void UIController::handleInput() {
         backButtonPressed = false;
         // Serial.println("[UI] 返回按键触发");
         handleBackButton();
-        delay(300);
+        delay(200);
     }
 }
 

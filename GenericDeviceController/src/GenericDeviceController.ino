@@ -339,7 +339,17 @@ void setup() {
     
     setup_wifi();                               // 连接WiFi
     client.setServer(MQTT_SERVER, MQTT_PORT);   // 设置MQTT Broker的地址
+    client.setSocketTimeout(1);                 // 降低阻塞时长，单位秒
     client.setCallback(callback);               // 注册的回调函数
+
+    // WiFi状态事件，触发UI刷新
+    WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t){
+        if (event == ARDUINO_EVENT_WIFI_STA_DISCONNECTED || event == ARDUINO_EVENT_WIFI_STA_GOT_IP) {
+            #if ENABLE_SENSOR_SIMULATOR
+            if (g_uiController) g_uiController->setRedraw();
+            #endif
+        }
+    });
 }
 
 /**
@@ -359,9 +369,17 @@ void loop() {
         }
     }
 
-    // 仅在WiFi已连接时，按节流进行一次性MQTT重连尝试（非阻塞）
+    // 仅在WiFi已连接时，按节流进行一次性MQTT重连尝试（尽量避免长阻塞）
     if (WiFi.status() == WL_CONNECTED && !client.connected()) {
-        reconnect();
+        // 可选的短超时探测，若不可达则跳过本次阻塞连接
+        WiFiClient probe;
+        if (!probe.connect(MQTT_SERVER, MQTT_PORT, 200)) { // 200ms 失败则跳过
+            probe.stop();
+            nextMqttRetryMs = millis() + MQTT_RETRY_INTERVAL_MS;
+        } else {
+            probe.stop();
+            reconnect();
+        }
     }
     // PubSubClient库的心跳函数，必须在loop中持续调用
     // 负责处理底层的网络收发和消息检查，并在有新消息时触发注册的callback函数
