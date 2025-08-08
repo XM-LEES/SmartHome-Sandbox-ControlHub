@@ -90,6 +90,14 @@ DEVICE_REGISTRY = {
         "humidity_sensor": {
             "type": "sensor",
             "valid_actions": ["READ"]
+        },
+        "smoke_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
+        },
+        "gas_sensor": {
+            "type": "sensor",
+            "valid_actions": ["READ"]
         }
     },
     "bathroom": {

@@ -23,13 +23,13 @@
 
 | 房间 | 设备数量 | 设备类型 |
 |------|----------|----------|
-| 客厅 (livingroom) | 6个 | 灯、空调、窗户、窗帘、温度传感器、湿度传感器 |
-| 卧室 (bedroom) | 7个 | 灯、床头灯、空调、窗户、窗帘、温度传感器、湿度传感器 |
-| 厨房 (kitchen) | 4个 | 灯、油烟机、温度传感器、湿度传感器 |
+| 客厅 (livingroom) | 7个 | 灯、空调、窗户、窗帘、温度传感器、湿度传感器、亮度传感器 |
+| 卧室 (bedroom) | 8个 | 灯、床头灯、空调、窗户、窗帘、温度传感器、湿度传感器、亮度传感器 |
+| 厨房 (kitchen) | 6个 | 灯、油烟机、温度传感器、湿度传感器、烟雾传感器、燃气传感器 |
 | 浴室 (bathroom) | 4个 | 灯、排气扇、温度传感器、湿度传感器 |
-| 室外 (outdoor) | 2个 | 温度传感器、湿度传感器 |
+| 室外 (outdoor) | 3个 | 温度传感器、湿度传感器、亮度传感器 |
 
-**总设备数量**: 23个（13个物理设备 + 10个虚拟传感器）
+**总设备数量**: 28个（13个物理设备 + 15个虚拟传感器）
 
 ### 2.2 详细设备列表
 
@@ -43,6 +43,7 @@
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
+| `brightness_sensor` | 亮度传感器 | `READ` | 无需参数 |
 
 #### 2.2.2 卧室设备 (bedroom)
 
@@ -55,6 +56,7 @@
 | `curtain` | 窗帘 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
+| `brightness_sensor` | 亮度传感器 | `READ` | 无需参数 |
 
 #### 2.2.3 厨房设备 (kitchen)
 
@@ -64,6 +66,8 @@
 | `hood` | 油烟机 | `ON`, `OFF` | 无需参数 |
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
+| `smoke_sensor` | 烟雾传感器 | `READ` | 无需参数 |
+| `gas_sensor` | 燃气传感器 | `READ` | 无需参数 |
 
 #### 2.2.4 浴室设备 (bathroom)
 
@@ -80,6 +84,7 @@
 |--------|----------|----------|----------|
 | `temp_sensor` | 温度传感器 | `READ` | 无需参数 |
 | `humidity_sensor` | 湿度传感器 | `READ` | 无需参数 |
+| `brightness_sensor` | 亮度传感器 | `READ` | 无需参数 |
 
 ---
 
@@ -377,7 +382,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/ac/action \
 }
 ```
 
-#### 4.2.2 传感器设备 (temp_sensor, humidity_sensor)
+#### 4.2.2 传感器设备 (temp_sensor, humidity_sensor, brightness_sensor, smoke_sensor, gas_sensor)
 
 **支持操作**: `READ`
 
@@ -439,6 +444,90 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/humidity_sensor/action
 // 502 - 传感器读取失败
 {
   "detail": "Device error: SENSOR_READ_ERROR - Humidity sensor read failed"
+}
+```
+
+##### READ操作 (亮度传感器)
+
+**请求示例**:
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/brightness_sensor/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "READ"}'
+```
+
+**成功响应示例** (HTTP 200):
+```json
+{
+  "status": "success",
+  "sensor_data": {
+    "value": 75.5,
+    "unit": "%"
+  }
+}
+```
+
+**错误响应示例**:
+```json
+// 502 - 传感器读取失败
+{
+  "detail": "Device error: SENSOR_READ_ERROR - Brightness sensor read failed"
+}
+```
+
+##### READ操作 (烟雾传感器)
+
+**请求示例**:
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/devices/kitchen/smoke_sensor/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "READ"}'
+```
+
+**成功响应示例** (HTTP 200):
+```json
+{
+  "status": "success",
+  "sensor_data": {
+    "value": 1.0,
+    "unit": "boolean"
+  }
+}
+```
+
+**错误响应示例**:
+```json
+// 502 - 传感器读取失败
+{
+  "detail": "Device error: SENSOR_READ_ERROR - Smoke sensor read failed"
+}
+```
+
+##### READ操作 (燃气传感器)
+
+**请求示例**:
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/devices/kitchen/gas_sensor/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "READ"}'
+```
+
+**成功响应示例** (HTTP 200):
+```json
+{
+  "status": "success",
+  "sensor_data": {
+    "value": 0.0,
+    "unit": "boolean"
+  }
+}
+```
+
+**错误响应示例**:
+```json
+// 502 - 传感器读取失败
+{
+  "detail": "Device error: SENSOR_READ_ERROR - Gas sensor read failed"
 }
 ```
 

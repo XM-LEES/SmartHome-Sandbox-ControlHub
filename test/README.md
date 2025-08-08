@@ -14,7 +14,7 @@
 
 **测试覆盖**：
 - **5个房间**：livingroom, bedroom, kitchen, bathroom, outdoor
-- **29个设备**：16个物理设备 + 13个传感器
+- **31个设备**：16个物理设备 + 15个传感器
 - **所有操作**：ON, OFF, SET_TEMP, READ
 - **错误场景**：无效参数、超出范围、不存在的设备等
 
@@ -76,10 +76,12 @@ python test/quick_test.py
   - 无效操作
 
 ### 传感器设备测试
-- **设备**：temp_sensor, humidity_sensor, brightness_sensor
+- **设备**：temp_sensor, humidity_sensor, brightness_sensor, smoke_sensor, gas_sensor
 - **操作**：READ
 - **错误测试**：无效操作
-- **注意**：brightness_sensor仅在卧室、客厅、室外可用
+- **注意**：
+  - brightness_sensor仅在卧室、客厅、室外可用
+  - smoke_sensor, gas_sensor仅在厨房可用
 
 ### 无效请求测试
 - 不存在的房间ID

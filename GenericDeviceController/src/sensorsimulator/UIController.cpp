@@ -438,7 +438,7 @@ void UIController::drawRoomPage() {
         
         uint16_t brightColor = COLOR_WHITE;
         if (brightSelected) {
-            brightColor = brightEditing ? COLOR_YELLOW : COLOR_LIGHT_YELLOW;
+            brightColor = brightEditing ? COLOR_MAGENTA : COLOR_YELLOW;
         }
         
         tft.setTextColor(brightColor);
@@ -493,7 +493,10 @@ void UIController::drawRoomPage() {
         // 使用原生库显示状态
         tft.setTextColor(smokeColor);
         tft.setCursor(65, y);
-        tft.print(data.smoke_detected ? "检测到" : "正常");
+        tft.print("[");
+        printChineseSmall(75, y + 8, data.smoke_detected ? "检测到" : "正常", smokeColor);
+        tft.setCursor(105, y);
+        tft.print("]");
         
         y += 12;
         
@@ -521,7 +524,10 @@ void UIController::drawRoomPage() {
         // 使用原生库显示状态
         tft.setTextColor(gasColor);
         tft.setCursor(65, y);
-        tft.print(data.gas_leak ? "泄漏" : "正常");
+        tft.print("[");
+        printChineseSmall(75, y + 8, data.gas_leak ? "泄漏" : "正常", gasColor);
+        tft.setCursor(105, y);
+        tft.print("]");
         
         y += 12;
     }
