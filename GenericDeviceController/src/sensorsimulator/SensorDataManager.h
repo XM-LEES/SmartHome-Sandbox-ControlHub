@@ -19,6 +19,7 @@ enum RoomIndex {
 struct SensorData {
     float temperature;    // 当前温度
     float humidity;       // 当前湿度
+    float brightness;     // 当前亮度 (0-100%)
 };
 
 // 房间环境数据结构
@@ -42,8 +43,9 @@ SensorData getSensorData(RoomIndex room);
  * @param room 房间索引
  * @param temp 温度值
  * @param humidity 湿度值
+ * @param brightness 亮度值 (0-100%)
  */
-void setSensorData(RoomIndex room, float temp, float humidity);
+void setSensorData(RoomIndex room, float temp, float humidity, float brightness = -999.0);
 
 /**
  * @brief 初始化传感器数据，设置默认值

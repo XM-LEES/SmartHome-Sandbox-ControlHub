@@ -13,7 +13,7 @@ SensorData getSensorData(RoomIndex room) {
         return rooms[room].sensors;
     }
     // 返回错误数据
-    SensorData error_data = {-999.0, -999.0};
+    SensorData error_data = {-999.0, -999.0, -999.0};
     return error_data;
 }
 
@@ -22,17 +22,23 @@ SensorData getSensorData(RoomIndex room) {
  * @param room 房间索引
  * @param temp 温度值
  * @param humidity 湿度值
+ * @param brightness 亮度值 (0-100%)
  */
-void setSensorData(RoomIndex room, float temp, float humidity) {
+void setSensorData(RoomIndex room, float temp, float humidity, float brightness) {
     if (room >= 0 && room < MAX_ROOMS) {
         rooms[room].sensors.temperature = temp;
         rooms[room].sensors.humidity = humidity;
+        if (brightness != -999.0) {
+            rooms[room].sensors.brightness = brightness;
+        }
         Serial.print("[SensorDataManager] Updated room ");
         Serial.print(room);
         Serial.print(": temp=");
         Serial.print(temp);
         Serial.print("°C, humidity=");
         Serial.print(humidity);
+        Serial.print("%, brightness=");
+        Serial.print(rooms[room].sensors.brightness);
         Serial.println("%");
     }
 }
@@ -46,22 +52,27 @@ void initSensorData() {
     // 客厅默认数据
     rooms[LIVINGROOM].sensors.temperature = 24.5;
     rooms[LIVINGROOM].sensors.humidity = 45.2;
+    rooms[LIVINGROOM].sensors.brightness = 65.0;
     
     // 卧室默认数据
     rooms[BEDROOM].sensors.temperature = 23.8;
     rooms[BEDROOM].sensors.humidity = 48.5;
+    rooms[BEDROOM].sensors.brightness = 45.0;
     
     // 厨房默认数据
     rooms[KITCHEN].sensors.temperature = 26.1;
     rooms[KITCHEN].sensors.humidity = 52.3;
+    rooms[KITCHEN].sensors.brightness = 70.0;
     
     // 浴室默认数据
     rooms[BATHROOM].sensors.temperature = 25.3;
     rooms[BATHROOM].sensors.humidity = 65.8;
+    rooms[BATHROOM].sensors.brightness = 55.0;
     
     // 室外默认数据
     rooms[OUTDOOR].sensors.temperature = 20.0;
     rooms[OUTDOOR].sensors.humidity = 60.0;
+    rooms[OUTDOOR].sensors.brightness = 85.0;
     
     Serial.println("[SensorDataManager] Sensor data initialized successfully");
 }
