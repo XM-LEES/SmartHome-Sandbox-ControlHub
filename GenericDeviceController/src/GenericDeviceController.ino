@@ -25,56 +25,174 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// --- 非阻塞连接的调度变量 ---
+// --- 状态机定义 ---
+enum WiFiState {
+    WIFI_DISCONNECTED,    // 未连接
+    WIFI_CONNECTING,      // 正在连接
+    WIFI_CONNECTED        // 已连接
+};
+
+enum MQTTState {
+    MQTT_DISCONNECTED,    // 未连接
+    MQTT_CONNECTING,      // 正在连接
+    MQTT_CONNECTED        // 已连接
+};
+
+// --- 状态机变量 ---
+static WiFiState wifiState = WIFI_DISCONNECTED;
+static MQTTState mqttState = MQTT_DISCONNECTED;
 static unsigned long nextWifiRetryMs = 0;
 static unsigned long nextMqttRetryMs = 0;
-static const unsigned long WIFI_RETRY_INTERVAL_MS = 1000;  // 1s 重试一次WiFi
-static const unsigned long MQTT_RETRY_INTERVAL_MS = 5000;  // 5s 重试一次MQTT
+static unsigned long wifiConnectStartMs = 0;
+static unsigned long mqttConnectStartMs = 0;
+
+// --- 状态机超时配置 ---
+static const unsigned long WIFI_CONNECT_TIMEOUT_MS = 10000;  // WiFi连接超时10秒
+static const unsigned long WIFI_RETRY_INTERVAL_MS = 5000;    // WiFi重试间隔5秒
+static const unsigned long MQTT_CONNECT_TIMEOUT_MS = 3000;   // MQTT连接超时3秒
+static const unsigned long MQTT_RETRY_INTERVAL_MS = 5000;    // MQTT重试间隔5秒
 
 /**
- * @brief 连接到WiFi网络。
+ * @brief 处理WiFi连接状态机
+ */
+void handleWiFiState() {
+    switch (wifiState) {
+        case WIFI_DISCONNECTED:
+            // 状态：未连接
+            if (millis() >= nextWifiRetryMs) {
+                // 事件：到重试时间，开始连接
+                Serial.println("[WiFi] Starting connection...");
+                WiFi.mode(WIFI_STA);
+                WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+                wifiState = WIFI_CONNECTING;
+                wifiConnectStartMs = millis();
+            }
+            break;
+            
+        case WIFI_CONNECTING:
+            // 状态：正在连接
+            if (WiFi.status() == WL_CONNECTED) {
+                // 事件：连接成功
+                wifiState = WIFI_CONNECTED;
+                Serial.println("[WiFi] Connected successfully!");
+                Serial.print("[WiFi] IP: ");
+                Serial.println(WiFi.localIP());
+                
+                // 触发UI刷新
+                #if ENABLE_SENSOR_SIMULATOR
+                if (g_uiController) g_uiController->setRedraw();
+                #endif
+            } else if (millis() - wifiConnectStartMs >= WIFI_CONNECT_TIMEOUT_MS) {
+                // 事件：连接超时
+                Serial.println("[WiFi] Connection timeout, will retry later");
+                wifiState = WIFI_DISCONNECTED;
+                nextWifiRetryMs = millis() + WIFI_RETRY_INTERVAL_MS;
+            }
+            break;
+            
+        case WIFI_CONNECTED:
+            // 状态：已连接
+            if (WiFi.status() != WL_CONNECTED) {
+                // 事件：连接断开
+                Serial.println("[WiFi] Connection lost");
+                wifiState = WIFI_DISCONNECTED;
+                nextWifiRetryMs = millis() + 1000; // 1秒后重试
+                
+                // 触发UI刷新
+                #if ENABLE_SENSOR_SIMULATOR
+                if (g_uiController) g_uiController->setRedraw();
+                #endif
+            }
+            break;
+    }
+}
+
+/**
+ * @brief 处理MQTT连接状态机
+ */
+void handleMQTTState() {
+    switch (mqttState) {
+        case MQTT_DISCONNECTED:
+            // 状态：未连接
+            if (wifiState == WIFI_CONNECTED && millis() >= nextMqttRetryMs) {
+                // 事件：WiFi已连接且到重试时间，开始连接
+                Serial.println("[MQTT] Starting connection...");
+                mqttState = MQTT_CONNECTING;
+                mqttConnectStartMs = millis();
+            }
+            break;
+            
+        case MQTT_CONNECTING:
+            // 状态：正在连接
+            if (client.connected()) {
+                // 事件：连接成功
+                mqttState = MQTT_CONNECTED;
+                Serial.println("[MQTT] Connected successfully!");
+                
+                // 订阅所有设备Topic
+                for (int i = 0; i < DEVICE_COUNT; i++) {
+                    char command_topic[128];
+                    snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", devices[i].room_id, devices[i].device_id);
+                    client.subscribe(command_topic);
+                    Serial.print("[MQTT] Subscribed to: ");
+                    Serial.println(command_topic);
+                }
+                
+                // 触发UI刷新
+                #if ENABLE_SENSOR_SIMULATOR
+                if (g_uiController) g_uiController->setRedraw();
+                #endif
+            } else if (millis() - mqttConnectStartMs >= MQTT_CONNECT_TIMEOUT_MS) {
+                // 事件：连接超时
+                Serial.println("[MQTT] Connection timeout, will retry later");
+                mqttState = MQTT_DISCONNECTED;
+                nextMqttRetryMs = millis() + MQTT_RETRY_INTERVAL_MS;
+            } else {
+                // 尝试连接（非阻塞，因为设置了短超时）
+                if (!client.connect(NODE_ID)) {
+                    // 连接失败，但继续尝试直到超时
+                    delay(100); // 短暂延迟避免过于频繁
+                }
+            }
+            break;
+            
+        case MQTT_CONNECTED:
+            // 状态：已连接
+            if (!client.connected()) {
+                // 事件：连接断开
+                Serial.println("[MQTT] Connection lost");
+                mqttState = MQTT_DISCONNECTED;
+                nextMqttRetryMs = millis() + 1000; // 1秒后重试
+                
+                // 触发UI刷新
+                #if ENABLE_SENSOR_SIMULATOR
+                if (g_uiController) g_uiController->setRedraw();
+                #endif
+            }
+            break;
+    }
+}
+
+/**
+ * @brief 初始化WiFi连接（非阻塞）
  */
 void setup_wifi() {
-    delay(10);
     Serial.println();
-    Serial.print("Connecting to WiFi: ");
+    Serial.print("[WiFi] Connecting to: ");
     Serial.println(WIFI_SSID);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    // 非阻塞：不等待连接完成，由 loop() 定时检查与重试
-    nextWifiRetryMs = millis() + WIFI_RETRY_INTERVAL_MS;
+    
+    // 初始化状态机
+    wifiState = WIFI_DISCONNECTED;
+    nextWifiRetryMs = millis() + 1000; // 1秒后开始连接
 }
 
 /**
  * @brief 当MQTT连接断开时，尝试重新连接并重新订阅Topic。
+ * @deprecated 已废弃，使用状态机方式
  */
 void reconnect() {
-    // 非阻塞：到点只尝试一次连接
-    if (millis() < nextMqttRetryMs) {
-        return;
-    }
-
-    Serial.print("Attempting MQTT connection...");
-    Serial.print(NODE_ID); Serial.print("'...");
-
-    if (client.connect(NODE_ID)) {
-        Serial.println("connected!");
-
-        for (int i = 0; i < DEVICE_COUNT; i++) {
-            char command_topic[128];
-            snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", devices[i].room_id, devices[i].device_id);
-            client.subscribe(command_topic);
-            Serial.print("Subscribed to: "); Serial.println(command_topic);
-        }
-        // 连接成功，清除下次重试时间
-        nextMqttRetryMs = 0;
-    } else {
-        Serial.print("failed, rc=");
-        Serial.print(client.state());
-        Serial.println(" will retry later");
-        // 安排下次重试时间
-        nextMqttRetryMs = millis() + MQTT_RETRY_INTERVAL_MS;
-    }
+    // 此函数保留兼容性，但实际由状态机处理
+    Serial.println("[MQTT] reconnect() called, but using state machine instead");
 }
 
 /**
@@ -360,27 +478,12 @@ void loop() {
     uiController.update();
     #endif
     
-    // WiFi非阻塞重试
-    if (WiFi.status() != WL_CONNECTED) {
-        if (millis() >= nextWifiRetryMs) {
-            Serial.println("[WiFi] Not connected, retrying...");
-            WiFi.reconnect();
-            nextWifiRetryMs = millis() + WIFI_RETRY_INTERVAL_MS;
-        }
-    }
+    // 处理WiFi状态机
+    handleWiFiState();
 
-    // 仅在WiFi已连接时，按节流进行一次性MQTT重连尝试（尽量避免长阻塞）
-    if (WiFi.status() == WL_CONNECTED && !client.connected()) {
-        // 可选的短超时探测，若不可达则跳过本次阻塞连接
-        WiFiClient probe;
-        if (!probe.connect(MQTT_SERVER, MQTT_PORT, 200)) { // 200ms 失败则跳过
-            probe.stop();
-            nextMqttRetryMs = millis() + MQTT_RETRY_INTERVAL_MS;
-        } else {
-            probe.stop();
-            reconnect();
-        }
-    }
+    // 处理MQTT状态机
+    handleMQTTState();
+
     // PubSubClient库的心跳函数，必须在loop中持续调用
     // 负责处理底层的网络收发和消息检查，并在有新消息时触发注册的callback函数
     client.loop();
