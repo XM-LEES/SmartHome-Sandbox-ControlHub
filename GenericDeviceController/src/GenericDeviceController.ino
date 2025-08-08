@@ -25,6 +25,12 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+// --- 非阻塞连接的调度变量 ---
+static unsigned long nextWifiRetryMs = 0;
+static unsigned long nextMqttRetryMs = 0;
+static const unsigned long WIFI_RETRY_INTERVAL_MS = 1000;  // 1s 重试一次WiFi
+static const unsigned long MQTT_RETRY_INTERVAL_MS = 5000;  // 5s 重试一次MQTT
+
 /**
  * @brief 连接到WiFi网络。
  */
@@ -33,40 +39,41 @@ void setup_wifi() {
     Serial.println();
     Serial.print("Connecting to WiFi: ");
     Serial.println(WIFI_SSID);
+    WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("\nWiFi connected!");
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
+    // 非阻塞：不等待连接完成，由 loop() 定时检查与重试
+    nextWifiRetryMs = millis() + WIFI_RETRY_INTERVAL_MS;
 }
 
 /**
  * @brief 当MQTT连接断开时，尝试重新连接并重新订阅Topic。
  */
 void reconnect() {
-    while (!client.connected()) {
-        Serial.print("Attempting MQTT connection...");
-        Serial.print(NODE_ID); Serial.print("'...");
+    // 非阻塞：到点只尝试一次连接
+    if (millis() < nextMqttRetryMs) {
+        return;
+    }
 
-        // 尝试连接到Broker，NODE_ID是当前客户端的唯一ID
-        if (client.connect(NODE_ID)) {
-            Serial.println("connected!");
+    Serial.print("Attempting MQTT connection...");
+    Serial.print(NODE_ID); Serial.print("'...");
 
-            for (int i = 0; i < DEVICE_COUNT; i++) {
-                char command_topic[128];
-                snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", devices[i].room_id, devices[i].device_id);
-                client.subscribe(command_topic);
-                Serial.print("Subscribed to: "); Serial.println(command_topic);
-            }
-        } else {
-            Serial.print("failed, rc=");
-            Serial.print(client.state()); // 打印失败原因代码
-            Serial.println(" try again in 5 seconds");
-            delay(5000);
+    if (client.connect(NODE_ID)) {
+        Serial.println("connected!");
+
+        for (int i = 0; i < DEVICE_COUNT; i++) {
+            char command_topic[128];
+            snprintf(command_topic, sizeof(command_topic), "smarthome/%s/%s/command", devices[i].room_id, devices[i].device_id);
+            client.subscribe(command_topic);
+            Serial.print("Subscribed to: "); Serial.println(command_topic);
         }
+        // 连接成功，清除下次重试时间
+        nextMqttRetryMs = 0;
+    } else {
+        Serial.print("failed, rc=");
+        Serial.print(client.state());
+        Serial.println(" will retry later");
+        // 安排下次重试时间
+        nextMqttRetryMs = millis() + MQTT_RETRY_INTERVAL_MS;
     }
 }
 
@@ -343,8 +350,17 @@ void loop() {
     uiController.update();
     #endif
     
-    // 检查MQTT连接状态，断线重连
-    if (!client.connected()) {
+    // WiFi非阻塞重试
+    if (WiFi.status() != WL_CONNECTED) {
+        if (millis() >= nextWifiRetryMs) {
+            Serial.println("[WiFi] Not connected, retrying...");
+            WiFi.reconnect();
+            nextWifiRetryMs = millis() + WIFI_RETRY_INTERVAL_MS;
+        }
+    }
+
+    // 仅在WiFi已连接时，按节流进行一次性MQTT重连尝试（非阻塞）
+    if (WiFi.status() == WL_CONNECTED && !client.connected()) {
         reconnect();
     }
     // PubSubClient库的心跳函数，必须在loop中持续调用
