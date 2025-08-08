@@ -71,7 +71,7 @@ void UIController::begin() {
     // 显示启动界面
     displayStartupScreen();
     
-    delay(2000);
+    delay(1000);
 }
 
 void UIController::update() {
@@ -152,27 +152,59 @@ void UIController::handleEncoderRotation(int direction) {
             // 浏览模式：选择传感器项目
             if (selectedRoom == LIVINGROOM || selectedRoom == BEDROOM || selectedRoom == OUTDOOR) {
                 // 卧室、客厅、室外：温度 -> 湿度 -> 亮度 -> 温度
-                if (selectedItem == ITEM_TEMPERATURE) {
-                    selectedItem = ITEM_HUMIDITY;
-                } else if (selectedItem == ITEM_HUMIDITY) {
-                    selectedItem = ITEM_BRIGHTNESS;
+                if (direction > 0) {
+                    // 正向旋转：温度 -> 湿度 -> 亮度 -> 温度
+                    if (selectedItem == ITEM_TEMPERATURE) {
+                        selectedItem = ITEM_HUMIDITY;
+                    } else if (selectedItem == ITEM_HUMIDITY) {
+                        selectedItem = ITEM_BRIGHTNESS;
+                    } else {
+                        selectedItem = ITEM_TEMPERATURE;
+                    }
                 } else {
-                    selectedItem = ITEM_TEMPERATURE;
+                    // 反向旋转：温度 -> 亮度 -> 湿度 -> 温度
+                    if (selectedItem == ITEM_TEMPERATURE) {
+                        selectedItem = ITEM_BRIGHTNESS;
+                    } else if (selectedItem == ITEM_BRIGHTNESS) {
+                        selectedItem = ITEM_HUMIDITY;
+                    } else {
+                        selectedItem = ITEM_TEMPERATURE;
+                    }
                 }
             } else if (selectedRoom == KITCHEN) {
                 // 厨房：温度 -> 湿度 -> 烟雾 -> 燃气 -> 温度
-                if (selectedItem == ITEM_TEMPERATURE) {
-                    selectedItem = ITEM_HUMIDITY;
-                } else if (selectedItem == ITEM_HUMIDITY) {
-                    selectedItem = ITEM_SMOKE;
-                } else if (selectedItem == ITEM_SMOKE) {
-                    selectedItem = ITEM_GAS;
+                if (direction > 0) {
+                    // 正向旋转：温度 -> 湿度 -> 烟雾 -> 燃气 -> 温度
+                    if (selectedItem == ITEM_TEMPERATURE) {
+                        selectedItem = ITEM_HUMIDITY;
+                    } else if (selectedItem == ITEM_HUMIDITY) {
+                        selectedItem = ITEM_SMOKE;
+                    } else if (selectedItem == ITEM_SMOKE) {
+                        selectedItem = ITEM_GAS;
+                    } else {
+                        selectedItem = ITEM_TEMPERATURE;
+                    }
                 } else {
-                    selectedItem = ITEM_TEMPERATURE;
+                    // 反向旋转：温度 -> 燃气 -> 烟雾 -> 湿度 -> 温度
+                    if (selectedItem == ITEM_TEMPERATURE) {
+                        selectedItem = ITEM_GAS;
+                    } else if (selectedItem == ITEM_GAS) {
+                        selectedItem = ITEM_SMOKE;
+                    } else if (selectedItem == ITEM_SMOKE) {
+                        selectedItem = ITEM_HUMIDITY;
+                    } else {
+                        selectedItem = ITEM_TEMPERATURE;
+                    }
                 }
             } else {
                 // 其他房间：温度 -> 湿度 -> 温度
-                selectedItem = (selectedItem == ITEM_TEMPERATURE) ? ITEM_HUMIDITY : ITEM_TEMPERATURE;
+                if (direction > 0) {
+                    // 正向旋转：温度 -> 湿度 -> 温度
+                    selectedItem = (selectedItem == ITEM_TEMPERATURE) ? ITEM_HUMIDITY : ITEM_TEMPERATURE;
+                } else {
+                    // 反向旋转：湿度 -> 温度 -> 湿度
+                    selectedItem = (selectedItem == ITEM_HUMIDITY) ? ITEM_TEMPERATURE : ITEM_HUMIDITY;
+                }
             }
             
             Serial.print("[UI] 浏览模式切换到: ");
@@ -494,11 +526,11 @@ void UIController::drawRoomPage() {
         tft.setTextColor(smokeColor);
         tft.setCursor(65, y);
         tft.print("[");
-        printChineseSmall(75, y + 8, data.smoke_detected ? "检测到" : "正常", smokeColor);
+        printChineseSmall(75, y + 8, data.smoke_detected ? "报警" : "正常", smokeColor);
         tft.setCursor(105, y);
         tft.print("]");
         
-        y += 12;
+        y += 18;
         
         // 燃气传感器行
         bool gasSelected = (selectedItem == ITEM_GAS);
