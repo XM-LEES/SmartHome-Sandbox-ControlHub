@@ -416,6 +416,26 @@ bool control_curtain(const char* room_id, bool is_on) {
         Serial.println("[HAL-ERROR] Brightness sensor not supported on this node");
         return -999.0;
     }
+
+    /**
+     * @brief 烟雾传感器存根实现（无传感器支持时）
+     * @param room_id 房间ID
+     * @return 始终返回-999.0表示不支持
+     */
+    float control_smoke_sensor(const char* room_id) {
+        Serial.println("[HAL-ERROR] Smoke sensor not supported on this node");
+        return -999.0;
+    }
+
+    /**
+     * @brief 燃气泄漏传感器存根实现（无传感器支持时）
+     * @param room_id 房间ID
+     * @return 始终返回-999.0表示不支持
+     */
+    float control_gas_sensor(const char* room_id) {
+        Serial.println("[HAL-ERROR] Gas sensor not supported on this node");
+        return -999.0;
+    }
 #endif
 
 #endif // DEVICE_CONTROL_H
