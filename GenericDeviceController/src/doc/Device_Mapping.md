@@ -25,7 +25,7 @@
 | bathroom | fan | 排气扇 | control_fan() | 13 | 开关控制 |
 
 
-### 虚拟设备 - 传感器（13个）
+### 虚拟设备 - 传感器（15个）
 
 | 房间 | 设备ID | 设备类型 | 数据管理 | GPIO引脚 | 备注 |
 |------|--------|----------|----------|----------|------|
@@ -37,6 +37,8 @@
 | bedroom | brightness_sensor | 卧室亮度传感器 | getSensorData() | 0 | 虚拟设备，默认45.0% |
 | kitchen | temp_sensor | 厨房温度传感器 | getSensorData() | 0 | 虚拟设备，默认26.1°C |
 | kitchen | humidity_sensor | 厨房湿度传感器 | getSensorData() | 0 | 虚拟设备，默认52.3% |
+| kitchen | smoke_sensor | 厨房烟雾传感器 | getSensorData() | 0 | 虚拟设备，布尔值 |
+| kitchen | gas_sensor | 厨房燃气泄漏传感器 | getSensorData() | 0 | 虚拟设备，布尔值 |
 | bathroom | temp_sensor | 浴室温度传感器 | getSensorData() | 0 | 虚拟设备，默认25.3°C |
 | bathroom | humidity_sensor | 浴室湿度传感器 | getSensorData() | 0 | 虚拟设备，默认65.8% |
 | outdoor | temp_sensor | 室外温度传感器 | getSensorData() | 0 | 虚拟设备，默认20.0°C |
@@ -45,15 +47,15 @@
 
 ## 设备总数
 
-**总设备数量**: 29个
+**总设备数量**: 31个
 - **物理设备**: 16个（需要GPIO控制）
-- **虚拟设备**: 13个（传感器，软件模拟）
+- **虚拟设备**: 15个（传感器，软件模拟）
 
 ## 房间分布
 
 - **客厅 (livingroom)**: 8个设备（5个物理 + 3个传感器）
 - **卧室 (bedroom)**: 9个设备（6个物理 + 3个传感器）  
-- **厨房 (kitchen)**: 4个设备（2个物理 + 2个传感器）
+- **厨房 (kitchen)**: 6个设备（2个物理 + 4个传感器）
 - **浴室 (bathroom)**: 5个设备（3个物理 + 2个传感器）
 - **室外 (outdoor)**: 3个设备（3个传感器）
 
@@ -162,6 +164,22 @@
   - room_id: 房间ID
 - **返回值**: 亮度值（%），-999.0表示读取失败或不支持
 - **适用设备**: 亮度传感器（brightness_sensor）
+- **注意**: 仅在ENABLE_SENSOR_SIMULATOR=1时有效
+
+### control_smoke_sensor(room_id)
+- **功能**: 读取烟雾传感器数据
+- **参数**:
+  - room_id: 房间ID
+- **返回值**: 烟雾检测状态（0=正常，1=检测到烟雾），-999.0表示读取失败或不支持
+- **适用设备**: 烟雾传感器（smoke_sensor）
+- **注意**: 仅在ENABLE_SENSOR_SIMULATOR=1时有效
+
+### control_gas_sensor(room_id)
+- **功能**: 读取燃气泄漏传感器数据
+- **参数**:
+  - room_id: 房间ID
+- **返回值**: 燃气泄漏状态（0=正常，1=检测到泄漏），-999.0表示读取失败或不支持
+- **适用设备**: 燃气泄漏传感器（gas_sensor）
 - **注意**: 仅在ENABLE_SENSOR_SIMULATOR=1时有效
 
 ## MQTT Topic格式

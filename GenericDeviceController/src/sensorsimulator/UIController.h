@@ -46,7 +46,6 @@
 #define COLOR_GRAY      0x8410
 #define COLOR_ORANGE    0xFD20
 #define COLOR_LIGHT_YELLOW 0xFFF0
-#define COLOR_GOLD      0xFFC0
 
 // UI状态枚举（总是需要，用于接口）
 enum UIState {
@@ -60,7 +59,9 @@ enum UIState {
 enum SensorItem {
     ITEM_TEMPERATURE = 0,   // 温度
     ITEM_HUMIDITY = 1,      // 湿度
-    ITEM_BRIGHTNESS = 2     // 亮度
+    ITEM_BRIGHTNESS = 2,    // 亮度
+    ITEM_SMOKE = 3,         // 烟雾
+    ITEM_GAS = 4            // 燃气
 };
 
 // 房间名称映射（声明）

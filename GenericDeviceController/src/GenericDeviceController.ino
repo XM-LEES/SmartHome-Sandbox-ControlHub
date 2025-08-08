@@ -409,14 +409,30 @@ void callback(char* topic, byte* payload, unsigned int length) {
             publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Humidity sensor read failed");
         }
         return;
-    } else if (strcmp(device, "brightness_sensor") == 0) {
-        float brightness_value = control_brightness_sensor(room);
-        if (brightness_value != -999.0) {
-            publish_sensor_state(room, device, "READ", correlation_id, brightness_value, "%");
-        } else {
-            publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Brightness sensor read failed");
-        }
-        return;
+            } else if (strcmp(device, "brightness_sensor") == 0) {
+            float brightness_value = control_brightness_sensor(room);
+            if (brightness_value != -999.0) {
+                publish_sensor_state(room, device, "READ", correlation_id, brightness_value, "%");
+            } else {
+                publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Brightness sensor read failed");
+            }
+            return;
+        } else if (strcmp(device, "smoke_sensor") == 0) {
+            float smoke_value = control_smoke_sensor(room);
+            if (smoke_value != -999.0) {
+                publish_sensor_state(room, device, "READ", correlation_id, smoke_value, "");
+            } else {
+                publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Smoke sensor read failed");
+            }
+            return;
+        } else if (strcmp(device, "gas_sensor") == 0) {
+            float gas_value = control_gas_sensor(room);
+            if (gas_value != -999.0) {
+                publish_sensor_state(room, device, "READ", correlation_id, gas_value, "");
+            } else {
+                publish_error_state(room, device, correlation_id, "SENSOR_READ_ERROR", "Gas sensor read failed");
+            }
+            return;
     }
     // 添加其他设备类型的判断...
     // else if (strcmp(device, "oven") == 0) {

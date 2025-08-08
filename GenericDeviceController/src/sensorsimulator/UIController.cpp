@@ -159,6 +159,17 @@ void UIController::handleEncoderRotation(int direction) {
                 } else {
                     selectedItem = ITEM_TEMPERATURE;
                 }
+            } else if (selectedRoom == KITCHEN) {
+                // 厨房：温度 -> 湿度 -> 烟雾 -> 燃气 -> 温度
+                if (selectedItem == ITEM_TEMPERATURE) {
+                    selectedItem = ITEM_HUMIDITY;
+                } else if (selectedItem == ITEM_HUMIDITY) {
+                    selectedItem = ITEM_SMOKE;
+                } else if (selectedItem == ITEM_SMOKE) {
+                    selectedItem = ITEM_GAS;
+                } else {
+                    selectedItem = ITEM_TEMPERATURE;
+                }
             } else {
                 // 其他房间：温度 -> 湿度 -> 温度
                 selectedItem = (selectedItem == ITEM_TEMPERATURE) ? ITEM_HUMIDITY : ITEM_TEMPERATURE;
@@ -167,7 +178,9 @@ void UIController::handleEncoderRotation(int direction) {
             Serial.print("[UI] 浏览模式切换到: ");
             if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
             else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
-            else Serial.println("亮度");
+            else if (selectedItem == ITEM_BRIGHTNESS) Serial.println("亮度");
+            else if (selectedItem == ITEM_SMOKE) Serial.println("烟雾");
+            else Serial.println("燃气");
             setRedraw();
             break;
             
@@ -193,7 +206,9 @@ void UIController::handleEncoderPress() {
             Serial.print("[UI] 进入房间浏览模式，初始选择: ");
             if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
             else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
-            else Serial.println("亮度");
+            else if (selectedItem == ITEM_BRIGHTNESS) Serial.println("亮度");
+            else if (selectedItem == ITEM_SMOKE) Serial.println("烟雾");
+            else Serial.println("燃气");
             setRedraw();
             break;
             
@@ -204,7 +219,9 @@ void UIController::handleEncoderPress() {
             Serial.print("[UI] 进入编辑模式，编辑项目: ");
             if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
             else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
-            else Serial.println("亮度");
+            else if (selectedItem == ITEM_BRIGHTNESS) Serial.println("亮度");
+            else if (selectedItem == ITEM_SMOKE) Serial.println("烟雾");
+            else Serial.println("燃气");
             setRedraw();
             break;
             
@@ -215,7 +232,9 @@ void UIController::handleEncoderPress() {
             Serial.print("[UI] 退出编辑模式，当前选择: ");
             if (selectedItem == ITEM_TEMPERATURE) Serial.println("温度");
             else if (selectedItem == ITEM_HUMIDITY) Serial.println("湿度");
-            else Serial.println("亮度");
+            else if (selectedItem == ITEM_BRIGHTNESS) Serial.println("亮度");
+            else if (selectedItem == ITEM_SMOKE) Serial.println("烟雾");
+            else Serial.println("燃气");
             setRedraw();
             break;
             
@@ -261,9 +280,13 @@ void UIController::adjustSensorValue(int direction) {
     } else if (selectedItem == ITEM_BRIGHTNESS) {
         data.brightness += direction * 2.0f;
         data.brightness = constrain(data.brightness, 0.0f, 100.0f);
+    } else if (selectedItem == ITEM_SMOKE) {
+        data.smoke_detected = !data.smoke_detected;  // 切换布尔值
+    } else if (selectedItem == ITEM_GAS) {
+        data.gas_leak = !data.gas_leak;  // 切换布尔值
     }
     
-    setSensorData((RoomIndex)selectedRoom, data.temperature, data.humidity, data.brightness);
+    setSensorData((RoomIndex)selectedRoom, data.temperature, data.humidity, data.brightness, data.smoke_detected, data.gas_leak);
 }
 
 void UIController::drawOverviewPage() {
@@ -415,7 +438,7 @@ void UIController::drawRoomPage() {
         
         uint16_t brightColor = COLOR_WHITE;
         if (brightSelected) {
-            brightColor = brightEditing ? COLOR_GOLD : COLOR_LIGHT_YELLOW;
+            brightColor = brightEditing ? COLOR_YELLOW : COLOR_LIGHT_YELLOW;
         }
         
         tft.setTextColor(brightColor);
@@ -440,6 +463,65 @@ void UIController::drawRoomPage() {
         
         // 亮度进度条
         drawProgressBar(8, y, 100, 6, data.brightness, 100.0f);
+        
+        y += 12;
+    }
+    
+    // 烟雾和燃气传感器行（只在厨房显示）
+    if (selectedRoom == KITCHEN) {
+        // 烟雾传感器行
+        bool smokeSelected = (selectedItem == ITEM_SMOKE);
+        bool smokeEditing = (currentState == STATE_EDIT && smokeSelected);
+        
+        uint16_t smokeColor = COLOR_WHITE;
+        if (smokeSelected) {
+            smokeColor = smokeEditing ? COLOR_RED : COLOR_MAGENTA;
+        }
+        
+        tft.setTextColor(smokeColor);
+        
+        if (smokeSelected) {
+            tft.setCursor(0, y);
+            tft.print(">");
+        }
+        
+        // 使用U8g2显示中文
+        u8g2.setForegroundColor(smokeColor);
+        u8g2.setCursor(8, y + 8);
+        u8g2.print("烟雾:");
+        
+        // 使用原生库显示状态
+        tft.setTextColor(smokeColor);
+        tft.setCursor(65, y);
+        tft.print(data.smoke_detected ? "检测到" : "正常");
+        
+        y += 12;
+        
+        // 燃气传感器行
+        bool gasSelected = (selectedItem == ITEM_GAS);
+        bool gasEditing = (currentState == STATE_EDIT && gasSelected);
+        
+        uint16_t gasColor = COLOR_WHITE;
+        if (gasSelected) {
+            gasColor = gasEditing ? COLOR_RED : COLOR_MAGENTA;
+        }
+        
+        tft.setTextColor(gasColor);
+        
+        if (gasSelected) {
+            tft.setCursor(0, y);
+            tft.print(">");
+        }
+        
+        // 使用U8g2显示中文
+        u8g2.setForegroundColor(gasColor);
+        u8g2.setCursor(8, y + 8);
+        u8g2.print("燃气:");
+        
+        // 使用原生库显示状态
+        tft.setTextColor(gasColor);
+        tft.setCursor(65, y);
+        tft.print(data.gas_leak ? "泄漏" : "正常");
         
         y += 12;
     }

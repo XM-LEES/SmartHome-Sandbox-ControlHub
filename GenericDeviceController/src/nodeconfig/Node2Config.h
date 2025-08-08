@@ -16,7 +16,7 @@ const int MQTT_PORT = 1883;
 const char* NODE_ID = "ESP32_Node_2";
 
 // 1. 定义这个节点控制的设备总数（主要是虚拟传感器）
-#define DEVICE_COUNT 15
+#define DEVICE_COUNT 17
 
 // 2. 定义设备结构体，包含room_id，用于支持多个房间
 struct Device {
@@ -50,8 +50,10 @@ Device devices[DEVICE_COUNT] = {
     { "bathroom", "humidity_sensor", 0, true }, // 卫生间湿度传感器（虚拟）
     
     { "outdoor", "temp_sensor", 0, true }, // 室外温度传感器（虚拟）
-    { "outdoor", "humidity_sensor", 0, true }, // 室外湿度传感器（虚拟）
-    { "outdoor", "brightness_sensor", 0, true } // 室外亮度传感器（虚拟）
+      { "outdoor", "humidity_sensor", 0, true }, // 室外湿度传感器（虚拟）
+  { "outdoor", "brightness_sensor", 0, true }, // 室外亮度传感器（虚拟）
+  { "kitchen", "smoke_sensor", 0, true }, // 厨房烟雾传感器（虚拟）
+  { "kitchen", "gas_sensor", 0, true } // 厨房燃气泄漏传感器（虚拟）
     // 注意：此节点专注于UI显示和传感器数据，不控制物理设备
 };
 // ===============================================
