@@ -343,6 +343,48 @@ bool control_curtain(const char* room_id, bool is_on) {
         return brightness_value;
     }
 
+    /**
+     * @brief 控制烟雾传感器读取
+     * @param room_id 房间ID
+     * @return 烟雾检测状态，-999.0表示读取失败
+     */
+    float control_smoke_sensor(const char* room_id) {
+        int room_index = getRoomIndex(room_id);
+        if (room_index == -1) {
+            Serial.print("[HAL-ERROR] Unknown room for smoke sensor: "); Serial.println(room_id);
+            return -999.0;
+        }
+        
+        SensorData sensor_data = getSensorData((RoomIndex)room_index);
+        float smoke_value = sensor_data.smoke_detected ? 1.0 : 0.0;
+        
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/smoke_sensor' read: "); Serial.print(smoke_value); Serial.println(" (0=正常, 1=检测到烟雾)");
+        
+        return smoke_value;
+    }
+
+    /**
+     * @brief 控制燃气泄漏传感器读取
+     * @param room_id 房间ID
+     * @return 燃气泄漏状态，-999.0表示读取失败
+     */
+    float control_gas_sensor(const char* room_id) {
+        int room_index = getRoomIndex(room_id);
+        if (room_index == -1) {
+            Serial.print("[HAL-ERROR] Unknown room for gas sensor: "); Serial.println(room_id);
+            return -999.0;
+        }
+        
+        SensorData sensor_data = getSensorData((RoomIndex)room_index);
+        float gas_value = sensor_data.gas_leak ? 1.0 : 0.0;
+        
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/gas_sensor' read: "); Serial.print(gas_value); Serial.println(" (0=正常, 1=检测到泄漏)");
+        
+        return gas_value;
+    }
+
 #else
     // 无传感器支持的存根实现
     /**

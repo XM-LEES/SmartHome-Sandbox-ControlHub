@@ -13,7 +13,7 @@ SensorData getSensorData(RoomIndex room) {
         return rooms[room].sensors;
     }
     // 返回错误数据
-    SensorData error_data = {-999.0, -999.0, -999.0};
+    SensorData error_data = {-999.0, -999.0, -999.0, false, false};
     return error_data;
 }
 
@@ -24,13 +24,15 @@ SensorData getSensorData(RoomIndex room) {
  * @param humidity 湿度值
  * @param brightness 亮度值 (0-100%)
  */
-void setSensorData(RoomIndex room, float temp, float humidity, float brightness) {
+void setSensorData(RoomIndex room, float temp, float humidity, float brightness, bool smoke, bool gas) {
     if (room >= 0 && room < MAX_ROOMS) {
         rooms[room].sensors.temperature = temp;
         rooms[room].sensors.humidity = humidity;
         if (brightness != -999.0) {
             rooms[room].sensors.brightness = brightness;
         }
+        rooms[room].sensors.smoke_detected = smoke;
+        rooms[room].sensors.gas_leak = gas;
         Serial.print("[SensorDataManager] Updated room ");
         Serial.print(room);
         Serial.print(": temp=");
@@ -39,7 +41,11 @@ void setSensorData(RoomIndex room, float temp, float humidity, float brightness)
         Serial.print(humidity);
         Serial.print("%, brightness=");
         Serial.print(rooms[room].sensors.brightness);
-        Serial.println("%");
+        Serial.print("%, smoke=");
+        Serial.print(smoke ? "true" : "false");
+        Serial.print(", gas=");
+        Serial.print(gas ? "true" : "false");
+        Serial.println();
     }
 }
 
@@ -53,26 +59,36 @@ void initSensorData() {
     rooms[LIVINGROOM].sensors.temperature = 24.5;
     rooms[LIVINGROOM].sensors.humidity = 45.2;
     rooms[LIVINGROOM].sensors.brightness = 65.0;
+    rooms[LIVINGROOM].sensors.smoke_detected = false;
+    rooms[LIVINGROOM].sensors.gas_leak = false;
     
     // 卧室默认数据
     rooms[BEDROOM].sensors.temperature = 23.8;
     rooms[BEDROOM].sensors.humidity = 48.5;
     rooms[BEDROOM].sensors.brightness = 45.0;
+    rooms[BEDROOM].sensors.smoke_detected = false;
+    rooms[BEDROOM].sensors.gas_leak = false;
     
     // 厨房默认数据
     rooms[KITCHEN].sensors.temperature = 26.1;
     rooms[KITCHEN].sensors.humidity = 52.3;
     rooms[KITCHEN].sensors.brightness = 70.0;
+    rooms[KITCHEN].sensors.smoke_detected = false;
+    rooms[KITCHEN].sensors.gas_leak = false;
     
     // 浴室默认数据
     rooms[BATHROOM].sensors.temperature = 25.3;
     rooms[BATHROOM].sensors.humidity = 65.8;
     rooms[BATHROOM].sensors.brightness = 55.0;
+    rooms[BATHROOM].sensors.smoke_detected = false;
+    rooms[BATHROOM].sensors.gas_leak = false;
     
     // 室外默认数据
     rooms[OUTDOOR].sensors.temperature = 20.0;
     rooms[OUTDOOR].sensors.humidity = 60.0;
     rooms[OUTDOOR].sensors.brightness = 85.0;
+    rooms[OUTDOOR].sensors.smoke_detected = false;
+    rooms[OUTDOOR].sensors.gas_leak = false;
     
     Serial.println("[SensorDataManager] Sensor data initialized successfully");
 }

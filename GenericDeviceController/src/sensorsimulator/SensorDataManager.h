@@ -20,6 +20,8 @@ struct SensorData {
     float temperature;    // 当前温度
     float humidity;       // 当前湿度
     float brightness;     // 当前亮度 (0-100%)
+    bool smoke_detected;  // 烟雾检测状态
+    bool gas_leak;        // 燃气泄漏状态
 };
 
 // 房间环境数据结构
@@ -45,7 +47,7 @@ SensorData getSensorData(RoomIndex room);
  * @param humidity 湿度值
  * @param brightness 亮度值 (0-100%)
  */
-void setSensorData(RoomIndex room, float temp, float humidity, float brightness = -999.0);
+void setSensorData(RoomIndex room, float temp, float humidity, float brightness = -999.0, bool smoke = false, bool gas = false);
 
 /**
  * @brief 初始化传感器数据，设置默认值
