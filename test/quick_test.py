@@ -10,7 +10,7 @@ import requests
 import json
 import time
 
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = "http://192.168.123.62:8000"
 
 def test_api(room_id, device_id, action, value=None, description=""):
     """测试API调用"""

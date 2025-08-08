@@ -16,7 +16,7 @@ const int MQTT_PORT = 1883;
 const char* NODE_ID = "ESP32_Node_1";
 
 // 1. 定义这个节点控制的设备总数（仅物理设备）
-#define DEVICE_COUNT 14
+#define DEVICE_COUNT 11
 
 // 2. 定义设备结构体，包含room_id，用于支持多个房间
 struct Device {
@@ -36,7 +36,7 @@ Device devices[DEVICE_COUNT] = {
     { "livingroom", "light", 22, false }, // 客厅灯
     // { "livingroom", "ac",    21, false }, // 客厅空调
     { "livingroom", "window", 19, false }, // 客厅窗户
-    { "livingroom", "door", 17, false }, // 客厅门
+    // { "livingroom", "door", 17, false }, // 客厅门 - 已禁用
     { "livingroom", "curtain", 16, false }, // 客厅窗帘
 
     // --- 卧室设备 ---
@@ -44,7 +44,7 @@ Device devices[DEVICE_COUNT] = {
     { "bedroom", "bedside_light", 2, false }, // 卧室床头灯
     // { "bedroom", "ac",    34, false }, // 卧室空调
     { "bedroom", "window", 32, false }, // 卧室窗户
-    { "bedroom", "door", 33, false }, // 卧室门
+    // { "bedroom", "door", 33, false }, // 卧室门 - 已禁用
     { "bedroom", "curtain", 25, false }, // 卧室窗帘
 
     // --- 厨房设备 ---
@@ -54,7 +54,7 @@ Device devices[DEVICE_COUNT] = {
     // --- 卫生间设备 ---
     { "bathroom", "light", 14, false }, // 卫生间灯
     { "bathroom", "fan",   13, false }, // 卫生间排气扇
-    { "bathroom", "door", 12, false } // 卫生间门
+    // { "bathroom", "door", 12, false } // 卫生间门 - 已禁用
 };
 // ===============================================
 

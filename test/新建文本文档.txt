@@ -1,0 +1,363 @@
+(iot) E:\Projects\Lab\SmartHome-Sandbox-ControlHub\test>python api_test.py
+[22:56:08] INFO: 开始智能家居API完整测试
+[22:56:08] INFO: API地址: http://192.168.123.62:8000
+[22:56:08] INFO: ============================================================
+[22:56:08] INFO:
+==================== 测试客厅设备 ====================
+[22:56:08] INFO:
+--- 测试 livingroom/客厅灯 (light) ---
+[22:56:08] INFO: 测试 1: 客厅灯 开启
+[22:56:08] PASS: ✓ 通过 - 状态码: 200
+[22:56:08] INFO: 测试 2: 客厅灯 关闭
+[22:56:08] PASS: ✓ 通过 - 状态码: 200
+[22:56:09] INFO: 测试 3: 客厅灯 无效操作
+[22:56:09] PASS: ✓ 通过 - 状态码: 400
+[22:56:10] INFO:
+--- 测试 livingroom/客厅窗户 (window) ---
+[22:56:10] INFO: 测试 4: 客厅窗户 开启
+[22:56:10] PASS: ✓ 通过 - 状态码: 200
+[22:56:10] INFO: 测试 5: 客厅窗户 关闭
+[22:56:10] PASS: ✓ 通过 - 状态码: 200
+[22:56:11] INFO: 测试 6: 客厅窗户 无效操作
+[22:56:11] PASS: ✓ 通过 - 状态码: 400
+[22:56:11] INFO:
+--- 测试 livingroom/客厅门 (door) ---
+[22:56:11] INFO: 测试 7: 客厅门 开启
+[22:56:12] PASS: ✓ 通过 - 状态码: 200
+[22:56:12] INFO: 测试 8: 客厅门 关闭
+[22:56:12] PASS: ✓ 通过 - 状态码: 200
+[22:56:13] INFO: 测试 9: 客厅门 无效操作
+[22:56:13] PASS: ✓ 通过 - 状态码: 400
+[22:56:13] INFO:
+--- 测试 livingroom/客厅窗帘 (curtain) ---
+[22:56:13] INFO: 测试 10: 客厅窗帘 开启
+[22:56:14] PASS: ✓ 通过 - 状态码: 200
+[22:56:14] INFO: 测试 11: 客厅窗帘 关闭
+[22:56:14] PASS: ✓ 通过 - 状态码: 200
+[22:56:15] INFO: 测试 12: 客厅窗帘 无效操作
+[22:56:15] PASS: ✓ 通过 - 状态码: 400
+[22:56:15] INFO:
+--- 测试 livingroom/空调 (ac) ---
+[22:56:15] INFO: 测试 13: 空调 开启并设置25度
+[22:56:16] PASS: ✓ 通过 - 状态码: 200
+[22:56:17] INFO: 测试 14: 空调 设置温度23度
+[22:56:17] PASS: ✓ 通过 - 状态码: 200
+[22:56:17] INFO: 测试 15: 空调 设置温度0度
+[22:56:18] PASS: ✓ 通过 - 状态码: 200
+[22:56:18] INFO: 测试 16: 空调 设置温度40度
+[22:56:18] PASS: ✓ 通过 - 状态码: 200
+[22:56:19] INFO: 测试 17: 空调 关闭
+[22:56:19] PASS: ✓ 通过 - 状态码: 200
+[22:56:19] INFO: 测试 18: 空调 ON操作缺少温度参数
+[22:56:20] FAIL: ✗ 失败 - 期望: 400, 实际: 200
+[22:56:20] FAIL:   响应: {'status': 'success', 'confirmed_result': {'state': 'ON', 'correlation_id': '2ca525e9-ae9c-468c-b7d9-c816a4cd1a60'}}
+[22:56:20] INFO: 测试 19: 空调 ON操作温度超出范围(-1度)
+[22:56:20] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:20] FAIL:   响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:56:21] INFO: 测试 20: 空调 ON操作温度超出范围(41度)
+[22:56:21] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:21] FAIL:   响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:56:21] INFO: 测试 21: 空调 SET_TEMP操作缺少温度参数
+[22:56:22] FAIL: ✗ 失败 - 期望: 400, 实际: 200
+[22:56:22] FAIL:   响应: {'status': 'success', 'confirmed_result': {'state': 'SET_TEMP', 'correlation_id': '4de16437-6188-4ca4-8041-5187c5020889', 'temperature': 0, 'unit': '°C'}}
+[22:56:22] INFO: 测试 22: 空调 SET_TEMP操作温度超出范围(-1度)
+[22:56:22] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:22] FAIL:   响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:56:23] INFO: 测试 23: 空调 SET_TEMP操作温度超出范围(41度)
+[22:56:23] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:23] FAIL:   响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:56:24] INFO: 测试 24: 空调 无效操作
+[22:56:24] PASS: ✓ 通过 - 状态码: 400
+[22:56:24] INFO:
+--- 测试 livingroom/客厅温度传感器 (temp_sensor) ---
+[22:56:24] INFO: 测试 25: 客厅温度传感器 读取数据
+[22:56:24] PASS: ✓ 通过 - 状态码: 200
+[22:56:25] INFO: 测试 26: 客厅温度传感器 无效操作
+[22:56:25] PASS: ✓ 通过 - 状态码: 400
+[22:56:26] INFO:
+--- 测试 livingroom/客厅湿度传感器 (humidity_sensor) ---
+[22:56:26] INFO: 测试 27: 客厅湿度传感器 读取数据
+[22:56:29] FAIL: ✗ 失败 - 期望: 200, 实际: 504
+[22:56:29] FAIL:   响应: {'detail': 'Device did not respond in time.'}
+[22:56:29] INFO: 测试 28: 客厅湿度传感器 无效操作
+[22:56:29] PASS: ✓ 通过 - 状态码: 400
+[22:56:30] INFO:
+==================== 测试卧室设备 ====================
+[22:56:30] INFO:
+--- 测试 bedroom/卧室灯 (light) ---
+[22:56:30] INFO: 测试 29: 卧室灯 开启
+[22:56:30] PASS: ✓ 通过 - 状态码: 200
+[22:56:30] INFO: 测试 30: 卧室灯 关闭
+[22:56:30] PASS: ✓ 通过 - 状态码: 200
+[22:56:31] INFO: 测试 31: 卧室灯 无效操作
+[22:56:31] PASS: ✓ 通过 - 状态码: 400
+[22:56:32] INFO:
+--- 测试 bedroom/床头灯 (bedside_light) ---
+[22:56:32] INFO: 测试 32: 床头灯 开启
+[22:56:32] PASS: ✓ 通过 - 状态码: 200
+[22:56:32] INFO: 测试 33: 床头灯 关闭
+[22:56:32] PASS: ✓ 通过 - 状态码: 200
+[22:56:33] INFO: 测试 34: 床头灯 无效操作
+[22:56:33] PASS: ✓ 通过 - 状态码: 400
+[22:56:33] INFO:
+--- 测试 bedroom/卧室窗户 (window) ---
+[22:56:33] INFO: 测试 35: 卧室窗户 开启
+[22:56:34] PASS: ✓ 通过 - 状态码: 200
+[22:56:34] INFO: 测试 36: 卧室窗户 关闭
+[22:56:34] PASS: ✓ 通过 - 状态码: 200
+[22:56:35] INFO: 测试 37: 卧室窗户 无效操作
+[22:56:35] PASS: ✓ 通过 - 状态码: 400
+[22:56:35] INFO:
+--- 测试 bedroom/卧室门 (door) ---
+[22:56:35] INFO: 测试 38: 卧室门 开启
+[22:56:36] PASS: ✓ 通过 - 状态码: 200
+[22:56:36] INFO: 测试 39: 卧室门 关闭
+[22:56:36] PASS: ✓ 通过 - 状态码: 200
+[22:56:37] INFO: 测试 40: 卧室门 无效操作
+[22:56:37] PASS: ✓ 通过 - 状态码: 400
+[22:56:37] INFO:
+--- 测试 bedroom/卧室窗帘 (curtain) ---
+[22:56:37] INFO: 测试 41: 卧室窗帘 开启
+[22:56:37] PASS: ✓ 通过 - 状态码: 200
+[22:56:38] INFO: 测试 42: 卧室窗帘 关闭
+[22:56:38] PASS: ✓ 通过 - 状态码: 200
+[22:56:39] INFO: 测试 43: 卧室窗帘 无效操作
+[22:56:39] PASS: ✓ 通过 - 状态码: 400
+[22:56:39] INFO:
+--- 测试 bedroom/空调 (ac) ---
+[22:56:39] INFO: 测试 44: 空调 开启并设置25度
+[22:56:39] PASS: ✓ 通过 - 状态码: 200
+[22:56:40] INFO: 测试 45: 空调 设置温度23度
+[22:56:40] PASS: ✓ 通过 - 状态码: 200
+[22:56:41] INFO: 测试 46: 空调 设置温度0度
+[22:56:41] PASS: ✓ 通过 - 状态码: 200
+[22:56:42] INFO: 测试 47: 空调 设置温度40度
+[22:56:42] PASS: ✓ 通过 - 状态码: 200
+[22:56:42] INFO: 测试 48: 空调 关闭
+[22:56:43] PASS: ✓ 通过 - 状态码: 200
+[22:56:43] INFO: 测试 49: 空调 ON操作缺少温度参数
+[22:56:43] FAIL: ✗ 失败 - 期望: 400, 实际: 200
+[22:56:43] FAIL:   响应: {'status': 'success', 'confirmed_result': {'state': 'ON', 'correlation_id': 'c91cadb1-623c-42f1-9cfc-e30f6642cdcf'}}
+[22:56:44] INFO: 测试 50: 空调 ON操作温度超出范围(-1度)
+[22:56:44] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:44] FAIL:   响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:56:44] INFO: 测试 51: 空调 ON操作温度超出范围(41度)
+[22:56:45] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:45] FAIL:   响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:56:45] INFO: 测试 52: 空调 SET_TEMP操作缺少温度参数
+[22:56:45] FAIL: ✗ 失败 - 期望: 400, 实际: 200
+[22:56:45] FAIL:   响应: {'status': 'success', 'confirmed_result': {'state': 'SET_TEMP', 'correlation_id': 'a93f28d0-272c-4fda-a2f2-855a2faf2ca0', 'temperature': 0, 'unit': '°C'}}
+[22:56:46] INFO: 测试 53: 空调 SET_TEMP操作温度超出范围(-1度)
+[22:56:46] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:46] FAIL:   响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:56:46] INFO: 测试 54: 空调 SET_TEMP操作温度超出范围(41度)
+[22:56:47] FAIL: ✗ 失败 - 期望: 400, 实际: 502
+[22:56:47] FAIL:   响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:56:47] INFO: 测试 55: 空调 无效操作
+[22:56:47] PASS: ✓ 通过 - 状态码: 400
+[22:56:48] INFO:
+--- 测试 bedroom/卧室温度传感器 (temp_sensor) ---
+[22:56:48] INFO: 测试 56: 卧室温度传感器 读取数据
+[22:56:48] PASS: ✓ 通过 - 状态码: 200
+[22:56:48] INFO: 测试 57: 卧室温度传感器 无效操作
+[22:56:48] PASS: ✓ 通过 - 状态码: 400
+[22:56:49] INFO:
+--- 测试 bedroom/卧室湿度传感器 (humidity_sensor) ---
+[22:56:49] INFO: 测试 58: 卧室湿度传感器 读取数据
+[22:56:49] PASS: ✓ 通过 - 状态码: 200
+[22:56:50] INFO: 测试 59: 卧室湿度传感器 无效操作
+[22:56:50] PASS: ✓ 通过 - 状态码: 400
+[22:56:50] INFO:
+==================== 测试厨房设备 ====================
+[22:56:50] INFO:
+--- 测试 kitchen/厨房灯 (light) ---
+[22:56:50] INFO: 测试 60: 厨房灯 开启
+[22:56:51] PASS: ✓ 通过 - 状态码: 200
+[22:56:51] INFO: 测试 61: 厨房灯 关闭
+[22:56:51] PASS: ✓ 通过 - 状态码: 200
+[22:56:52] INFO: 测试 62: 厨房灯 无效操作
+[22:56:52] PASS: ✓ 通过 - 状态码: 400
+[22:56:52] INFO:
+--- 测试 kitchen/油烟机 (hood) ---
+[22:56:52] INFO: 测试 63: 油烟机 开启
+[22:56:52] PASS: ✓ 通过 - 状态码: 200
+[22:56:53] INFO: 测试 64: 油烟机 关闭
+[22:56:53] PASS: ✓ 通过 - 状态码: 200
+[22:56:54] INFO: 测试 65: 油烟机 无效操作
+[22:56:54] PASS: ✓ 通过 - 状态码: 400
+[22:56:54] INFO:
+--- 测试 kitchen/厨房温度传感器 (temp_sensor) ---
+[22:56:54] INFO: 测试 66: 厨房温度传感器 读取数据
+[22:56:55] PASS: ✓ 通过 - 状态码: 200
+[22:56:55] INFO: 测试 67: 厨房温度传感器 无效操作
+[22:56:55] PASS: ✓ 通过 - 状态码: 400
+[22:56:56] INFO:
+--- 测试 kitchen/厨房湿度传感器 (humidity_sensor) ---
+[22:56:56] INFO: 测试 68: 厨房湿度传感器 读取数据
+[22:56:56] PASS: ✓ 通过 - 状态码: 200
+[22:56:56] INFO: 测试 69: 厨房湿度传感器 无效操作
+[22:56:56] PASS: ✓ 通过 - 状态码: 400
+[22:56:57] INFO:
+==================== 测试浴室设备 ====================
+[22:56:57] INFO:
+--- 测试 bathroom/浴室灯 (light) ---
+[22:56:57] INFO: 测试 70: 浴室灯 开启
+[22:56:57] PASS: ✓ 通过 - 状态码: 200
+[22:56:57] INFO: 测试 71: 浴室灯 关闭
+[22:56:58] PASS: ✓ 通过 - 状态码: 200
+[22:56:58] INFO: 测试 72: 浴室灯 无效操作
+[22:56:58] PASS: ✓ 通过 - 状态码: 400
+[22:56:59] INFO:
+--- 测试 bathroom/排气扇 (fan) ---
+[22:56:59] INFO: 测试 73: 排气扇 开启
+[22:56:59] PASS: ✓ 通过 - 状态码: 200
+[22:56:59] INFO: 测试 74: 排气扇 关闭
+[22:56:59] PASS: ✓ 通过 - 状态码: 200
+[22:57:00] INFO: 测试 75: 排气扇 无效操作
+[22:57:00] PASS: ✓ 通过 - 状态码: 400
+[22:57:01] INFO:
+--- 测试 bathroom/浴室门 (door) ---
+[22:57:01] INFO: 测试 76: 浴室门 开启
+[22:57:01] PASS: ✓ 通过 - 状态码: 200
+[22:57:01] INFO: 测试 77: 浴室门 关闭
+[22:57:01] PASS: ✓ 通过 - 状态码: 200
+[22:57:02] INFO: 测试 78: 浴室门 无效操作
+[22:57:02] PASS: ✓ 通过 - 状态码: 400
+[22:57:02] INFO:
+--- 测试 bathroom/浴室温度传感器 (temp_sensor) ---
+[22:57:02] INFO: 测试 79: 浴室温度传感器 读取数据
+[22:57:02] PASS: ✓ 通过 - 状态码: 200
+[22:57:03] INFO: 测试 80: 浴室温度传感器 无效操作
+[22:57:03] PASS: ✓ 通过 - 状态码: 400
+[22:57:04] INFO:
+--- 测试 bathroom/浴室湿度传感器 (humidity_sensor) ---
+[22:57:04] INFO: 测试 81: 浴室湿度传感器 读取数据
+[22:57:04] PASS: ✓ 通过 - 状态码: 200
+[22:57:04] INFO: 测试 82: 浴室湿度传感器 无效操作
+[22:57:04] PASS: ✓ 通过 - 状态码: 400
+[22:57:05] INFO:
+==================== 测试室外设备 ====================
+[22:57:05] INFO:
+--- 测试 outdoor/室外温度传感器 (temp_sensor) ---
+[22:57:05] INFO: 测试 83: 室外温度传感器 读取数据
+[22:57:05] PASS: ✓ 通过 - 状态码: 200
+[22:57:06] INFO: 测试 84: 室外温度传感器 无效操作
+[22:57:06] PASS: ✓ 通过 - 状态码: 400
+[22:57:06] INFO:
+--- 测试 outdoor/室外湿度传感器 (humidity_sensor) ---
+[22:57:06] INFO: 测试 85: 室外湿度传感器 读取数据
+[22:57:07] PASS: ✓ 通过 - 状态码: 200
+[22:57:07] INFO: 测试 86: 室外湿度传感器 无效操作
+[22:57:07] PASS: ✓ 通过 - 状态码: 400
+[22:57:08] INFO:
+--- 测试无效请求 ---
+[22:57:08] INFO: 测试 87: 无效房间ID
+[22:57:08] PASS: ✓ 通过 - 状态码: 400
+[22:57:08] INFO: 测试 88: 无效设备ID
+[22:57:08] PASS: ✓ 通过 - 状态码: 400
+[22:57:09] INFO: 测试 89: 设备不在指定房间
+[22:57:09] PASS: ✓ 通过 - 状态码: 400
+[22:57:10] INFO:
+============================================================
+[22:57:10] INFO: 测试完成！
+[22:57:10] INFO: 总测试数: 89
+[22:57:10] INFO: 通过测试: 76
+[22:57:10] INFO: 失败测试: 13
+[22:57:10] INFO: 成功率: 85.4%
+[22:57:10] INFO:
+失败的测试:
+[22:57:10] INFO:   ✗ 空调 ON操作缺少温度参数
+[22:57:10] INFO:     状态码: 200
+[22:57:10] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'ON', 'correlation_id': '2ca525e9-ae9c-468c-b7d9-c816a4cd1a60'}}
+[22:57:10] INFO:   ✗ 空调 ON操作温度超出范围(-1度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:57:10] INFO:   ✗ 空调 ON操作温度超出范围(41度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:57:10] INFO:   ✗ 空调 SET_TEMP操作缺少温度参数
+[22:57:10] INFO:     状态码: 200
+[22:57:10] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'SET_TEMP', 'correlation_id': '4de16437-6188-4ca4-8041-5187c5020889', 'temperature': 0, 'unit': '°C'}}
+[22:57:10] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(-1度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:57:10] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(41度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:57:10] INFO:   ✗ 客厅湿度传感器 读取数据
+[22:57:10] INFO:     状态码: 504
+[22:57:10] INFO:     响应: {'detail': 'Device did not respond in time.'}
+[22:57:10] INFO:   ✗ 空调 ON操作缺少温度参数
+[22:57:10] INFO:     状态码: 200
+[22:57:10] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'ON', 'correlation_id': 'c91cadb1-623c-42f1-9cfc-e30f6642cdcf'}}
+[22:57:10] INFO:   ✗ 空调 ON操作温度超出范围(-1度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:57:10] INFO:   ✗ 空调 ON操作温度超出范围(41度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[22:57:10] INFO:   ✗ 空调 SET_TEMP操作缺少温度参数
+[22:57:10] INFO:     状态码: 200
+[22:57:10] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'SET_TEMP', 'correlation_id': 'a93f28d0-272c-4fda-a2f2-855a2faf2ca0', 'temperature': 0, 'unit': '°C'}}
+[22:57:10] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(-1度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:57:10] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(41度)
+[22:57:10] INFO:     状态码: 502
+[22:57:10] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[22:57:10] INFO: ============================================================
+
+
+
+
+
+
+
+
+
+============================================================
+[23:01:09] INFO: 测试完成！
+[23:01:09] INFO: 总测试数: 89
+[23:01:09] INFO: 通过测试: 77
+[23:01:09] INFO: 失败测试: 12
+[23:01:09] INFO: 成功率: 86.5%
+[23:01:09] INFO:
+失败的测试:
+[23:01:09] INFO:   ✗ 空调 ON操作缺少温度参数
+[23:01:09] INFO:     状态码: 200
+[23:01:09] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'ON', 'correlation_id': '8dc32c3e-68dc-4e68-8891-120efa779c38'}}
+[23:01:09] INFO:   ✗ 空调 ON操作温度超出范围(-1度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[23:01:09] INFO:   ✗ 空调 ON操作温度超出范围(41度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[23:01:09] INFO:   ✗ 空调 SET_TEMP操作缺少温度参数
+[23:01:09] INFO:     状态码: 200
+[23:01:09] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'SET_TEMP', 'correlation_id': 'dd40506c-e658-4128-ac66-00ec29a9a5da', 'temperature': 0, 'unit': '°C'}}
+[23:01:09] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(-1度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[23:01:09] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(41度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[23:01:09] INFO:   ✗ 空调 ON操作缺少温度参数
+[23:01:09] INFO:     状态码: 200
+[23:01:09] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'ON', 'correlation_id': '9dbb174e-1312-4f3a-af46-f2a9426c77e8'}}
+[23:01:09] INFO:   ✗ 空调 ON操作温度超出范围(-1度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[23:01:09] INFO:   ✗ 空调 ON操作温度超出范围(41度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: MISSING_OR_INVALID_VALUE - ON operation requires valid temperature value (0-40°C)'}
+[23:01:09] INFO:   ✗ 空调 SET_TEMP操作缺少温度参数
+[23:01:09] INFO:     状态码: 200
+[23:01:09] INFO:     响应: {'status': 'success', 'confirmed_result': {'state': 'SET_TEMP', 'correlation_id': 'dcb1e1b4-00b9-4a49-a849-5e28ddcfe5d1', 'temperature': 0, 'unit': '°C'}}
+[23:01:09] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(-1度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[23:01:09] INFO:   ✗ 空调 SET_TEMP操作温度超出范围(41度)
+[23:01:09] INFO:     状态码: 502
+[23:01:09] INFO:     响应: {'detail': 'Device error: INVALID_TEMPERATURE - Temperature value invalid. Valid range: 0-40°C'}
+[23:01:09] INFO: ============================================================
+[23:01:09] INFO: 测试结果已保存到: ./test_results.json

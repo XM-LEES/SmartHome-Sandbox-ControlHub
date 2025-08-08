@@ -175,7 +175,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/bedside_light/action \
 
 **错误响应示例**: 同ON操作
 
-#### 4.1.2 门窗设备 (door, window, curtain)
+#### 4.1.2 窗户设备 (window, curtain)
 
 **支持操作**: `ON`, `OFF`
 
@@ -183,7 +183,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/devices/bedroom/bedside_light/action \
 
 **请求示例**:
 ```bash
-curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/door/action \
+curl -X POST http://127.0.0.1:8000/api/v1/devices/livingroom/window/action \
   -H "Content-Type: application/json" \
   -d '{"action": "ON"}'
 ```

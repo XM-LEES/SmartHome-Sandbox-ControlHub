@@ -1,0 +1,1194 @@
+{
+  "summary": {
+    "total_tests": 89,
+    "passed_tests": 89,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  },
+  "details": [
+    {
+      "test": "客厅灯 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "2a93d928-26b8-4301-8732-15e05e9913f0"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅灯 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "5d005781-968a-40aa-90aa-7351139b455e"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅灯 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "客厅窗户 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "aabba285-a18f-4622-ba5e-7af8337ba550"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅窗户 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "a835c380-5528-4610-a293-5d5a0cfbf6e9"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅窗户 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "客厅门 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "dcf59002-be0a-4c87-8afe-e139470ad918"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅门 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "34e716c3-a4ad-4aa7-89a1-aa00c46ea850"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅门 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "客厅窗帘 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "abb6ffe0-2613-422b-96dd-18baf9491b8c"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅窗帘 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "eff0b67e-6ed6-405d-a8b8-aa2231ebed32"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅窗帘 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 开启并设置25度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "e04ecbfb-dbc0-4b2e-bc44-354a2bc263f4"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 设置温度23度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "SET_TEMP",
+            "correlation_id": "4c369dfb-1749-40fe-81c3-4cb7b7989ebe",
+            "temperature": 23,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 设置温度0度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "SET_TEMP",
+            "correlation_id": "8fc829d0-3ea7-4dcb-89e7-975090d3de82",
+            "temperature": 0,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 设置温度40度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "SET_TEMP",
+            "correlation_id": "ed8e33f3-9699-48d6-9631-62c9235b41a3",
+            "temperature": 40,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "583f6346-8f98-4e3b-a4eb-ae080a201dbd"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 ON操作缺少温度参数",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC ON operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 ON操作温度超出范围(-1度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC ON operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 ON操作温度超出范围(41度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC ON operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 SET_TEMP操作缺少温度参数",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC SET_TEMP operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 SET_TEMP操作温度超出范围(-1度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC SET_TEMP operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 SET_TEMP操作温度超出范围(41度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC SET_TEMP operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "客厅温度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 24.5,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅温度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "客厅湿度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 45.20000076,
+            "unit": "%"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "客厅湿度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "卧室灯 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "d7c2b761-5b87-46f6-80d5-378f0b9c5095"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室灯 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "841abc5f-0434-449a-8aae-8348fd0f7480"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室灯 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "床头灯 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "4d158f09-fd96-45e7-88a5-f1013675e223"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "床头灯 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "455070af-99aa-4cc1-9f88-5667a72b939f"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "床头灯 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "卧室窗户 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "c4b3086f-2728-428c-8003-2003b0b6aefa"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室窗户 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "ebd6fe92-2d5a-4ce6-9be5-7b8885349030"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室窗户 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "卧室门 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "ac800539-d00a-45c4-a775-ba531c1ed711"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室门 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "2cf41c0a-3f43-45e4-b80e-f92cf2b7cdd3"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室门 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "卧室窗帘 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "ac2d3f74-3986-467b-bb13-a033fcc463c6"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室窗帘 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "414151c8-497a-4ceb-a08e-1d94b8041fae"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室窗帘 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 开启并设置25度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "60ff7a42-2eef-4c5a-9ee6-33accb50ec37"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 设置温度23度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "SET_TEMP",
+            "correlation_id": "de362377-4ddf-4225-8bab-2fe39ce0feea",
+            "temperature": 23,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 设置温度0度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "SET_TEMP",
+            "correlation_id": "5d900895-c382-4f7f-a70e-da375dc5c264",
+            "temperature": 0,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 设置温度40度",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "SET_TEMP",
+            "correlation_id": "b4bcbc53-006f-4555-b8af-ce9bf32046ee",
+            "temperature": 40,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "b285e07e-3911-43fc-94c5-23850477b082"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "空调 ON操作缺少温度参数",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC ON operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 ON操作温度超出范围(-1度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC ON operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 ON操作温度超出范围(41度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC ON operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 SET_TEMP操作缺少温度参数",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC SET_TEMP operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 SET_TEMP操作温度超出范围(-1度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC SET_TEMP operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 SET_TEMP操作温度超出范围(41度)",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "AC SET_TEMP operation requires valid temperature value (0-40°C)."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "空调 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "卧室温度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 23.79999924,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室温度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "卧室湿度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 48.5,
+            "unit": "%"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "卧室湿度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "厨房灯 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "3536b724-abfa-4a66-83e4-2cac7daf5c6c"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "厨房灯 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "3921fe7b-dffd-4c69-94c6-3b52175e0c50"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "厨房灯 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "油烟机 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "12de57b8-4576-4cc3-8d1e-71dc394f10ba"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "油烟机 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "f7f4af7e-1f1f-4df5-ac31-f78cb63718c1"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "油烟机 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "厨房温度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 26.10000038,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "厨房温度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "厨房湿度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 52.29999924,
+            "unit": "%"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "厨房湿度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "浴室灯 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "70092495-4c09-46b0-b9fd-2a8c6e12bbd7"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "浴室灯 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "903bc173-0999-47cd-a678-f64be85617fd"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "浴室灯 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "排气扇 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "cbc36ae3-aabf-446e-a17d-cae0a491b63c"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "排气扇 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "708c7409-0bf6-4be6-88b5-30df63fb3b37"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "排气扇 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "浴室门 开启",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "ON",
+            "correlation_id": "a690f9d9-b3f7-40de-b2ca-e1d68a884635"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "浴室门 关闭",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "confirmed_result": {
+            "state": "OFF",
+            "correlation_id": "32428bd4-e229-41a6-9b91-38b29ec15dba"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "浴室门 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "浴室温度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 25.29999924,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "浴室温度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "浴室湿度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 65.80000305,
+            "unit": "%"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "浴室湿度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "室外温度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 20,
+            "unit": "°C"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "室外温度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "室外湿度传感器 读取数据",
+      "status": "PASS",
+      "details": {
+        "status_code": 200,
+        "data": {
+          "status": "success",
+          "sensor_data": {
+            "value": 60,
+            "unit": "%"
+          }
+        },
+        "success": true
+      }
+    },
+    {
+      "test": "室外湿度传感器 无效操作",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "无效房间ID",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "无效设备ID",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    },
+    {
+      "test": "设备不在指定房间",
+      "status": "PASS",
+      "details": {
+        "status_code": 400,
+        "data": {
+          "detail": "Invalid request: room, device, or action not recognized."
+        },
+        "success": false
+      }
+    }
+  ],
+  "timestamp": "2025-08-04 23:24:55"
+}

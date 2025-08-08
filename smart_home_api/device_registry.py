@@ -15,10 +15,10 @@ DEVICE_REGISTRY = {
             "type": "servo",
             "valid_actions": ["ON", "OFF"]
         },
-        "door": {
-            "type": "servo",
-            "valid_actions": ["ON", "OFF"]
-        },
+        # "door": {
+        #     "type": "servo",
+        #     "valid_actions": ["ON", "OFF"]
+        # },  # 客厅门设备已禁用
         "curtain": {
             "type": "motor",
             "valid_actions": ["ON", "OFF"]
@@ -49,10 +49,10 @@ DEVICE_REGISTRY = {
             "type": "servo",
             "valid_actions": ["ON", "OFF"]
         },
-        "door": {
-            "type": "servo",
-            "valid_actions": ["ON", "OFF"]
-        },
+        # "door": {
+        #     "type": "servo",
+        #     "valid_actions": ["ON", "OFF"]
+        # },  # 卧室门设备已禁用
         "curtain": {
             "type": "motor",
             "valid_actions": ["ON", "OFF"]
@@ -93,10 +93,10 @@ DEVICE_REGISTRY = {
             "type": "fan",
             "valid_actions": ["ON", "OFF"]
         },
-        "door": {
-            "type": "servo",
-            "valid_actions": ["ON", "OFF"]
-        },
+        # "door": {
+        #     "type": "servo",
+        #     "valid_actions": ["ON", "OFF"]
+        # },  # 浴室门设备已禁用
         "temp_sensor": {
             "type": "sensor",
             "valid_actions": ["READ"]
