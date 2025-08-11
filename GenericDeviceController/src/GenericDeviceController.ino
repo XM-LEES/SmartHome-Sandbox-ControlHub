@@ -386,7 +386,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (strcmp(device, "fan") == 0) {
         control_success = control_fan(room, is_on);
     } else if (strcmp(device, "bedside_light") == 0) {
-        control_success = control_light(room, is_on);
+        control_success = control_bedside_light(room, is_on);
     } else if (strcmp(device, "window") == 0) {
         control_success = control_window(room, is_on);
     // } else if (strcmp(device, "door") == 0) {

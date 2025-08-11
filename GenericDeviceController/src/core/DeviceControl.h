@@ -93,6 +93,27 @@ AirConditionerState* get_ac_state(const char* room_id) {
 }
 
 /**
+ * @brief 控制指定房间的灯的开关。
+ * @param room_id 灯所在的房间ID。
+ * @param is_on true为开，false为关。
+ * @return true表示成功，false表示失败
+ */
+ bool control_bedside_light(const char* room_id, bool is_on) {
+    int pin = find_pin(room_id, "bedside_light");
+    if (pin != -1) {
+        digitalWrite(pin, is_on ? HIGH : LOW);
+        Serial.print("[HAL] '"); Serial.print(room_id);
+        Serial.print("/light' (Pin "); Serial.print(pin);
+        Serial.print(") turned "); Serial.println(is_on ? "ON" : "OFF");
+        return true;
+    } else {
+        Serial.print("[HAL-ERROR] Device 'light' not found in room '");
+        Serial.print(room_id); Serial.println("' for this node's config!");
+        return false;
+    }
+}
+
+/**
  * @brief 专门处理空调温度设置。
  * @param room_id 空调所在的房间ID。
  * @param temperature 目标温度。

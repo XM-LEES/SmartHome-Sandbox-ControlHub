@@ -16,7 +16,7 @@ const int MQTT_PORT = 1883;
 const char* NODE_ID = "ESP32_Node_1";
 
 // 1. 定义这个节点控制的设备总数（仅物理设备）
-#define DEVICE_COUNT 11
+#define DEVICE_COUNT 9
 
 // 2. 定义设备结构体，包含room_id，用于支持多个房间
 struct Device {
@@ -33,27 +33,28 @@ struct Device {
 // 系统使用字符串比较来匹配设备，任何不一致都会导致控制失败
 Device devices[DEVICE_COUNT] = {
     // --- 客厅设备 ---
-    { "livingroom", "light", 22, false }, // 客厅灯
-    // { "livingroom", "ac",    21, false }, // 客厅空调
-    { "livingroom", "window", 19, false }, // 客厅窗户
+    { "livingroom", "light", 25, false }, // 客厅灯
+    { "livingroom", "ac",    23, false }, // 客厅空调
+    // { "livingroom", "window", 19, false }, // 客厅窗户
     // { "livingroom", "door", 17, false }, // 客厅门 - 已禁用
-    { "livingroom", "curtain", 16, false }, // 客厅窗帘
+    // { "livingroom", "curtain", 16, false }, // 客厅窗帘
 
     // --- 卧室设备 ---
-    { "bedroom", "light", 4, false }, // 卧室灯
-    { "bedroom", "bedside_light", 2, false }, // 卧室床头灯
-    // { "bedroom", "ac",    34, false }, // 卧室空调
-    { "bedroom", "window", 32, false }, // 卧室窗户
+    { "bedroom", "light", 13, false }, // 卧室灯
+    { "bedroom", "bedside_light", 27, false }, // 卧室床头灯
+    { "bedroom", "ac",    32, false }, // 卧室空调
+    // { "bedroom", "window", 32, false }, // 卧室窗户
     // { "bedroom", "door", 33, false }, // 卧室门 - 已禁用
-    { "bedroom", "curtain", 25, false }, // 卧室窗帘
+    // { "bedroom", "curtain", 25, false }, // 卧室窗帘
 
     // --- 厨房设备 ---
-    { "kitchen", "light", 26, false }, // 厨房灯
-    { "kitchen", "hood",  27, false },  // 厨房油烟机
+    { "kitchen", "light", 14, false }, // 厨房灯
+    // { "kitchen", "oven", 26, false },    // 烤箱
+    { "kitchen", "hood",  34, false },  // 厨房油烟机
     
     // --- 卫生间设备 ---
-    { "bathroom", "light", 14, false }, // 卫生间灯
-    { "bathroom", "fan",   13, false }, // 卫生间排气扇
+    { "bathroom", "light", 33, false }, // 卫生间灯
+    { "bathroom", "fan",   35, false }, // 卫生间排气扇
     // { "bathroom", "door", 12, false } // 卫生间门 - 已禁用
 };
 // ===============================================
