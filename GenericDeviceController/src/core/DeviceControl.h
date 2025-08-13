@@ -6,6 +6,70 @@
 
 #include <Arduino.h>
 
+// --- 伺服舵机配置参数 ---
+// 定义4个舵机的引脚和通道配置
+#define SERVO_FREQ_HZ     50            // 舵机标准PWM频率(50Hz)
+#define SERVO_RESOLUTION_BITS 10        // 10位分辨率 (0-1023)
+
+// 0.5ms (500us) 脉宽: duty = (500 / 1000000) * 50 * 1023 = 0.0005 * 50 * 1023 = 25.575 -> 26
+#define MIN_DUTY_VALUE    26   // 对应0度 (0.5ms脉宽 @50Hz, 10bit分辨率)
+// 2.5ms (2500us) 脉宽: duty = (2500 / 1000000) * 50 * 1023 = 0.0025 * 50 * 1023 = 127.875 -> 128
+#define MAX_DUTY_VALUE    128  // 对应180度 (2.5ms脉宽 @50Hz, 10bit分辨率)
+
+// 舵机设备结构体
+struct ServoDevice {
+    uint8_t pin;           // 舵机引脚
+    uint8_t channel;       // PWM通道
+    bool is_initialized;   // 是否已初始化
+    bool current_status;   // 当前状态 (true=开, false=关)
+    const char* room_id;   // 房间ID
+    const char* device_id; // 设备ID
+};
+
+// 舵机设备数组 - 最多支持4个舵机
+ServoDevice servo_devices[4];
+int servo_count = 0;  // 实际舵机数量
+
+// 获取舵机设备索引
+int get_servo_index(const char* room_id, const char* device_id) {
+    for (int i = 0; i < servo_count; i++) {
+        if (strcmp(servo_devices[i].room_id, room_id) == 0 && 
+            strcmp(servo_devices[i].device_id, device_id) == 0) {
+            return i;
+        }
+    }
+    return -1;  // 未找到舵机设备
+}
+
+//--- 伺服舵机函数 ---
+/**
+ * @brief 设置指定舵机的角度
+ * @param servo_index 舵机索引
+ * @param angle 角度 (0-180)
+ */
+void set_servo_angle(int servo_index, uint8_t angle) {
+    if (servo_index < 0 || servo_index >= servo_count) {
+        Serial.println("[HAL-ERROR] Invalid servo index");
+        return;
+    }
+    
+    if (!servo_devices[servo_index].is_initialized) {
+        Serial.println("[HAL-ERROR] Servo device not initialized");
+        return;
+    }
+    
+    // 限制角度范围
+    if (angle > 180) {
+      angle = 180;
+    }
+    
+    // 计算占空比 (线性映射角度到占空比范围)
+    uint32_t duty = map(angle, 0, 180, MIN_DUTY_VALUE, MAX_DUTY_VALUE);
+    
+    // 设置占空比
+    ledcWrite(servo_devices[servo_index].channel, duty);
+}
+
 // =================== 空调状态管理 ===================
 struct AirConditionerState {
     bool is_on;              // 空调是否开启
@@ -61,12 +125,47 @@ AirConditionerState* get_ac_state(const char* room_id) {
  */
  void setup_devices() {
     Serial.println("[HAL] Initializing all configured devices...");
+    
+    // 动态初始化舵机设备
     for (int i = 0; i < DEVICE_COUNT; i++) {
         if (!devices[i].is_virtual) {
-            // 只初始化非虚拟设备（有物理引脚的设备）
-            pinMode(devices[i].pin, OUTPUT);
-            digitalWrite(devices[i].pin, LOW);
+            // 检查是否为舵机设备
+            if (strcmp(devices[i].device_id, "window") == 0 || strcmp(devices[i].device_id, "curtain") == 0) {
+                if (servo_count < 4) {
+                    servo_devices[servo_count].pin = devices[i].pin;
+                    servo_devices[servo_count].channel = servo_count;  // 使用索引作为通道号
+                    servo_devices[servo_count].is_initialized = false; // 稍后初始化
+                    servo_devices[servo_count].current_status = false; // 初始状态为关闭
+                    servo_devices[servo_count].room_id = devices[i].room_id;
+                    servo_devices[servo_count].device_id = devices[i].device_id;
+                    servo_count++;
+                    Serial.print("[HAL] Servo device found: "); Serial.print(devices[i].room_id);
+                    Serial.print("/"); Serial.print(devices[i].device_id);
+                    Serial.print(" (Pin "); Serial.print(devices[i].pin);
+                    Serial.print(", Channel "); Serial.print(servo_count-1);
+                    Serial.println(")");
+                } else {
+                    Serial.print("[HAL-ERROR] Max servo count reached (4). Cannot initialize: ");
+                    Serial.print(devices[i].room_id); Serial.print("/"); Serial.println(devices[i].device_id);
+                }
+            } else {
+                // 非舵机设备，按普通GPIO处理
+                pinMode(devices[i].pin, OUTPUT);
+                digitalWrite(devices[i].pin, LOW);
+            }
         }
+    }
+    
+    // 初始化所有找到的舵机
+    for (int i = 0; i < servo_count; i++) {
+        ledcSetup(servo_devices[i].channel, SERVO_FREQ_HZ, SERVO_RESOLUTION_BITS);
+        ledcAttachPin(servo_devices[i].pin, servo_devices[i].channel);
+        servo_devices[i].is_initialized = true;
+        Serial.print("[HAL] Servo initialized: "); Serial.print(servo_devices[i].room_id);
+        Serial.print("/"); Serial.print(servo_devices[i].device_id);
+        Serial.print(" (Pin "); Serial.print(servo_devices[i].pin);
+        Serial.print(", Channel "); Serial.print(servo_devices[i].channel);
+        Serial.println(")");
     }
     Serial.println("[HAL] All physical devices initialized and turned OFF.");
 }
@@ -236,15 +335,44 @@ bool control_fan(const char* room_id, bool is_on) {
  * @return true表示成功，false表示失败
  */
 bool control_window(const char* room_id, bool is_on) {
-    int pin = find_pin(room_id, "window"); // 硬编码device_id为"window"
-    if (pin != -1) {
-        digitalWrite(pin, is_on ? HIGH : LOW);
+    int servo_index = get_servo_index(room_id, "window");
+    if (servo_index != -1) {
+        // 检查状态是否已经符合要求
+        if (is_on == servo_devices[servo_index].current_status) {
+            return true;
+        }
+        
+        if (is_on == true) {
+            // 开窗操作
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            
+            set_servo_angle(servo_index, 180);
+            delay(450);
+
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            servo_devices[servo_index].current_status = true;
+        }
+        else {
+            // 关窗操作
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            
+            set_servo_angle(servo_index, 0);
+            delay(450);
+
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            servo_devices[servo_index].current_status = false;
+        }
         Serial.print("[HAL] '"); Serial.print(room_id);
-        Serial.print("/window' (Pin "); Serial.print(pin);
+        Serial.print("/window' (Pin "); Serial.print(servo_devices[servo_index].pin);
+        Serial.print(", Channel "); Serial.print(servo_devices[servo_index].channel);
         Serial.print(") turned "); Serial.println(is_on ? "ON" : "OFF");
         return true;
     } else {
-        Serial.print("[HAL-ERROR] Device 'window' not found in room '");
+        Serial.print("[HAL-ERROR] Window device not found or not valid in room '");
         Serial.print(room_id); Serial.println("' for this node's config!");
         return false;
     }
@@ -281,15 +409,44 @@ bool control_window(const char* room_id, bool is_on) {
  * @return true表示成功，false表示失败
  */
 bool control_curtain(const char* room_id, bool is_on) {
-    int pin = find_pin(room_id, "curtain"); // 硬编码device_id为"curtain"
-    if (pin != -1) {
-        digitalWrite(pin, is_on ? HIGH : LOW);
+    int servo_index = get_servo_index(room_id, "curtain");
+    if (servo_index != -1) {
+        // 检查状态是否已经符合要求
+        if (is_on == servo_devices[servo_index].current_status) {
+            return true;
+        }
+        
+        if (is_on == true) {
+            // 开窗帘操作
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            
+            set_servo_angle(servo_index, 180);
+            delay(750);
+
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            servo_devices[servo_index].current_status = true;
+        }
+        else {
+            // 关窗帘操作
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            
+            set_servo_angle(servo_index, 0);
+            delay(750);
+
+            set_servo_angle(servo_index, 90);
+            delay(2000);
+            servo_devices[servo_index].current_status = false;
+        }
         Serial.print("[HAL] '"); Serial.print(room_id);
-        Serial.print("/curtain' (Pin "); Serial.print(pin);
+        Serial.print("/curtain' (Pin "); Serial.print(servo_devices[servo_index].pin);
+        Serial.print(", Channel "); Serial.print(servo_devices[servo_index].channel);
         Serial.print(") turned "); Serial.println(is_on ? "ON" : "OFF");
         return true;
     } else {
-        Serial.print("[HAL-ERROR] Device 'curtain' not found in room '");
+        Serial.print("[HAL-ERROR] Curtain device not found or not valid in room '");
         Serial.print(room_id); Serial.println("' for this node's config!");
         return false;
     }
