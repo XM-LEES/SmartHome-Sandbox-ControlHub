@@ -10,7 +10,7 @@ import requests
 import json
 import time
 
-API_BASE_URL = "http://192.168.123.62:8000"
+API_BASE_URL = "http://192.168.31.100:8000"
 
 def test_api(room_id, device_id, action, value=None, description=""):
     """测试API调用"""
@@ -23,7 +23,7 @@ def test_api(room_id, device_id, action, value=None, description=""):
     print(f"请求: {room_id}/{device_id} - {action}" + (f" (value={value})" if value is not None else ""))
     
     try:
-        response = requests.post(url, json=payload, timeout=5)
+        response = requests.post(url, json=payload, timeout=8)
         print(f"状态码: {response.status_code}")
         print(f"响应: {response.json()}")
         print("✓ 成功" if response.status_code == 200 else "✗ 失败")

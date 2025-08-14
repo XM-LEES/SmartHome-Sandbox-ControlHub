@@ -3,7 +3,7 @@
 """
 智能家居API完整测试脚本
 
-测试所有房间的所有设备的所有功能，包括正常调用和错误情况
+测试所有房间的所有设备的所有功能
 """
 
 import requests
@@ -13,11 +13,11 @@ import sys
 from typing import Dict, List, Any
 
 # API配置
-API_BASE_URL = "http://192.168.123.62:8000"
+API_BASE_URL = "http://192.168.31.100:8000"
 API_ENDPOINT = "/api/v1/devices/{room_id}/{device_id}/action"
 
 # 测试配置
-REQUEST_TIMEOUT = 5  # 请求超时时间
+REQUEST_TIMEOUT = 8  # 请求超时时间
 TEST_DELAY = 0.5    # 测试间隔时间
 
 class APITester:
@@ -169,15 +169,44 @@ class APITester:
         self.log(f"API地址: {API_BASE_URL}")
         self.log("=" * 60)
         
-        # 测试所有房间的设备
-        self.test_livingroom()
-        self.test_bedroom()
-        self.test_kitchen()
-        self.test_bathroom()
-        self.test_outdoor()
+        # 定义测试选项
+        test_options = [
+            ("客厅设备测试", self.test_livingroom),
+            ("卧室设备测试", self.test_bedroom),
+            ("厨房设备测试", self.test_kitchen),
+            ("浴室设备测试", self.test_bathroom),
+            ("室外设备测试", self.test_outdoor),
+        ]
         
-        # 测试无效请求
-        # self.test_invalid_requests()
+        print("\n可用的测试选项:")
+        for i, (name, _) in enumerate(test_options, 1):
+            print(f"{i}. {name}")
+        print("0. 运行所有测试")
+        print("q. 退出测试")
+        
+        while True:
+            choice = input("\n请选择要运行的测试 (输入数字或 'q' 退出): ").strip()
+            
+            if choice.lower() == 'q':
+                print("测试已取消")
+                return
+            elif choice == '0':
+                print("开始运行所有测试...")
+                for name, test_func in test_options:
+                    print(f"\n正在运行: {name}")
+                    test_func()
+                break
+            elif choice.isdigit():
+                idx = int(choice) - 1
+                if 0 <= idx < len(test_options):
+                    name, test_func = test_options[idx]
+                    print(f"开始运行: {name}")
+                    test_func()
+                    break
+                else:
+                    print("无效的选择，请重新输入")
+            else:
+                print("无效的输入，请重新输入")
         
         # 输出测试结果
         self.print_summary()
