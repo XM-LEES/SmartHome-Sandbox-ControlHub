@@ -347,8 +347,16 @@ bool control_window(const char* room_id, bool is_on) {
             set_servo_angle(servo_index, 90);
             delay(2000);
             
-            set_servo_angle(servo_index, 180);
-            delay(450);
+            // 根据房间调整角度和延迟时间
+            if (strcmp(room_id, "livingroom") == 0) {
+                // 客厅窗户：开窗180度，延迟450ms
+                set_servo_angle(servo_index, 130);
+                delay(750);
+            } else if (strcmp(room_id, "bedroom") == 0) {
+                // 卧室窗户：开窗0度，延迟500ms（可能需要更长时间）
+                set_servo_angle(servo_index, 50);
+                delay(750);
+            }
 
             set_servo_angle(servo_index, 90);
             delay(2000);
@@ -359,8 +367,16 @@ bool control_window(const char* room_id, bool is_on) {
             set_servo_angle(servo_index, 90);
             delay(2000);
             
-            set_servo_angle(servo_index, 0);
-            delay(450);
+            // 根据房间调整角度和延迟时间
+            if (strcmp(room_id, "livingroom") == 0) {
+                // 客厅窗户：关窗0度，延迟450ms
+                set_servo_angle(servo_index, 50);
+                delay(700);
+            } else if (strcmp(room_id, "bedroom") == 0) {
+                // 卧室窗户：关窗180度，延迟500ms（可能需要更长时间）
+                set_servo_angle(servo_index, 130);
+                delay(750);
+            }
 
             set_servo_angle(servo_index, 90);
             delay(2000);
@@ -421,9 +437,16 @@ bool control_curtain(const char* room_id, bool is_on) {
             set_servo_angle(servo_index, 90);
             delay(2000);
             
-            set_servo_angle(servo_index, 180);
-            delay(750);
-
+            // 根据房间调整角度和延迟时间
+            if (strcmp(room_id, "livingroom") == 0) {
+                // 客厅窗帘：开窗帘130度，延迟750ms
+                set_servo_angle(servo_index, 130);
+                delay(1760);
+            } else if (strcmp(room_id, "bedroom") == 0) {
+                // 卧室窗帘：开窗帘50度，延迟800ms（可能需要更长时间）
+                set_servo_angle(servo_index, 50);
+                delay(1760);
+            }
             set_servo_angle(servo_index, 90);
             delay(2000);
             servo_devices[servo_index].current_status = true;
@@ -433,9 +456,16 @@ bool control_curtain(const char* room_id, bool is_on) {
             set_servo_angle(servo_index, 90);
             delay(2000);
             
-            set_servo_angle(servo_index, 0);
-            delay(750);
-
+            // 根据房间调整角度和延迟时间
+            if (strcmp(room_id, "livingroom") == 0) {
+                // 客厅窗帘：关窗帘30度，延迟750ms
+                set_servo_angle(servo_index, 50);
+                delay(1720);
+            } else if (strcmp(room_id, "bedroom") == 0) {
+                // 卧室窗帘：关窗帘150度，延迟800ms（可能需要更长时间）
+                set_servo_angle(servo_index, 130);
+                delay(1740);
+            }
             set_servo_angle(servo_index, 90);
             delay(2000);
             servo_devices[servo_index].current_status = false;
