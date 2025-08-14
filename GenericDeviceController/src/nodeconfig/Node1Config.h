@@ -6,11 +6,11 @@
 // =================== Node1特定配置 ===================
 // =================== WiFi配置 ===================
 // 替换为实际的WiFi SSID和密码
-const char* WIFI_SSID = "IOT-Router";
-const char* WIFI_PASSWORD = "1234567890";
+const char* WIFI_SSID = "FDWGRJW";
+const char* WIFI_PASSWORD = "fdwg2024";
 // =================== MQTT配置 ===================
 // 替换为实际的MQTT Broker地址（树莓派IP地址）
-const char* MQTT_SERVER = "192.168.3.100";
+const char* MQTT_SERVER = "192.168.31.100";
 const int MQTT_PORT = 1883;
 // 这个物理节点（ESP32）的唯一标识符，用于MQTT Client ID
 const char* NODE_ID = "ESP32_Node_1";
